@@ -1,0 +1,406 @@
+{
+  "_clipboard-f64d1f4d.js": {
+    "file": "assets/clipboard-f64d1f4d.js"
+  },
+  "_fetch-8dc6e183.js": {
+    "file": "assets/fetch-8dc6e183.js"
+  },
+  "_pusher-32a7bc32.js": {
+    "file": "assets/pusher-32a7bc32.js",
+    "isDynamicEntry": true
+  },
+  "app/Extensions/Chatbot/resources/assets/scss/external-chatbot.scss": {
+    "file": "assets/external-chatbot-139a2d2e.css",
+    "isEntry": true,
+    "src": "app/Extensions/Chatbot/resources/assets/scss/external-chatbot.scss"
+  },
+  "node_modules/laravel-echo/dist/echo.js": {
+    "file": "assets/echo-4c3fda6b.js",
+    "isDynamicEntry": true,
+    "src": "node_modules/laravel-echo/dist/echo.js"
+  },
+  "public/themes/bolt/assets/bg/chat-bg-dark.png": {
+    "file": "assets/chat-bg-dark-0796cefc.png",
+    "src": "public/themes/bolt/assets/bg/chat-bg-dark.png"
+  },
+  "public/themes/bolt/assets/bg/chat-bg.png": {
+    "file": "assets/chat-bg-68d642da.png",
+    "src": "public/themes/bolt/assets/bg/chat-bg.png"
+  },
+  "public/themes/bolt/assets/bg/titlebar-bg-dark.jpg": {
+    "file": "assets/titlebar-bg-dark-d155c3a3.jpg",
+    "src": "public/themes/bolt/assets/bg/titlebar-bg-dark.jpg"
+  },
+  "public/themes/bolt/assets/bg/titlebar-bg.jpg": {
+    "file": "assets/titlebar-bg-1ec74d85.jpg",
+    "src": "public/themes/bolt/assets/bg/titlebar-bg.jpg"
+  },
+  "public/themes/default/assets/img/bg/blob-1.png": {
+    "file": "assets/blob-1-46b7ff72.png",
+    "src": "public/themes/default/assets/img/bg/blob-1.png"
+  },
+  "public/themes/magic-works/assets/img/bg.png": {
+    "file": "assets/bg-7c484055.png",
+    "src": "public/themes/magic-works/assets/img/bg.png"
+  },
+  "public/themes/modern/assets/fonts/GeistVF.woff2": {
+    "file": "assets/GeistVF-28258d06.woff2",
+    "src": "public/themes/modern/assets/fonts/GeistVF.woff2"
+  },
+  "public/themes/neura/assets/img/bg/bg-2.jpeg": {
+    "file": "assets/bg-2-59f936fa.jpeg",
+    "src": "public/themes/neura/assets/img/bg/bg-2.jpeg"
+  },
+  "public/themes/neura/assets/img/bg/bg.svg": {
+    "file": "assets/bg-afefa1f8.svg",
+    "src": "public/themes/neura/assets/img/bg/bg.svg"
+  },
+  "public/themes/sleek/assets/img/bg/bg.png": {
+    "file": "assets/bg-45d19523.png",
+    "src": "public/themes/sleek/assets/img/bg/bg.png"
+  },
+  "resources/views/bolt/js/app.js": {
+    "file": "assets/app-97a6e657.js",
+    "imports": [
+      "resources/views/default/js/app.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/bolt/js/app.js"
+  },
+  "resources/views/bolt/js/chatbotApp.js": {
+    "file": "assets/chatbotApp-cd6a1867.js",
+    "imports": [
+      "resources/views/default/js/chatbotApp.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/bolt/js/chatbotApp.js"
+  },
+  "resources/views/bolt/scss/dashboard.scss": {
+    "file": "assets/dashboard-5d44d78b.css",
+    "isEntry": true,
+    "src": "resources/views/bolt/scss/dashboard.scss"
+  },
+  "resources/views/bolt/scss/landing-page.scss": {
+    "file": "assets/landing-page-1833f2c1.css",
+    "isEntry": true,
+    "src": "resources/views/spawnd/scss/landing-page.scss"
+  },
+  "resources/views/classic/js/app.js": {
+    "file": "assets/app-80f4663a.js",
+    "imports": [
+      "resources/views/default/js/app.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/classic/js/app.js"
+  },
+  "resources/views/classic/js/chatbotApp.js": {
+    "file": "assets/chatbotApp-146a400e.js",
+    "imports": [
+      "resources/views/default/js/chatbotApp.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/classic/js/chatbotApp.js"
+  },
+  "resources/views/classic/scss/dashboard.scss": {
+    "file": "assets/dashboard-d032ebef.css",
+    "isEntry": true,
+    "src": "resources/views/classic/scss/dashboard.scss"
+  },
+  "resources/views/classic/scss/landing-page.scss": {
+    "file": "assets/landing-page-1833f2c1.css",
+    "isEntry": true,
+    "src": "resources/views/spawnd/scss/landing-page.scss"
+  },
+  "resources/views/creative/js/app.js": {
+    "file": "assets/app-41d13e1a.js",
+    "imports": [
+      "resources/views/default/js/app.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/creative/js/app.js"
+  },
+  "resources/views/creative/js/chatbotApp.js": {
+    "file": "assets/chatbotApp-0a598508.js",
+    "imports": [
+      "resources/views/default/js/chatbotApp.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/creative/js/chatbotApp.js"
+  },
+  "resources/views/creative/scss/dashboard.scss": {
+    "file": "assets/dashboard-673bf418.css",
+    "isEntry": true,
+    "src": "resources/views/modern/scss/dashboard.scss"
+  },
+  "resources/views/creative/scss/landing-page.scss": {
+    "file": "assets/landing-page-7ca891b2.css",
+    "isEntry": true,
+    "src": "resources/views/creative/scss/landing-page.scss"
+  },
+  "resources/views/dark/js/app.js": {
+    "file": "assets/app-312e703f.js",
+    "imports": [
+      "resources/views/default/js/app.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/dark/js/app.js"
+  },
+  "resources/views/dark/js/chatbotApp.js": {
+    "file": "assets/chatbotApp-4364fc01.js",
+    "imports": [
+      "resources/views/default/js/chatbotApp.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/dark/js/chatbotApp.js"
+  },
+  "resources/views/dark/scss/dashboard.scss": {
+    "file": "assets/dashboard-673bf418.css",
+    "isEntry": true,
+    "src": "resources/views/modern/scss/dashboard.scss"
+  },
+  "resources/views/dark/scss/landing-page.scss": {
+    "file": "assets/landing-page-3c3056c7.css",
+    "isEntry": true,
+    "src": "resources/views/dark/scss/landing-page.scss"
+  },
+  "resources/views/default/js/app.js": {
+    "dynamicImports": [
+      "node_modules/laravel-echo/dist/echo.js",
+      "_pusher-32a7bc32.js"
+    ],
+    "file": "assets/app-ba20af35.js",
+    "imports": [
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/default/js/app.js"
+  },
+  "resources/views/default/js/chatbotApp.css": {
+    "file": "assets/chatbotApp-f0e1115f.css",
+    "src": "resources/views/default/js/chatbotApp.css"
+  },
+  "resources/views/default/js/chatbotApp.js": {
+    "css": [
+      "assets/chatbotApp-f0e1115f.css"
+    ],
+    "file": "assets/chatbotApp-1361396c.js",
+    "imports": [
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/default/js/chatbotApp.js"
+  },
+  "resources/views/default/scss/dashboard.scss": {
+    "file": "assets/dashboard-673bf418.css",
+    "isEntry": true,
+    "src": "resources/views/modern/scss/dashboard.scss"
+  },
+  "resources/views/default/scss/landing-page.scss": {
+    "file": "assets/landing-page-1833f2c1.css",
+    "isEntry": true,
+    "src": "resources/views/spawnd/scss/landing-page.scss"
+  },
+  "resources/views/magic-works/js/app.js": {
+    "file": "assets/app-0a7a0775.js",
+    "imports": [
+      "resources/views/default/js/app.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/magic-works/js/app.js"
+  },
+  "resources/views/magic-works/js/chatbotApp.js": {
+    "file": "assets/chatbotApp-755ffa32.js",
+    "imports": [
+      "resources/views/default/js/chatbotApp.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/magic-works/js/chatbotApp.js"
+  },
+  "resources/views/magic-works/scss/dashboard.scss": {
+    "file": "assets/dashboard-846a3c93.css",
+    "isEntry": true,
+    "src": "resources/views/magic-works/scss/dashboard.scss"
+  },
+  "resources/views/magic-works/scss/landing-page.scss": {
+    "file": "assets/landing-page-f1515cf1.css",
+    "isEntry": true,
+    "src": "resources/views/magic-works/scss/landing-page.scss"
+  },
+  "resources/views/modern/js/app.js": {
+    "file": "assets/app-8c0d3e27.js",
+    "imports": [
+      "resources/views/default/js/app.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/modern/js/app.js"
+  },
+  "resources/views/modern/js/chatbotApp.css": {
+    "file": "assets/chatbotApp-f0e1115f.css",
+    "src": "resources/views/default/js/chatbotApp.css"
+  },
+  "resources/views/modern/js/chatbotApp.js": {
+    "css": [
+      "assets/chatbotApp-f0e1115f.css"
+    ],
+    "file": "assets/chatbotApp-67890a87.js",
+    "imports": [
+      "_fetch-8dc6e183.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/modern/js/chatbotApp.js"
+  },
+  "resources/views/modern/scss/dashboard.scss": {
+    "file": "assets/dashboard-673bf418.css",
+    "isEntry": true,
+    "src": "resources/views/modern/scss/dashboard.scss"
+  },
+  "resources/views/modern/scss/landing-page.scss": {
+    "file": "assets/landing-page-31a3cb31.css",
+    "isEntry": true,
+    "src": "resources/views/modern/scss/landing-page.scss"
+  },
+  "resources/views/myai-tools/js/app.js": {
+    "file": "assets/app-49fc38f0.js",
+    "imports": [
+      "resources/views/default/js/app.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/myai-tools/js/app.js"
+  },
+  "resources/views/myai-tools/js/chatbotApp.js": {
+    "file": "assets/chatbotApp-c09ca6b5.js",
+    "imports": [
+      "resources/views/default/js/chatbotApp.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/myai-tools/js/chatbotApp.js"
+  },
+  "resources/views/myai-tools/scss/dashboard.scss": {
+    "file": "assets/dashboard-9844c6f6.css",
+    "isEntry": true,
+    "src": "resources/views/myai-tools/scss/dashboard.scss"
+  },
+  "resources/views/myai-tools/scss/landing-page.scss": {
+    "file": "assets/landing-page-7f150e42.css",
+    "isEntry": true,
+    "src": "resources/views/myai-tools/scss/landing-page.scss"
+  },
+  "resources/views/neura/js/app.js": {
+    "file": "assets/app-40140361.js",
+    "imports": [
+      "resources/views/default/js/app.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/neura/js/app.js"
+  },
+  "resources/views/neura/js/chatbotApp.js": {
+    "file": "assets/chatbotApp-88803886.js",
+    "imports": [
+      "resources/views/default/js/chatbotApp.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/neura/js/chatbotApp.js"
+  },
+  "resources/views/neura/scss/dashboard.scss": {
+    "file": "assets/dashboard-6cfb247e.css",
+    "isEntry": true,
+    "src": "resources/views/neura/scss/dashboard.scss"
+  },
+  "resources/views/neura/scss/landing-page.scss": {
+    "file": "assets/landing-page-1833f2c1.css",
+    "isEntry": true,
+    "src": "resources/views/spawnd/scss/landing-page.scss"
+  },
+  "resources/views/sleek/js/app.js": {
+    "file": "assets/app-bc7dfe15.js",
+    "imports": [
+      "resources/views/default/js/app.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/sleek/js/app.js"
+  },
+  "resources/views/sleek/js/chatbotApp.js": {
+    "file": "assets/chatbotApp-5d8460cf.js",
+    "imports": [
+      "resources/views/default/js/chatbotApp.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/sleek/js/chatbotApp.js"
+  },
+  "resources/views/sleek/scss/dashboard.scss": {
+    "file": "assets/dashboard-15f96915.css",
+    "isEntry": true,
+    "src": "resources/views/sleek/scss/dashboard.scss"
+  },
+  "resources/views/sleek/scss/landing-page.scss": {
+    "file": "assets/landing-page-1833f2c1.css",
+    "isEntry": true,
+    "src": "resources/views/spawnd/scss/landing-page.scss"
+  },
+  "resources/views/spawnd/js/app.js": {
+    "file": "assets/app-7bf37a9f.js",
+    "imports": [
+      "resources/views/default/js/app.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/spawnd/js/app.js"
+  },
+  "resources/views/spawnd/js/chatbotApp.js": {
+    "file": "assets/chatbotApp-7b06eada.js",
+    "imports": [
+      "resources/views/default/js/chatbotApp.js",
+      "_fetch-8dc6e183.js",
+      "_clipboard-f64d1f4d.js"
+    ],
+    "isEntry": true,
+    "src": "resources/views/spawnd/js/chatbotApp.js"
+  },
+  "resources/views/spawnd/scss/dashboard.scss": {
+    "file": "assets/dashboard-e4bd0756.css",
+    "isEntry": true,
+    "src": "resources/views/spawnd/scss/dashboard.scss"
+  },
+  "resources/views/spawnd/scss/landing-page.scss": {
+    "file": "assets/landing-page-1833f2c1.css",
+    "isEntry": true,
+    "src": "resources/views/spawnd/scss/landing-page.scss"
+  }
+}
