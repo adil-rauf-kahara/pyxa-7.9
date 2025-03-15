@@ -493,15 +493,35 @@ class AIChatController extends Controller
             }
         }
 
+        // if ($type === 'pdf') {
+        //     $parser = new \Smalot\PdfParser\Parser;
+        //     $text = $parser->parseFile('uploads/temp.pdf')->getText();
+        //     if (! mb_check_encoding($text, 'UTF-8')) {
+        //         $page = mb_convert_encoding($text, 'UTF-8', mb_detect_encoding($text));
+        //     } else {
+        //         $page = $text;
+        // }
+        
         if ($type === 'pdf') {
             $parser = new \Smalot\PdfParser\Parser;
             $text = $parser->parseFile('uploads/temp.pdf')->getText();
-            if (! mb_check_encoding($text, 'UTF-8')) {
-                $page = mb_convert_encoding($text, 'UTF-8', mb_detect_encoding($text));
+        
+            // Detect encoding with a fallback option
+            $detectedEncoding = mb_detect_encoding($text, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
+        
+            if ($detectedEncoding === false) {
+                // Fallback to a default encoding if detection fails
+                $detectedEncoding = 'ISO-8859-1';
+            }
+        
+            // Convert to UTF-8 only if needed
+            if (!mb_check_encoding($text, 'UTF-8')) {
+                $page = mb_convert_encoding($text, 'UTF-8', $detectedEncoding);
             } else {
                 $page = $text;
             }
-        } elseif ($type === 'docx') {
+        }
+         elseif ($type === 'docx') {
             $filePath = public_path('uploads/temp.' . $type);
             $page = $this->docxToText($filePath);
         } elseif ($type === 'doc') {

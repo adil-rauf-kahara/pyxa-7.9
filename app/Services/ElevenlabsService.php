@@ -18,24 +18,23 @@ class ElevenlabsService
     }
 
     public function getVoices(): array|Collection
-    {
-        $response = Http::withHeaders([
-            'xi-api-key' => $this->apiKey,
-        ])->timeout(30)
-            ->get(self::URL);
+{
+    $response = Http::withHeaders([
+        'xi-api-key' => $this->apiKey,
+    ])->timeout(30)
+        ->get(self::URL);
 
-        if ($response->failed()) {
-            return [];
-        }
-
-        $data = $response->json();
-
-        return collect($data['voices'])->map(function ($voice) {
-            return [
-                'voice_id'    => $voice['voice_id'],
-                'name'        => $voice['name'],
-                'preview_url' => $voice['preview_url'],
-            ];
-        });
+    if ($response->failed()) {
+        return [];
     }
+
+    $data = $response->json();
+
+    // Filter out voices where 'samples' is null and return the rest as they are
+    return collect($data['voices'])
+        ->filter(fn($voice) => is_null($voice['samples']))
+        ->values(); // Reset array keys after filtering
+}
+
+
 }

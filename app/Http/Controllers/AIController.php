@@ -96,6 +96,8 @@ class AIController extends Controller
         $number_of_results = $request->number_of_results ?? 1;
         $maximum_length = $request->maximum_length ?? $this->settings->openai_max_input_length;
         $creativity = $request->creativity ?? $this->settings->openai_default_creativity;
+        
+        // dd($creativity);
 
         $language = $request->language;
 
@@ -130,6 +132,7 @@ class AIController extends Controller
 
         // POST TITLE GENERATOR
         if ($post_type === 'post_title_generator') {
+            // dd("Here");
             $your_description = $request->your_description;
             $prompt = "Post title about $your_description in language $language .Generate $number_of_results post titles. Tone $tone_of_voice.";
         }
@@ -546,6 +549,8 @@ class AIController extends Controller
         $image_storage = $this->settings_two->ai_image_storage;
         $driver = Entity::driver();
         $driver->redirectIfNoCreditBalance();
+        
+        // dd($driver->enum()->value, $prompt);
 
         return response()->stream(function () use ($image_storage, $driver, $openAiMessage, $prompt, $creativity, $maximum_length, $number_of_results, $youtube_url, $rss_image) {
             try {

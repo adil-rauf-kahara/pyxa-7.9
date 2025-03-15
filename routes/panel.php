@@ -57,6 +57,7 @@ use App\Http\Controllers\Settings\SearchapiSettingController;
 use App\Http\Controllers\Team\TeamController;
 use App\Http\Controllers\Themes\ThemeController;
 use App\Http\Controllers\TTSController;
+use App\Http\Controllers\PlagiarismController;
 use App\Http\Controllers\Voice\ElevenlabVoiceController;
 use App\Http\Middleware\CheckTemplateTypeAndPlan;
 use App\Services\DeFi\DeFi;
@@ -173,6 +174,11 @@ Route::group([
                     // Openai generator
                     Route::prefix('openai')->name('openai.')
                         ->group(function () {
+                             Route::get('/detectaicontent', [PlagiarismController::class, 'detectAIContent'])->name('detectaicontent.index');
+                             Route::post('/aicontentcheck', [PlagiarismController::class, 'detectAIContentCheck'])->name('detectaicontent.check');
+                             Route::post('/aicontentsave', [PlagiarismController::class, 'detectAIContentSave'])->name('detectaicontent.save');
+                             Route::get('/plagiarism', [PlagiarismController::class, 'plagiarism'])->name('plagiarism.index');
+                             Route::post('/plagiarismcheck', [PlagiarismController::class, 'plagiarismCheck'])->name('plagiarism.check');
                             Route::get('/', [UserController::class, 'openAIList'])->name('list')->middleware(CheckTemplateTypeAndPlan::class);
                             Route::get('/favorite-openai', [UserController::class, 'openAIFavoritesList'])->name('list.favorites');
                             Route::post('/favorite', [UserController::class, 'openAIFavorite']);
@@ -245,8 +251,8 @@ Route::group([
                             });
 
                             Route::prefix('chat')->name('chat.')->group(function () {
-                                Route::get('/ai-chat-list', [AIChatController::class, 'openAIChatList'])->name('list')->middleware(CheckTemplateTypeAndPlan::class);
-                                Route::get('/ai-chat/{slug?}', [AIChatController::class, 'openAIChat'])->name('chat')->middleware(CheckTemplateTypeAndPlan::class);
+                                Route::get('/ai-chat-list', [AIChatController::class, 'openAIChatList'])->name('list');
+                                Route::get('/ai-chat/{slug?}', [AIChatController::class, 'openAIChat'])->name('chat');
                                 Route::match(['get', 'post'], '/chat-send', [AIChatController::class, 'chatOutput']);
                                 Route::match(['get', 'post'], '/chatbot-send', [AIChatController::class, 'chatbotOutput']);
                                 Route::post('/open-chat-area-container', [AIChatController::class, 'openChatAreaContainer']);
@@ -373,6 +379,9 @@ Route::group([
                         Route::post('plans-credits', 'transferPlansEntityCredits')->name('plans.credits');
                         Route::post('plans-credits-engine', 'transferPlansEntityCreditsOfEngines')->name('plans.credits.engine');
                     });
+                    
+                    
+                    
 
                     Route::group([
                         'as'         => 'chatbot.',
@@ -784,7 +793,7 @@ Route::group([
 
             // Support Area
             Route::prefix('support')->name('support.')->group(function () {
-                Route::get('/my-requests', [SupportController::class, 'list'])->name('list')->middleware(CheckTemplateTypeAndPlan::class);
+                Route::get('/my-requests', [SupportController::class, 'list'])->name('list');
                 Route::get('/new-support-request', [SupportController::class, 'newTicket'])->name('new');
                 Route::post('/new-support-request/send', [SupportController::class, 'newTicketSend']);
 

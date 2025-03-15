@@ -1,38 +1,82 @@
+// function sendSupportForm() {
+// 	'use strict';
+
+// 	const submitBtn = document.getElementById( 'support_button' );
+// 	submitBtn.disabled = true;
+// 	submitBtn.classList.add( 'submitting' );
+
+// 	var formData = new FormData();
+// 	formData.append( 'category', $( '#category' ).val() );
+// 	formData.append( 'priority', $( '#priority' ).val() );
+// 	formData.append( 'subject', $( '#subject' ).val() );
+// 	formData.append( 'message', $( '#message' ).val() );
+
+// 	$.ajax( {
+// 		type: 'post',
+// 		url: '/dashboard/support/new-support-request/send',
+// 		data: formData,
+// 		contentType: false,
+// 		processData: false,
+// 		success: function ( data ) {
+// 			toastr.success(magicai_localize?.support_ticket_created ||'Support Ticket Created Succesfully. Redirecting...');
+// 			setTimeout( function () {
+// 				location.href = '/dashboard/support/my-requests';
+// 			}, 1500 );
+// 		},
+// 		error: function ( data ) {
+// 			var err = data.responseJSON.errors;
+// 			$.each( err, function ( index, value ) {
+// 				toastr.error( value );
+// 			} );
+// 			submitBtn.disabled = false;
+// 			submitBtn.classList.remove( 'submitting' );
+// 		}
+// 	} );
+// 	return false;
+// }
+
 function sendSupportForm() {
-	'use strict';
+    'use strict';
 
-	const submitBtn = document.getElementById( 'support_button' );
-	submitBtn.disabled = true;
-	submitBtn.classList.add( 'submitting' );
+    const submitBtn = document.getElementById('support_button');
+    submitBtn.disabled = true;
+    submitBtn.classList.add('submitting');
 
-	var formData = new FormData();
-	formData.append( 'category', $( '#category' ).val() );
-	formData.append( 'priority', $( '#priority' ).val() );
-	formData.append( 'subject', $( '#subject' ).val() );
-	formData.append( 'message', $( '#message' ).val() );
+    var formData = new FormData();
+    formData.append('category', $('#category').val());
+    formData.append('priority', $('#priority').val());
+    formData.append('subject', $('#subject').val());
+    formData.append('message', $('#message').val());
 
-	$.ajax( {
-		type: 'post',
-		url: '/dashboard/support/new-support-request/send',
-		data: formData,
-		contentType: false,
-		processData: false,
-		success: function ( data ) {
-			toastr.success(magicai_localize?.support_ticket_created ||'Support Ticket Created Succesfully. Redirecting...');
-			setTimeout( function () {
-				location.href = '/dashboard/support/my-requests';
-			}, 1500 );
-		},
-		error: function ( data ) {
-			var err = data.responseJSON.errors;
-			$.each( err, function ( index, value ) {
-				toastr.error( value );
-			} );
-			submitBtn.disabled = false;
-			submitBtn.classList.remove( 'submitting' );
-		}
-	} );
-	return false;
+    // Handle file upload
+    var fileInput = document.getElementById('attachment');
+    if (fileInput.files.length > 0) {
+        formData.append('attachment', fileInput.files[0]);
+    }
+
+    $.ajax({
+        type: 'post',
+        url: '/dashboard/support/new-support-request/send',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (data) {
+            toastr.success(magicai_localize?.support_ticket_created || 'Support Ticket Created Successfully. Redirecting...');
+            setTimeout(function () {
+                location.href = '/dashboard/support/my-requests';
+            }, 1500);
+        },
+        error: function (data) {
+            var err = data.responseJSON.errors;
+            $.each(err, function (index, value) {
+                toastr.error(value);
+            });
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('submitting');
+        }
+    });
+
+    return false;
 }
 
 (() => {

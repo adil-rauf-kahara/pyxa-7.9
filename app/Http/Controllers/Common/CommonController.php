@@ -197,7 +197,7 @@ class CommonController extends Controller
         return response()->json(['path' => "$path"]);
     }
 
-    public function rssFetch(Request $request)
+ public function rssFetch(Request $request)
     {
         $data = parseRSS($request->url);
 

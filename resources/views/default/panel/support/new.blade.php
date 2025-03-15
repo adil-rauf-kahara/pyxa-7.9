@@ -15,6 +15,7 @@
             class="mx-auto flex w-full flex-wrap justify-between gap-y-5 lg:w-5/12"
             id="support_form"
             onsubmit="return sendSupportForm();"
+            enctype="multipart/form-data"
         >
             <x-forms.input
                 class:container="w-full md:w-[48%]"
@@ -34,6 +35,7 @@
                     </option>
                 @endforeach
             </x-forms.input>
+
             <x-forms.input
                 class:container="w-full md:w-[48%]"
                 id="priority"
@@ -73,6 +75,15 @@
                 required
                 size="lg"
                 label="{{ __('Message') }}"
+            />
+
+            <x-forms.input
+                class:container="w-full"
+                id="attachment"
+                name="attachment"
+                type="file"
+                size="lg"
+                label="{{ __('Attach File') }}"
             />
 
             <x-button

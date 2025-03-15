@@ -97,6 +97,7 @@ class GeneratorController extends Controller
         $openRouter = null;
 
         $chatbot_front_model = $request->get('chatbot_front_model', null);
+        
 
         if (! empty($chatbot_front_model) && (int) setting('open_router_status') === 1 && EntityEnum::fromSlug($chatbot_front_model)->engine() === EngineEnum::OPEN_ROUTER) {
             $openRouter = $chatbot_front_model;
@@ -116,9 +117,12 @@ class GeneratorController extends Controller
             $chat_bot = setting('deepseek_default_model', EntityEnum::DEEPSEEK_CHAT->value);
         } elseif ($default_ai_engine === EngineEnum::X_AI->value) {
             $chat_bot = setting('xai_default_model', EntityEnum::GROK_2_1212->value);
-        } else {
+        }
+        else {
             $chat_bot = $this->settings?->openai_default_model ?: EntityEnum::GPT_4_O->value;
         }
+        
+       
 
         $chat_bot_model = PlanHelper::userPlanAiModel();
         if ($chat_bot_model && empty($chatbot_front_model)) {
@@ -428,6 +432,9 @@ class GeneratorController extends Controller
         } else {
             $chatBot = ! $this->settings?->openai_default_model ? EntityEnum::GPT_3_5_TURBO->value : $this->settings?->openai_default_model;
         }
+        
+        
+        
 
         if ($chat_bot_model = PlanHelper::userPlanAiModel()) {
 

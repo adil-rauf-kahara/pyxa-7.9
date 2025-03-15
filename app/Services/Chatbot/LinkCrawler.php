@@ -66,47 +66,128 @@ class LinkCrawler
      *
      * @param  string  $url  the URL of the page to crawl
      */
+    // private function crawlPage($url)
+    // {
+    //     $html = file_get_contents($url);
+
+    //     $text = $this->stripTagsExceptContent($html);
+
+    //     $this->contents[$url] = $text;
+
+    //     preg_match_all('/<a\s+(?:[^>]*?\s+)?href="([^"]*)"/', $html, $matches);
+
+    //     foreach ($matches[1] as $link) {
+    //         $absoluteLink = $this->makeAbsoluteUrl($link);
+
+    //         if ($absoluteLink && ! in_array($absoluteLink, $this->links) && $this->isSameDomain($absoluteLink, $this->baseUrl) && ! $this->hasInvalidPath($absoluteLink) && ! $this->isImage($absoluteLink)) {
+    //             $this->links[] = $absoluteLink;
+    //             if (count($this->links) >= $this->maxLinks) {
+    //                 return;
+    //             }
+
+    //             try {
+    //                 $this->crawlPage($absoluteLink);
+    //             } catch (Exception $e) {
+    //                 continue;
+    //             }
+    //         }
+    //     }
+    // }
+    
     private function crawlPage($url)
-    {
-        $html = file_get_contents($url);
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36");
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
-        $text = $this->stripTagsExceptContent($html);
+    $html = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
 
-        $this->contents[$url] = $text;
+    if ($html === false || !empty($error)) {
+        throw new \Exception("Failed to fetch content from $url: " . $error);
+    }
 
-        preg_match_all('/<a\s+(?:[^>]*?\s+)?href="([^"]*)"/', $html, $matches);
+    $text = $this->stripTagsExceptContent($html);
+    $this->contents[$url] = $text;
 
-        foreach ($matches[1] as $link) {
-            $absoluteLink = $this->makeAbsoluteUrl($link);
+    preg_match_all('/<a\s+(?:[^>]*?\s+)?href="([^"]*)"/', $html, $matches);
 
-            if ($absoluteLink && ! in_array($absoluteLink, $this->links) && $this->isSameDomain($absoluteLink, $this->baseUrl) && ! $this->hasInvalidPath($absoluteLink) && ! $this->isImage($absoluteLink)) {
-                $this->links[] = $absoluteLink;
-                if (count($this->links) >= $this->maxLinks) {
-                    return;
-                }
+    foreach ($matches[1] as $link) {
+        $absoluteLink = $this->makeAbsoluteUrl($link);
 
-                try {
-                    $this->crawlPage($absoluteLink);
-                } catch (Exception $e) {
-                    continue;
-                }
+        if ($absoluteLink && !in_array($absoluteLink, $this->links) && $this->isSameDomain($absoluteLink, $this->baseUrl) && !$this->hasInvalidPath($absoluteLink) && !$this->isImage($absoluteLink)) {
+            $this->links[] = $absoluteLink;
+            if (count($this->links) >= $this->maxLinks) {
+                return;
+            }
+
+            try {
+                $this->crawlPage($absoluteLink);
+            } catch (\Exception $e) {
+                continue;
             }
         }
     }
+}
+
 
     /**
      * Recursively crawl a page
      *
      * @param  string  $url  the URL of the page to crawl
      */
-    private function crawlSinglePage($url)
-    {
-        $html = file_get_contents($url);
+    // private function crawlSinglePage($url)
+    // {
+    //     $html = file_get_contents($url);
 
-        $text = $this->stripTagsExceptContent($html);
+    //     $text = $this->stripTagsExceptContent($html);
 
-        $this->contents[$url] = $text;
+    //     $this->contents[$url] = $text;
+    // }
+    
+//     private function crawlSinglePage($url)
+// {
+//     $options = [
+//         'http' => [
+//             'method' => 'GET',
+//             'header' => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36\r\n"
+//         ]
+//     ];
+//     $context = stream_context_create($options);
+
+//     $html = file_get_contents($url, false, $context);
+
+//     $text = $this->stripTagsExceptContent($html);
+
+//     $this->contents[$url] = $text;
+// }
+
+private function crawlSinglePage($url)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36");
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+    $html = curl_exec($ch);
+    curl_close($ch);
+
+    if ($html === false) {
+        throw new \Exception("Failed to fetch content from $url");
     }
+
+    $text = $this->stripTagsExceptContent($html);
+    $this->contents[$url] = $text;
+}
+
 
     /**
      * Make a relative URL absolute.

@@ -998,9 +998,11 @@ function getMetaDesc($setting, $settingTwo)
 
 function parseRSS($feed_url, $limit = 10)
 {
+   $url = is_array($feed_url) ? reset($feed_url) : (string) $feed_url;
+//   dd( $url );
 
     try {
-        $rss = simplexml_load_file($feed_url);
+        $rss = simplexml_load_file($url);
         $posts = [];
         $id = 1;
 

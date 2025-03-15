@@ -42,6 +42,7 @@ class StreamService
             EngineEnum::ANTHROPIC->value => ApiHelper::setAnthropicKey($setting),
             EngineEnum::GEMINI->value    => ApiHelper::setGeminiKey($setting),
             EngineEnum::X_AI->value 	    => ApiHelper::setXAiKey($setting),
+            // EngineEnum::PERPLEXITY->value 	    => ApiHelper::setPerplexityKey($setting),
             default                      => ApiHelper::setOpenAiKey($setting),
         };
     }
@@ -64,13 +65,13 @@ class StreamService
             return $this->openRouterChatStream($chat_bot, $history, $main_message, $contain_images, $openRouter);
         }
 
-        return match ($ai_engine) {
+        return match ($ai_engine ?? EngineEnum::OPEN_AI->value) {
             EngineEnum::OPEN_AI->value   => $this->openaiChatStream($chat_bot, $history, $main_message, $chat_type, $contain_images),
             EngineEnum::ANTHROPIC->value => $this->anthropicChatStream($chat_bot, $history, $main_message, $chat_type, $contain_images),
             EngineEnum::GEMINI->value    => $this->geminiChatStream($chat_bot, $history, $main_message, $chat_type, $contain_images),
             EngineEnum::DEEP_SEEK->value => $this->deepseekChatStream($chat_bot, $history, $main_message, $contain_images),
             EngineEnum::X_AI->value      => $this->xAiChatStream($chat_bot, $history, $main_message, $chat_type, $contain_images),
-            default                      => throw new Exception('Invalid AI Engine'),
+            default                      => $this->openaiChatStream($chat_bot, $history, $main_message, $chat_type, $contain_images),
         };
     }
 
@@ -767,6 +768,8 @@ class StreamService
 
     public function reduceTokensWhenIntterruptStream(Request $request, $type): void
     {
+        // dd($request->all());
+        
         $model = Helper::setting('openai_default_model') ?: EntityEnum::GPT_3_5_TURBO_16K->value;
         $streamed_text = $request->get('streamed_text');
         $message_id = $request->get('streamed_message_id');
@@ -918,6 +921,8 @@ class StreamService
             'Content-Type'      => 'text/event-stream',
         ]);
     }
+    
+   
 
     private function xAiOtherStream(Request $request, $chat_bot): ?StreamedResponse
     {

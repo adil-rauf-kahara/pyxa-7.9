@@ -59,8 +59,8 @@
                                 <x-button
                                     class="hover:text-red-500"
                                     variant="link"
-                                    onclick="return confirm('Are you sure to cancel your plan? You will lose your remaining usage.');"
-                                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.payment.cancelActiveSubscription')) }}"
+                                   
+                                     href="{{ route('dashboard.support.new') }}"
                                 >
                                     {{ __('Cancel My Plan') }}
                                 </x-button>
@@ -153,690 +153,83 @@
                 </x-card>
             </div>
 
-            <div class="w-full">
-                <h2 class="mb-5">
-                    {{ __('Select a Plan') }}:
-                </h2>
-                <p class="mb-5 lg:w-1/3">
-                    @lang('Please select a subscription plan or a token pack to upgrade your current plan.')
-                </p>
+            <!-- <div class="w-full">
+    <h2 class="mb-5">
+        {{ __('Select a Plan') }}:
+    </h2>
+    <p class="mb-5 lg:w-1/3">
+        @lang('Please select a subscription plan or a token pack to upgrade your current plan.')
+    </p>
 
-                <div class="flex justify-center">
-                    <ul class="mb-8 inline-flex justify-between gap-3 rounded-full bg-foreground/10 p-1 text-xs font-medium">
-                        @foreach ($filters as $filter)
-                            <li>
-                                <button
-                                    @class([
-                                        'px-6 py-3 lg:min-w-40 leading-tight rounded-full transition-all hover:bg-background/80 [&.lqd-is-active]:bg-background [&.lqd-is-active]:shadow-[0_2px_12px_hsl(0_0%_0%/10%)]',
-                                        'lqd-is-active' => $loop->first,
-                                    ])
-                                    x-data
-                                    @click="$store.plansFilter.toggle('{{ $filter }}')"
-                                    :class="{ 'lqd-is-active': $store.plansFilter.isActive('{{ $filter }}') }"
-                                >
-                                    @lang($filter)
-                                </button>
-                            </li>
-                        @endforeach
-                    </ul>
+    <div class="flex justify-center">
+        <ul class="mb-8 inline-flex justify-between gap-3 rounded-full bg-foreground/10 p-1 text-xs font-medium">
+            @foreach ($filters as $filter)
+                <li>
+                    <button
+                        @class([
+                            'px-6 py-3 lg:min-w-40 leading-tight rounded-full transition-all hover:bg-background/80 [&.lqd-is-active]:bg-background [&.lqd-is-active]:shadow-[0_2px_12px_hsl(0_0%_0%/10%)]',
+                            'lqd-is-active' => $loop->first,
+                        ])
+                        x-data
+                        @click="$store.plansFilter.toggle('{{ $filter }}')"
+                        :class="{ 'lqd-is-active': $store.plansFilter.isActive('{{ $filter }}') }"
+                    >
+                        @lang($filter)
+                    </button>
+                </li>
+            @endforeach
+        </ul>
+    </div>
+
+    @if ($plansSubscriptionMonthly->count() > 0)
+        <div
+            class="grid scroll-mt-28 grid-cols-4 gap-3 max-lg:grid-cols-2 max-md:grid-cols-1"
+            id="monthly"
+            x-data
+            :class="{ grid: $store.plansFilter.isActive('Monthly'), hidden: !$store.plansFilter.isActive('Monthly') }"
+        >
+            @foreach ($plansSubscriptionMonthly as $plan)
+                <div @class([
+                    'lqd-price-table w-full rounded-3xl border bg-background',
+                    'shadow-[0_7px_20px_rgba(0,0,0,0.04)]' => $plan->is_featured,
+                ])>
+                    <div class="flex h-full flex-col p-7">
+                        <div class="mb-2 flex items-start text-[50px] font-bold leading-none text-heading-foreground">
+                            @if (currencyShouldDisplayOnRight($currency->symbol))
+                                {{ $plan->price }} <small class='inline-flex text-[0.35em] font-normal'>
+                                    {{ $currency->symbol }}
+                                </small>
+                            @else
+                                <small class='inline-flex text-[0.35em] font-normal'>
+                                    {{ $currency->symbol }}
+                                </small>
+                                {{ $plan->price }}
+                            @endif
+                            <div class="ms-2 mt-2 inline-flex flex-col items-start gap-2 text-[0.3em]">
+                                {{ __(formatCamelCase($plan->frequency)) }}
+                                @if ($plan->is_featured == 1)
+                                    <div class="inline-flex rounded-full bg-gradient-to-r from-[#ece7f7] via-[#e7c5e6] to-[#e7ebf9] px-3 py-1 text-3xs text-black">
+                                        {{ __('Popular plan') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <p class="text-sm font-medium leading-none opacity-50">
+                            {{ __($plan->name) }}
+                        </p>
+
+                        <x-plan-details-card
+                            :plan="$plan"
+                            :period="$plan->frequency"
+                        />
+                    </div>
                 </div>
+            @endforeach
+        </div>
+    @endif
+</div> -->
 
-                @if ($plansSubscriptionMonthly->count() > 0)
-                    <div
-                        class="grid scroll-mt-28 grid-cols-4 gap-3 max-lg:grid-cols-2 max-md:grid-cols-1"
-                        id="monthly"
-                        x-data
-                        :class="{ grid: $store.plansFilter.isActive('Monthly'), hidden: !$store.plansFilter.isActive('Monthly') }"
-                    >
-                        @foreach ($plansSubscriptionMonthly as $plan)
-                            <div @class([
-                                'lqd-price-table w-full rounded-3xl border bg-background',
-                                'shadow-[0_7px_20px_rgba(0,0,0,0.04)]' => $plan->is_featured,
-                            ])>
-                                <div class="flex h-full flex-col p-7">
-                                    <div class="mb-2 flex items-start text-[50px] font-bold leading-none text-heading-foreground">
-                                        @if (currencyShouldDisplayOnRight($currency->symbol))
-                                            {{ $plan->price }} <small class='inline-flex text-[0.35em] font-normal'>
-                                                {{ $currency->symbol }}
-                                            </small>
-                                        @else
-                                            <small class='inline-flex text-[0.35em] font-normal'>
-                                                {{ $currency->symbol }}
-                                            </small>
-                                            {{ $plan->price }}
-                                        @endif
-                                        <div class="ms-2 mt-2 inline-flex flex-col items-start gap-2 text-[0.3em]">
-                                            {{ __(formatCamelCase($plan->frequency)) }}
-                                            @if ($plan->is_featured == 1)
-                                                <div class="inline-flex rounded-full bg-gradient-to-r from-[#ece7f7] via-[#e7c5e6] to-[#e7ebf9] px-3 py-1 text-3xs text-black">
-                                                    {{ __('Popular plan') }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <p class="text-sm font-medium leading-none opacity-50">
-                                        {{ __($plan->name) }}
-                                    </p>
-
-                                    <x-plan-details-card
-                                        :plan="$plan"
-                                        :period="$plan->frequency"
-                                    />
-
-                                    @if ($activesubid == $plan->id)
-                                        <div class="mt-auto text-center">
-                                            <div class="flex flex-col gap-2">
-                                                <span class="text-green-500">
-                                                    <b>{{ __('Already Subscribed') }}</b>
-                                                </span>
-                                                <x-button
-                                                    size="lg"
-                                                    variant="danger"
-                                                    onclick="return confirm('Are you sure to cancel your plan? You will lose your remaining usage.');"
-                                                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.payment.cancelActiveSubscription')) }}"
-                                                >
-                                                    {{ __('Cancel Subscription') }}
-                                                </x-button>
-                                            </div>
-                                        </div>
-                                    @elseif($activesubid != null)
-                                        <div class="mt-auto text-center">
-                                            <div class="flex flex-col gap-2">
-                                                <span class="text-foreground/60">
-                                                    <b>{{ __('You have an active subscription.') }}</b>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <div class="mt-auto text-center">
-                                            @if ($is_active_gateway == 1)
-                                                @php($planid = $plan->id)
-                                                @if ($plan->price == 0)
-                                                    <x-button
-                                                        class="w-full"
-                                                        href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startSubscriptionProcess', ['planId' => $planid, 'gatewayCode' => 'freeservice'])) }}"
-                                                        onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                        variant="ghost-shadow"
-                                                    >
-                                                        {{ __('Choose plan') }}
-                                                    </x-button>
-												@elseif($lastPrivateDate)
-													<x-button
-														class="w-full"
-														onclick="{{'return toastr.info(\'The expiration date for this plan has passed.\')' }}"
-														variant="ghost-shadow"
-													>
-														{{ __('Expired') }}
-													</x-button>
-												@elseif($maxSubscribe)
-													<x-button
-														class="w-full"
-														onclick="{{'return toastr.info(\'This plan has reached its maximum capacity.\')' }}"
-														variant="ghost-shadow"
-													>
-														{{ __('Limit reached') }}
-													</x-button>
-                                                @else
-                                                    @if (count($activeGateways) == 1 || setting('single_page_checkout', 0))
-                                                        @php($gateway = $activeGateways->first())
-                                                        @php($data = $gatewayControls->gatewayData($gateway->code))
-                                                        <x-button
-                                                            class="w-full"
-                                                            href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startSubscriptionProcess', ['planId' => $planid, 'gatewayCode' => $data['code']])) }}"
-                                                            onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                            variant="ghost-shadow"
-                                                        >
-                                                            {{ __('Choose plan') }}
-                                                        </x-button>
-                                                    @else
-                                                        <x-modal
-                                                            title="{{ __('Continue with') }}"
-                                                            disable-modal="{{ $app_is_demo }}"
-                                                            disable-modal-message="{{ __('This feature is disabled in Demo version.') }}"
-                                                        >
-                                                            <x-slot:trigger
-                                                                class="w-full"
-                                                                variant="ghost-shadow"
-                                                            >
-                                                                {{ __('Choose plan') }}
-                                                            </x-slot:trigger>
-                                                            <x-slot:modal>
-                                                                <div class="flex flex-col gap-4">
-                                                                    @foreach ($activeGateways as $gateway)
-                                                                        @if ($gateway->code == 'revenuecat')
-                                                                            @continue
-                                                                        @endif
-                                                                        @php($data = $gatewayControls->gatewayData($gateway->code))
-                                                                        <x-button
-                                                                            class="w-full"
-                                                                            hover-variant="secondary"
-                                                                            href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startSubscriptionProcess', ['planId' => $planid, 'gatewayCode' => $data['code']])) }}"
-                                                                            onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                                            variant="ghost-shadow"
-                                                                        >
-                                                                            <div class="m-0 flex h-9 w-full items-center justify-between align-middle">
-                                                                                @if ($data['whiteLogo'] == 1)
-                                                                                    <img
-                                                                                        class="rounded-3xl bg-primary px-3"
-                                                                                        src="{{ custom_theme_url($data['img']) }}"
-                                                                                        style="max-height:24px;"
-                                                                                        alt="{{ $data['title'] }}"
-                                                                                    />
-                                                                                @else
-                                                                                    <img
-                                                                                        class="rounded-3xl px-3"
-                                                                                        src="{{ custom_theme_url($data['img']) }}"
-                                                                                        style="max-height:24px;"
-                                                                                        alt="{{ $data['title'] }}"
-                                                                                    />
-                                                                                @endif
-                                                                                {{ $data['title'] }}
-                                                                            </div>
-                                                                        </x-button>
-                                                                    @endforeach
-                                                                </div>
-                                                            </x-slot:modal>
-                                                        </x-modal>
-                                                    @endif
-                                                @endif
-                                            @else
-                                                <p>{{ __('Please enable a payment gateway') }}</p>
-                                            @endif
-                                        </div>
-                                    @endif
-
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-
-                @if ($prepaidplans->count() > 0)
-                    <div
-                        class="hidden scroll-mt-28 grid-cols-4 gap-3 max-lg:grid-cols-2 max-md:grid-cols-1"
-                        id="pre-paid"
-                        x-data
-                        :class="{ grid: $store.plansFilter.isActive('Pre-Paid'), hidden: !$store.plansFilter.isActive('Pre-Paid') }"
-                    >
-                        @foreach ($prepaidplans as $plan)
-                            <div @class([
-                                'lqd-price-table w-full rounded-3xl border bg-background',
-                                'shadow-[0_7px_20px_rgba(0,0,0,0.04)]' => $plan->is_featured,
-                            ])>
-                                <div class="flex h-full flex-col p-7">
-                                    <div class="mb-2 flex items-start text-[50px] font-bold leading-none text-heading-foreground">
-                                        @if (currencyShouldDisplayOnRight($currency->symbol))
-                                            {{ $plan->price }}
-                                            <small class='inline-flex text-[0.35em] font-normal'>
-                                                {{ $currency->symbol }}
-                                            </small>
-                                        @else
-                                            <small class='inline-flex text-[0.35em] font-normal'>
-                                                {{ $currency->symbol }}
-                                            </small>
-                                            {{ $plan->price }}
-                                        @endif
-                                        <div class="ms-2 mt-2 inline-flex flex-col items-start gap-2 text-[0.3em]">
-                                            {{ __('One time') }}
-                                            @if ($plan->is_featured == 1)
-                                                <div
-                                                    class="inline-flex rounded-full bg-gradient-to-r from-[#ece7f7] via-[#e7c5e6] to-[#e7ebf9] px-[0.75rem] py-[0.25rem] text-3xs text-black">
-                                                    {{ __('Popular pack') }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <p class="text-sm font-medium leading-none opacity-60">
-                                        {{ __($plan->name) }}
-                                    </p>
-                                    <x-plan-details-card
-                                        :plan="$plan"
-                                        :period="$plan->frequency"
-                                    />
-                                    <div class="mt-auto text-center">
-                                        @if ($is_active_gateway == 1)
-                                            @php($planid = $plan->id)
-                                            @if ($plan->price == 0)
-                                                <x-button
-                                                    class="w-full"
-                                                    href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startPrepaidPaymentProcess', ['planId' => $planid, 'gatewayCode' => 'freeservice'])) }}"
-                                                    onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                    variant="ghost-shadow"
-                                                >
-                                                    {{ __('Choose pack') }}
-                                                </x-button>
-											@elseif($lastPrivateDate)
-												<x-button
-													class="w-full"
-													onclick="{{'return toastr.info(\'The expiration date for this plan has passed.\')' }}"
-													variant="ghost-shadow"
-												>
-													{{ __('Expired') }}
-												</x-button>
-											@elseif($maxSubscribe)
-												<x-button
-													class="w-full"
-													onclick="{{'return toastr.info(\'This plan has reached its maximum capacity.\')' }}"
-													variant="ghost-shadow"
-												>
-													{{ __('Limit reached') }}
-												</x-button>
-                                            @else
-                                                @if (count($activeGateways) == 1 || setting('single_page_checkout', 0))
-                                                    @php($gateway = $activeGateways->first())
-                                                    @php($data = $gatewayControls->gatewayData($gateway->code))
-                                                    <x-button
-                                                        class="w-full"
-                                                        href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startPrepaidPaymentProcess', ['planId' => $planid, 'gatewayCode' => $data['code']])) }}"
-                                                        onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                        variant="ghost-shadow"
-                                                    >
-                                                        {{ __('Choose pack') }}
-                                                    </x-button>
-                                                @else
-                                                    <x-modal
-                                                        title="{{ __('Continue with') }}"
-                                                        disable-modal="{{ $app_is_demo }}"
-                                                        disable-modal-message="{{ __('This feature is disabled in Demo version.') }}"
-                                                    >
-                                                        <x-slot:trigger
-                                                            class="w-full"
-                                                            variant="ghost-shadow"
-                                                        >
-                                                            {{ __('Choose pack') }}
-                                                        </x-slot:trigger>
-                                                        <x-slot:modal>
-                                                            <div class="flex flex-col gap-4">
-                                                                @foreach ($activeGateways as $gateway)
-                                                                    @if ($gateway->code == 'revenuecat')
-                                                                        @continue
-                                                                    @endif
-                                                                    @php($data = $gatewayControls->gatewayData($gateway->code))
-                                                                    <x-button
-                                                                        class="w-full"
-                                                                        hover-variant="secondary"
-                                                                        href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startPrepaidPaymentProcess', ['planId' => $planid, 'gatewayCode' => $data['code']])) }}"
-                                                                        onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                                        variant="ghost-shadow"
-                                                                    >
-                                                                        <div class="flex h-9 w-full items-center justify-between align-middle">
-                                                                            @if ($data['whiteLogo'] == 1)
-                                                                                <img
-                                                                                    class="rounded-3xl bg-primary px-3"
-                                                                                    src="{{ custom_theme_url($data['img']) }}"
-                                                                                    style="max-height:24px;"
-                                                                                    alt="{{ $data['title'] }}"
-                                                                                />
-                                                                            @else
-                                                                                <img
-                                                                                    class="rounded-3xl px-3"
-                                                                                    src="{{ custom_theme_url($data['img']) }}"
-                                                                                    style="max-height:24px;"
-                                                                                    alt="{{ $data['title'] }}"
-                                                                                />
-                                                                            @endif
-                                                                            {{ $data['title'] }}
-                                                                        </div>
-                                                                    </x-button>
-                                                                @endforeach
-                                                            </div>
-                                                        </x-slot:modal>
-                                                    </x-modal>
-                                                @endif
-                                            @endif
-                                        @else
-                                            <p>
-                                                {{ __('Please enable a payment gateway') }}
-                                            </p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-
-                @if ($plansSubscriptionLifetime->count() > 0)
-                    <div
-                        class="grid scroll-mt-28 grid-cols-4 gap-3 max-lg:grid-cols-2 max-md:grid-cols-1"
-                        id="lifetime"
-                        x-data
-                        :class="{ grid: $store.plansFilter.isActive('Lifetime'), hidden: !$store.plansFilter.isActive('Lifetime') }"
-                    >
-                        @foreach ($plansSubscriptionLifetime as $plan)
-                            <div @class([
-                                'lqd-price-table w-full rounded-3xl border bg-background',
-                                'shadow-[0_7px_20px_rgba(0,0,0,0.04)]' => $plan->is_featured,
-                            ])>
-                                <div class="flex h-full flex-col p-7">
-                                    <div class="mb-2 flex items-start text-[50px] font-bold leading-none text-heading-foreground">
-                                        @if (currencyShouldDisplayOnRight($currency->symbol))
-                                            {{ $plan->price }} <small class='inline-flex text-[0.35em] font-normal'>
-                                                {{ $currency->symbol }}
-                                            </small>
-                                        @else
-                                            <small class='inline-flex text-[0.35em] font-normal'>
-                                                {{ $currency->symbol }}
-                                            </small>
-                                            {{ $plan->price }}
-                                        @endif
-                                        <div class="ms-2 mt-2 inline-flex flex-col items-start gap-2 text-[0.3em]">
-                                            {{ __(formatCamelCase($plan->frequency)) }}
-                                            @if ($plan->is_featured == 1)
-                                                <div class="inline-flex rounded-full bg-gradient-to-r from-[#ece7f7] via-[#e7c5e6] to-[#e7ebf9] px-3 py-1 text-3xs text-black">
-                                                    {{ __('Popular plan') }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <p class="text-sm font-medium leading-none opacity-50">
-                                        {{ __($plan->name) }}
-                                    </p>
-
-                                    <x-plan-details-card
-                                        :plan="$plan"
-                                        :period="$plan->frequency"
-                                    />
-
-                                    @if ($activesubid == $plan->id)
-                                        <div class="mt-auto text-center">
-                                            <div class="flex flex-col gap-2">
-                                                <span class="text-green-500">
-                                                    <b>{{ __('Already Subscribed') }}</b>
-                                                </span>
-                                                <x-button
-                                                    size="lg"
-                                                    variant="danger"
-                                                    onclick="return confirm('Are you sure to cancel your plan? You will lose your remaining usage.');"
-                                                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.payment.cancelActiveSubscription')) }}"
-                                                >
-                                                    {{ __('Cancel Subscription') }}
-                                                </x-button>
-                                            </div>
-                                        </div>
-                                    @elseif($activesubid != null)
-                                        <div class="mt-auto text-center">
-                                            <div class="flex flex-col gap-2">
-                                                <span class="text-foreground/60">
-                                                    <b>{{ __('You have an active subscription.') }}</b>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <div class="mt-auto text-center">
-                                            @if ($is_active_gateway == 1)
-                                                @php($planid = $plan->id)
-                                                @if ($plan->price == 0)
-                                                    <x-button
-                                                        class="w-full"
-                                                        href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startSubscriptionProcess', ['planId' => $planid, 'gatewayCode' => 'freeservice'])) }}"
-                                                        onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                        variant="ghost-shadow"
-                                                    >
-                                                        {{ __('Choose plan') }}
-                                                    </x-button>
-												@elseif($lastPrivateDate)
-													<x-button
-														class="w-full"
-														onclick="{{'return toastr.info(\'The expiration date for this plan has passed.\')' }}"
-														variant="ghost-shadow"
-													>
-														{{ __('Expired') }}
-													</x-button>
-												@elseif($maxSubscribe)
-													<x-button
-														class="w-full"
-														onclick="{{'return toastr.info(\'This plan has reached its maximum capacity.\')' }}"
-														variant="ghost-shadow"
-													>
-														{{ __('Limit reached') }}
-													</x-button>
-                                                @else
-                                                    @if (count($activeGateways) == 1 || setting('single_page_checkout', 0))
-                                                        @php($gateway = $activeGateways->first())
-                                                        @php($data = $gatewayControls->gatewayData($gateway->code))
-                                                        <x-button
-                                                            class="w-full"
-                                                            href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startSubscriptionProcess', ['planId' => $planid, 'gatewayCode' => $data['code']])) }}"
-                                                            onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                            variant="ghost-shadow"
-                                                        >
-                                                            {{ __('Choose plan') }}
-                                                        </x-button>
-                                                    @else
-                                                        <x-modal
-                                                            title="{{ __('Continue with') }}"
-                                                            disable-modal="{{ $app_is_demo }}"
-                                                            disable-modal-message="{{ __('This feature is disabled in Demo version.') }}"
-                                                        >
-                                                            <x-slot:trigger
-                                                                class="w-full"
-                                                                variant="ghost-shadow"
-                                                            >
-                                                                {{ __('Choose plan') }}
-                                                            </x-slot:trigger>
-                                                            <x-slot:modal>
-                                                                <div class="flex flex-col gap-4">
-                                                                    @foreach ($activeGateways as $gateway)
-                                                                        @if ($gateway->code == 'revenuecat')
-                                                                            @continue
-                                                                        @endif
-                                                                        @php($data = $gatewayControls->gatewayData($gateway->code))
-                                                                        <x-button
-                                                                            class="w-full"
-                                                                            hover-variant="secondary"
-                                                                            href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startSubscriptionProcess', ['planId' => $planid, 'gatewayCode' => $data['code']])) }}"
-                                                                            onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                                            variant="ghost-shadow"
-                                                                        >
-                                                                            <div class="m-0 flex h-9 w-full items-center justify-between align-middle">
-                                                                                @if ($data['whiteLogo'] == 1)
-                                                                                    <img
-                                                                                        class="rounded-3xl bg-primary px-3"
-                                                                                        src="{{ custom_theme_url($data['img']) }}"
-                                                                                        style="max-height:24px;"
-                                                                                        alt="{{ $data['title'] }}"
-                                                                                    />
-                                                                                @else
-                                                                                    <img
-                                                                                        class="rounded-3xl px-3"
-                                                                                        src="{{ custom_theme_url($data['img']) }}"
-                                                                                        style="max-height:24px;"
-                                                                                        alt="{{ $data['title'] }}"
-                                                                                    />
-                                                                                @endif
-                                                                                {{ $data['title'] }}
-                                                                            </div>
-                                                                        </x-button>
-                                                                    @endforeach
-                                                                </div>
-                                                            </x-slot:modal>
-                                                        </x-modal>
-                                                    @endif
-                                                @endif
-                                            @else
-                                                <p>{{ __('Please enable a payment gateway') }}</p>
-                                            @endif
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-
-                @if ($plansSubscriptionAnnual->count() > 0)
-                    <div
-                        class="grid scroll-mt-28 grid-cols-4 gap-3 max-lg:grid-cols-2 max-md:grid-cols-1"
-                        id="yearly"
-                        x-data
-                        :class="{ grid: $store.plansFilter.isActive('Yearly'), hidden: !$store.plansFilter.isActive('Yearly') }"
-                    >
-                        @foreach ($plansSubscriptionAnnual as $plan)
-                            <div @class([
-                                'lqd-price-table w-full rounded-3xl border bg-background',
-                                'shadow-[0_7px_20px_rgba(0,0,0,0.04)]' => $plan->is_featured,
-                            ])>
-                                <div class="flex h-full flex-col p-7">
-                                    <div class="mb-2 flex items-start text-[50px] font-bold leading-none text-heading-foreground">
-                                        @if (currencyShouldDisplayOnRight($currency->symbol))
-                                            {{ $plan->price }} <small class='inline-flex text-[0.35em] font-normal'>
-                                                {{ $currency->symbol }}
-                                            </small>
-                                        @else
-                                            <small class='inline-flex text-[0.35em] font-normal'>
-                                                {{ $currency->symbol }}
-                                            </small>
-                                            {{ $plan->price }}
-                                        @endif
-                                        <div class="ms-2 mt-2 inline-flex flex-col items-start gap-2 text-[0.3em]">
-                                            {{ __(formatCamelCase($plan->frequency)) }}
-                                            @if ($plan->is_featured == 1)
-                                                <div class="inline-flex rounded-full bg-gradient-to-r from-[#ece7f7] via-[#e7c5e6] to-[#e7ebf9] px-3 py-1 text-3xs text-black">
-                                                    {{ __('Popular plan') }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <p class="text-sm font-medium leading-none opacity-50">
-                                        {{ __($plan->name) }}
-                                    </p>
-
-                                    <x-plan-details-card
-                                        :plan="$plan"
-                                        :period="$plan->frequency"
-                                    />
-
-                                    @if ($activesubid == $plan->id)
-                                        <div class="mt-auto text-center">
-                                            <div class="flex flex-col gap-2">
-                                                <span class="text-green-500">
-                                                    <b>{{ __('Already Subscribed') }}</b>
-                                                </span>
-                                                <x-button
-                                                    size="lg"
-                                                    variant="danger"
-                                                    onclick="return confirm('Are you sure to cancel your plan? You will lose your remaining usage.');"
-                                                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.payment.cancelActiveSubscription')) }}"
-                                                >
-                                                    {{ __('Cancel Subscription') }}
-                                                </x-button>
-                                            </div>
-                                        </div>
-                                    @elseif($activesubid != null)
-                                        <div class="mt-auto text-center">
-                                            <div class="flex flex-col gap-2">
-                                                <span class="text-foreground/60">
-                                                    <b>{{ __('You have an active subscription.') }}</b>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <div class="mt-auto text-center">
-                                            @if ($is_active_gateway == 1)
-                                                @php($planid = $plan->id)
-                                                @if ($plan->price == 0)
-                                                    <x-button
-                                                        class="w-full"
-                                                        href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startSubscriptionProcess', ['planId' => $planid, 'gatewayCode' => 'freeservice'])) }}"
-                                                        onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                        variant="ghost-shadow"
-                                                    >
-                                                        {{ __('Choose plan') }}
-                                                    </x-button>
-												@elseif($lastPrivateDate)
-													<x-button
-														class="w-full"
-														onclick="{{'return toastr.info(\'The expiration date for this plan has passed.\')' }}"
-														variant="ghost-shadow"
-													>
-														{{ __('Expired') }}
-													</x-button>
-												@elseif($maxSubscribe)
-													<x-button
-														class="w-full"
-														onclick="{{'return toastr.info(\'This plan has reached its maximum capacity.\')' }}"
-														variant="ghost-shadow"
-													>
-														{{ __('Limit reached') }}
-													</x-button>
-                                                @else
-                                                    @if (count($activeGateways) == 1 || setting('single_page_checkout', 0))
-                                                        @php($gateway = $activeGateways->first())
-                                                        @php($data = $gatewayControls->gatewayData($gateway->code))
-                                                        <x-button
-                                                            class="w-full"
-                                                            href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startSubscriptionProcess', ['planId' => $planid, 'gatewayCode' => $data['code']])) }}"
-                                                            onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                            variant="ghost-shadow"
-                                                        >
-                                                            {{ __('Choose plan') }}
-                                                        </x-button>
-                                                    @else
-                                                        <x-modal
-                                                            title="{{ __('Continue with') }}"
-                                                            disable-modal="{{ $app_is_demo }}"
-                                                            disable-modal-message="{{ __('This feature is disabled in Demo version.') }}"
-                                                        >
-                                                            <x-slot:trigger
-                                                                class="w-full"
-                                                                variant="ghost-shadow"
-                                                            >
-                                                                {{ __('Choose plan') }}
-                                                            </x-slot:trigger>
-                                                            <x-slot:modal>
-                                                                <div class="flex flex-col gap-4">
-                                                                    @foreach ($activeGateways as $gateway)
-                                                                        @if ($gateway->code == 'revenuecat')
-                                                                            @continue
-                                                                        @endif
-                                                                        @php($data = $gatewayControls->gatewayData($gateway->code))
-                                                                        <x-button
-                                                                            class="w-full"
-                                                                            hover-variant="secondary"
-                                                                            href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.user.payment.startSubscriptionProcess', ['planId' => $planid, 'gatewayCode' => $data['code']])) }}"
-                                                                            onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                                                                            variant="ghost-shadow"
-                                                                        >
-                                                                            <div class="m-0 flex h-9 w-full items-center justify-between align-middle">
-                                                                                @if ($data['whiteLogo'] == 1)
-                                                                                    <img
-                                                                                        class="rounded-3xl bg-primary px-3"
-                                                                                        src="{{ custom_theme_url($data['img']) }}"
-                                                                                        style="max-height:24px;"
-                                                                                        alt="{{ $data['title'] }}"
-                                                                                    />
-                                                                                @else
-                                                                                    <img
-                                                                                        class="rounded-3xl px-3"
-                                                                                        src="{{ custom_theme_url($data['img']) }}"
-                                                                                        style="max-height:24px;"
-                                                                                        alt="{{ $data['title'] }}"
-                                                                                    />
-                                                                                @endif
-                                                                                {{ $data['title'] }}
-                                                                            </div>
-                                                                        </x-button>
-                                                                    @endforeach
-                                                                </div>
-                                                            </x-slot:modal>
-                                                        </x-modal>
-                                                    @endif
-                                                @endif
-                                            @else
-                                                <p>{{ __('Please enable a payment gateway') }}</p>
-                                            @endif
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
 
         </div>
     </div>

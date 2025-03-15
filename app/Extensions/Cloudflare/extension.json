@@ -1,0 +1,6 @@
+{
+    "name": "Cloudflare R2",
+    "type": "extension",
+    "version": "3.0.0",
+    "description": "Cloudflare R2 extension for magicai"
+}

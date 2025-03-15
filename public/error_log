@@ -1,0 +1,58 @@
+[08-Mar-2025 22:29:59 UTC] 1
+[10-Mar-2025 08:03:31 UTC] 1
+[10-Mar-2025 08:29:00 UTC] 3.4282857142857
+[10-Mar-2025 08:30:23 UTC] 3.4282857142857
+[10-Mar-2025 08:31:36 UTC] 3.4282857142857
+[10-Mar-2025 11:37:32 UTC] 1.846
+[11-Mar-2025 15:11:22 UTC] 1.6634285714286
+[12-Mar-2025 10:10:36 UTC] PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected identifier "dd", expecting "function" or "const" in /home/newpyxa/public_html/app/Helpers/Classes/Traits/HasApiKeys.php:11
+Stack trace:
+#0 /home/newpyxa/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}('/home/newpyxa/p...')
+#1 /home/newpyxa/public_html/app/Helpers/Classes/Helper.php(19): Composer\Autoload\ClassLoader->loadClass('App\\Helpers\\Cla...')
+#2 /home/newpyxa/public_html/vendor/composer/ClassLoader.php(576): include('/home/newpyxa/p...')
+#3 /home/newpyxa/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}('/home/newpyxa/p...')
+#4 /home/newpyxa/public_html/app/Providers/AppServiceProvider.php(57): Composer\Autoload\ClassLoader->loadClass('App\\Helpers\\Cla...')
+#5 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): App\Providers\AppServiceProvider->boot()
+#6 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\Container\BoundMethod::Illuminate\Container\{closure}()
+#7 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\Container\Util::unwrapIfClosure(Object(Closure))
+#8 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\Container\BoundMethod::callBoundMethod(Object(Illuminate\Foundation\Application), Array, Object(Closure))
+#9 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\Container\BoundMethod::call(Object(Illuminate\Foundation\Application), Array, Array, NULL)
+#10 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1059): Illuminate\Container\Container->call(Array)
+#11 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1040): Illuminate\Foundation\Application->bootProvider(Object(App\Providers\AppServiceProvider))
+#12 [internal function]: Illuminate\Foundation\Application->Illuminate\Foundation\{closure}(Object(App\Providers\AppServiceProvider), 45)
+#13 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1039): array_walk(Array, Object(Closure))
+#14 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/BootProviders.php(17): Illuminate\Foundation\Application->boot()
+#15 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(286): Illuminate\Foundation\Bootstrap\BootProviders->bootstrap(Object(Illuminate\Foundation\Application))
+#16 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(186): Illuminate\Foundation\Application->bootstrapWith(Array)
+#17 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(170): Illuminate\Foundation\Http\Kernel->bootstrap()
+#18 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(144): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#19 /home/newpyxa/public_html/public/index.php(65): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#20 {main} in /home/newpyxa/public_html/app/Helpers/Classes/Helper.php on line 19
+[12-Mar-2025 10:10:38 UTC] PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected identifier "dd", expecting "function" or "const" in /home/newpyxa/public_html/app/Helpers/Classes/Traits/HasApiKeys.php:11
+Stack trace:
+#0 /home/newpyxa/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}('/home/newpyxa/p...')
+#1 /home/newpyxa/public_html/app/Helpers/Classes/Helper.php(19): Composer\Autoload\ClassLoader->loadClass('App\\Helpers\\Cla...')
+#2 /home/newpyxa/public_html/vendor/composer/ClassLoader.php(576): include('/home/newpyxa/p...')
+#3 /home/newpyxa/public_html/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}('/home/newpyxa/p...')
+#4 /home/newpyxa/public_html/app/Providers/AppServiceProvider.php(57): Composer\Autoload\ClassLoader->loadClass('App\\Helpers\\Cla...')
+#5 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): App\Providers\AppServiceProvider->boot()
+#6 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\Container\BoundMethod::Illuminate\Container\{closure}()
+#7 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(93): Illuminate\Container\Util::unwrapIfClosure(Object(Closure))
+#8 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\Container\BoundMethod::callBoundMethod(Object(Illuminate\Foundation\Application), Array, Object(Closure))
+#9 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\Container\BoundMethod::call(Object(Illuminate\Foundation\Application), Array, Array, NULL)
+#10 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1059): Illuminate\Container\Container->call(Array)
+#11 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1040): Illuminate\Foundation\Application->bootProvider(Object(App\Providers\AppServiceProvider))
+#12 [internal function]: Illuminate\Foundation\Application->Illuminate\Foundation\{closure}(Object(App\Providers\AppServiceProvider), 45)
+#13 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1039): array_walk(Array, Object(Closure))
+#14 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/BootProviders.php(17): Illuminate\Foundation\Application->boot()
+#15 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(286): Illuminate\Foundation\Bootstrap\BootProviders->bootstrap(Object(Illuminate\Foundation\Application))
+#16 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(186): Illuminate\Foundation\Application->bootstrapWith(Array)
+#17 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(170): Illuminate\Foundation\Http\Kernel->bootstrap()
+#18 /home/newpyxa/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(144): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#19 /home/newpyxa/public_html/public/index.php(65): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#20 {main} in /home/newpyxa/public_html/app/Helpers/Classes/Helper.php on line 19
+[12-Mar-2025 14:25:34 UTC] 4.2871428571429
+[14-Mar-2025 10:40:08 UTC] 1
+[15-Mar-2025 21:58:50 UTC] 1.846
+[15-Mar-2025 21:59:05 UTC] 1.846
+[15-Mar-2025 21:59:39 UTC] 1.846

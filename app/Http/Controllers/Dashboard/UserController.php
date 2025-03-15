@@ -315,6 +315,8 @@ class UserController extends Controller
 
     public function openAIGenerator(Request $request, $slug)
     {
+        // dd("Here");
+        
         $openai = OpenAIGenerator::whereSlug($slug)->firstOrFail();
         if ($slug === 'ai_image_generator') {
             // FluxProQueueCheck::updateFluxProImages();
@@ -345,6 +347,8 @@ class UserController extends Controller
                 $elevenlabServiceVoice = json_decode($service->getVoices(), true);
             }
         }
+        
+        // dd($elevenlabServiceVoice);
 
         return view(
             'panel.user.openai.generator',

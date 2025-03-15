@@ -169,21 +169,21 @@
                                 </button>
                             @endif
                         </x-card>
-                        <x-card class="mt-5">
+                        <!--<x-card class="mt-5">-->
 
-                            <h4> @lang('Delete Account') </h4>
-                            <p>
-                                {{ __('If you no longer want to use your account, you can request to delete it.') }}
-                            </p>
-                            <div class="col-12">
-                                <a
-                                    class="btn btn-danger"
-                                    href="{{ route('dashboard.user.settings.deleteAccount') }}"
-                                >
-                                    {{ __('Request Account Deletion') }}
-                                </a>
-                            </div>
-                        </x-card>
+                        <!--    <h4> @lang('Delete Account') </h4>-->
+                        <!--    <p>-->
+                        <!--        {{ __('If you no longer want to use your account, you can request to delete it.') }}-->
+                        <!--    </p>-->
+                        <!--    <div class="col-12">-->
+                        <!--        <a-->
+                        <!--            class="btn btn-danger"-->
+                        <!--            href="{{ route('dashboard.user.settings.deleteAccount') }}"-->
+                        <!--        >-->
+                        <!--            {{ __('Request Account Deletion') }}-->
+                        <!--        </a>-->
+                        <!--    </div>-->
+                        <!--</x-card>-->
                     </form>
                 </div>
             </div>

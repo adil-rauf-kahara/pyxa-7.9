@@ -15,7 +15,7 @@ class SettingTwo extends Model
 
     protected $table = 'settings_two';
 
-    public static int $cacheTtl = 3600 * 24;
+    public static int $cacheTtl = 1;
 
     public static string $cacheKey = 'cache_setting_two';
 
