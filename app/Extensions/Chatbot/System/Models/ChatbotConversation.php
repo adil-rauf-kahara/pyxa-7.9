@@ -12,6 +12,8 @@ class ChatbotConversation extends Model
     protected $table = 'ext_chatbot_conversations';
 
     protected $fillable = [
+        'ip_address',
+        'conversation_name',
         'chatbot_id',
         'session_id',
         'connect_agent_at',
@@ -21,6 +23,11 @@ class ChatbotConversation extends Model
         'chatbot_id' => 'integer',
         'session_id' => 'string',
     ];
+
+    public function sessionId(): string
+    {
+        return $this->session_id;
+    }
 
     public function chatbot(): BelongsTo
     {

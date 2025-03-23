@@ -5,18 +5,17 @@
                 conversations: [],
                 activeConversationData: null,
                 showConnectButton: true,
+				showConnectButtonStepTwo: false,
+				showConnectButtonStepOne: true,
                 connect_agent_at: null,
                 messages: [],
                 activeConversation: null,
                 fetching: false,
                 windowState: 'close',
                 assistantMessageBubbles: {},
-                /* @type {'conversation-messages', 'conversations-list'} */
                 currentView: '{{ $is_editor ? 'conversation-messages' : 'conversations-list' }}',
-
-                pusherInstance: null,
-                pusherChannel: null,
-
+                ablyInstance: null,
+				ablyChannel: null,
                 init() {
                     this.windowState = this.$el.getAttribute('data-window-state');
 
@@ -34,43 +33,50 @@
                             window.addEventListener("message", this.handleWindowMessages);
                             document.documentElement.classList.add('lqd-ext-chatbot-embedded');
                         }
-
-						@if(\App\Helpers\Classes\MarketplaceHelper::isRegistered('chatbot-agent'))
-							this.$watch('activeConversation', (newConversation, oldConversation) => {
-							if (this.pusherChannel) {
-								this.pusherChannel.unbind();
-								this.pusherInstance.unsubscribe(this.pusherChannel.name);
-								this.pusherChannel = null;
-							}
-
-							if (newConversation) {
-								this.initPusherForConversation(newConversation);
-							}
-						});
-						@endif
                     @endif
-
                 },
-                initPusherForConversation(conversationId) {
-                    if (!this.pusherInstance) {
-                        // Pusher.logToConsole = true;
-                        this.pusherInstance = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
-                            cluster: '{{ config('broadcasting.connections.pusher.cluster') }}'
-                        });
-                    }
+				async initAbly() {
 
-                    let channelName = 'conversation-' + conversationId;
-                    this.pusherChannel = this.pusherInstance.subscribe(channelName);
+					@if(isset($session))
+						if (!this.ablyInstance){
+							this.ablyInstance = new Ably.Realtime.Promise("{{ setting('ably_public_key') }}");
+						}
 
-                    this.pusherChannel.bind('new-message', (data) => {
-                        const incomingConversationId = data.conversationId || data.conversation_id;
-                        if (incomingConversationId === conversationId) {
-                            this.messages.push(data.history);
+						let channelName = 'conversation-session-{{ $session }}';
 
-                            this.$nextTick(this.scrollMessagesToBottom);
-                        }
-                    });
+						this.ablyChannel = this.ablyInstance.channels.get(channelName);
+
+						await this.ablyChannel.subscribe('new-message', (message) => {
+							let data = message.data;
+
+							let incomingConversationId = data.conversationId;
+
+							if (incomingConversationId === this.activeConversation) {
+								this.messages.push(data.history);
+
+								this.$nextTick(this.scrollMessagesToBottom);
+							}
+
+							this.conversations.map((conversation) => {
+								if (conversation.id === incomingConversationId) {
+									conversation.last_message = data.history.message;
+								}
+								return conversation;
+							});
+						});
+					@endif
                 },
+				connectToAgentStepOne() {
+					this.showConnectButtonStepOne = false;
+					this.showConnectButtonStepTwo = true;
+				},
+				conversationMessages() {
+
+					this.showConnectButtonStepOne = true;
+					this.showConnectButtonStepTwo = false;
+
+					return this.messages;
+				},
                 connectToAgent() {
 
                     @if (isset($chatbot) && isset($session) && \App\Helpers\Classes\MarketplaceHelper::isRegistered('chatbot-agent'))
@@ -112,8 +118,10 @@
 
                                 return conversation;
                             });
+
+							this.showConnectButtonStepOne = true;
+							this.showConnectButtonStepTwo = false;
                         }).catch((err) => {
-                            // console.error(err);
                         });
                     @endif
                 },
@@ -134,7 +142,6 @@
                     const chatbotElStyles = getComputedStyle(this.$el);
                     const styles = {};
                     const attrs = {};
-
                     [
                         '--lqd-ext-chat-font-family',
                         '--lqd-ext-chat-offset-y',
@@ -166,9 +173,6 @@
                     this.windowState = state ? state : (this.windowState === 'open' ? 'close' : 'open');
                     this.$el.setAttribute('data-window-state', this.windowState);
                 },
-                /**
-                 * @param {'conversation-messages', 'conversations-list'}
-                 */
                 toggleView(view) {
                     if (view === this.currentView) return;
 
@@ -208,7 +212,11 @@
 
                     if (!this.conversations.length) {
                         await this.startNewConversation();
-                    }
+                    } else {
+						@if(\App\Helpers\Classes\MarketplaceHelper::isRegistered('chatbot-agent') && isset($chatbot) && isset($session))
+							await this.initAbly();
+						@endif
+					}
 
                     this.fetching = false;
                 },
@@ -235,7 +243,14 @@
                     const data = await res.json();
 
                     if (!res.ok) {
-                        console.error(data);
+
+						if(this.ablyChannel && this.ablyInstance) {
+							this.ablyChannel.unsubscribe();
+							this.ablyChannel = null;
+						}
+
+						await this.initAbly();
+
                         return this.fetching = false;
                     }
 
@@ -250,7 +265,15 @@
                     this.toggleView('conversation-messages');
 
                     this.fetching = false;
-                },
+
+					if(this.ablyChannel && this.ablyInstance) {
+						this.ablyChannel.unsubscribe();
+						// this.ablyInstance.close();
+						this.ablyChannel = null;
+					}
+
+					await this.initAbly();
+				},
                 async openConversation(conversationId, fetchData = {{ $is_editor ? 'false' : 'true' }}) {
 
                     if (!fetchData) {
@@ -263,19 +286,21 @@
 
                     this.activeConversationData = this.conversations.find(conversation => conversation.id === conversationId);
 
-                    this.connect_agent_at = this.activeConversationData?.connect_agent_at;
+                    // this.connect_agent_at = this.activeConversationData?.connect_agent_at;
+
+					this.connect_agent_at = null;
 
                     this.activeConversation = this.activeConversationData?.id;
 
-                    let connectToAgentStore = localStorage.getItem('connectToAgentStore:' + this.activeConversationData?.id) ?? null;
-
-                    if (this.activeConversationData?.connect_agent_at === null && connectToAgentStore === 'on') {
-                        this.showConnectButton = false;
-                    } else if (this.activeConversationData?.connect_agent_at && connectToAgentStore === null) {
-                        localStorage.setItem('connectToAgentStore:' + this.activeConversationData?.id, 'on');
-                    } else if (this.activeConversationData?.connect_agent_at && connectToAgentStore === 'off') {
-                        this.showConnectButton = false;
-                    }
+                    // let connectToAgentStore = localStorage.getItem('connectToAgentStore:' + this.activeConversationData?.id) ?? null;
+					//
+                    // if (this.activeConversationData?.connect_agent_at === null && connectToAgentStore === 'on') {
+                    //     this.showConnectButton = false;
+                    // } else if (this.activeConversationData?.connect_agent_at && connectToAgentStore === null) {
+                    //     localStorage.setItem('connectToAgentStore:' + this.activeConversationData?.id, 'on');
+                    // } else if (this.activeConversationData?.connect_agent_at && connectToAgentStore === 'off') {
+                    //     this.showConnectButton = false;
+                    // }
 
                     if (!this.activeConversation) {
                         console.error('Conversation not found');

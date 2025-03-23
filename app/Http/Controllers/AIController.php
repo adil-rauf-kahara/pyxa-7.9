@@ -844,6 +844,8 @@ class AIController extends Controller
      */
     public function imageOutput($param, $post, $user): JsonResponse
     {
+        // dd($param, $post, $user);
+        
         $lockKey = 'generate_image_output_lock';
         if (! Cache::lock($lockKey, 10)->get()) { // Attempt to acquire lock
             return response()->json(['message' => 'Image generation in progress. Please try again later.'], 409);
@@ -1123,6 +1125,7 @@ class AIController extends Controller
      */
     public function audioIsolator($file, $post, $user): JsonResponse
     {
+        // dd($file, $post, $user);
         $voiceTypes = ['ogg', 'mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'wav', 'webm'];
         if (! in_array(Str::lower($file->getClientOriginalExtension()), $voiceTypes)) {
             $data = [
@@ -1132,7 +1135,7 @@ class AIController extends Controller
             return response()->json($data, 419);
         }
 
-        set_time_limit(3000);
+        set_time_limit(30000000);
         $driver = Entity::driver(EntityEnum::ISOLATOR);
         $driver->redirectIfNoCreditBalance();
 
@@ -1151,7 +1154,7 @@ class AIController extends Controller
                     'filename' => $mp3FileName,
                 ],
             ],
-            'timeout' => 3000,
+            'timeout' => 300000000,
         ]);
         $resAudio = $response->getBody();
         $characterCost = $response->getHeader('character-cost');
@@ -1400,42 +1403,53 @@ class AIController extends Controller
         };
     }
 
-    private function processOpenAIImage(?EntityEnum $model, array $param): array
-    {
-        $is_demo = Helper::appIsDemo();
-        $size = $param['size'];
-        $description = $param['description'];
-        $style = $param['image_style'] ?? null;
-        $lighting = $param['image_lighting'] ?? null;
-        $mood = $param['mood'] ?? null;
-        $quality = $param['quality'];
-        $prompt = $description;
-        if (is_null($prompt)) {
-            throw new RuntimeException(__('You must provide a prompt'));
-        }
-        $attributes = [
-            'style'    => $style ? "$style style" : null,
-            'lighting' => $lighting ? "$lighting lighting" : null,
-            'mood'     => $mood ? "$mood mood" : null,
-        ];
-        $prompt .= ' ' . implode(' ', array_filter($attributes));
-        $response = FacadesOpenAI::images()->create([
-            'model'           => $model,
-            'prompt'          => $prompt,
-            'size'            => $is_demo ? $this->getDemoImageSize($model) : $size,
-            'response_format' => 'b64_json',
-            'quality'         => $is_demo ? 'standard' : $quality,
-            'n'               => 1,
-        ]);
-        $contents = base64_decode($response['data'][0]['b64_json']);
-        $nameOfImage = Str::random(12) . '-DALL-E-' . Str::slug(explode(' ', mb_substr($prompt, 0, 15))[0]) . '.png';
-
-        return [
-            'prompt'                => $prompt,
-            'imageContent'          => $contents,
-            'nameOfImage'           => $nameOfImage,
-        ];
+   private function processOpenAIImage(?EntityEnum $model, array $param): array
+{
+    // dd($param);
+    $is_demo = Helper::appIsDemo();
+    
+    // Check if 'size' exists in $param and is not null, default to a valid string if needed
+    // $size = isset($param['size']) && is_string($param['size']) ? $param['size'] : null;
+    
+    $description = $param['description'];
+    $style = $param['image_style'] ?? null;
+    $lighting = $param['image_lighting'] ?? null;
+    $mood = $param['mood'] ?? null;
+    // $quality = isset($param['quality']) && is_string($param['quality']) ? $param['quality'] : null;
+    $prompt = $description;
+    
+    if (is_null($prompt)) {
+        throw new RuntimeException(__('You must provide a prompt'));
     }
+
+    $attributes = [
+        'style'    => $style ? "$style style" : null,
+        'lighting' => $lighting ? "$lighting lighting" : null,
+        'mood'     => $mood ? "$mood mood" : null,
+    ];
+    
+    $prompt .= ' ' . implode(' ', array_filter($attributes));
+    
+    $response = FacadesOpenAI::images()->create([
+        'model'           => $model,
+        'prompt'          => $prompt,
+        // Use the demo image size or the size passed, ensuring it is a string or omitted
+        'size'            => $this->getDemoImageSize($model),
+        'response_format' => 'b64_json',
+        'quality'         =>  'standard',
+        'n'               => 1,
+    ]);
+    
+    $contents = base64_decode($response['data'][0]['b64_json']);
+    $nameOfImage = Str::random(12) . '-DALL-E-' . Str::slug(explode(' ', mb_substr($prompt, 0, 15))[0]) . '.png';
+
+    return [
+        'prompt'                => $prompt,
+        'imageContent'          => $contents,
+        'nameOfImage'           => $nameOfImage,
+    ];
+}
+
 
     /**
      * @throws GuzzleException

@@ -233,33 +233,67 @@
 					&& $chatbot->getAttribute('interaction_type') === \App\Extensions\Chatbot\System\Enums\InteractionType::SMART_SWITCH
 					&& \App\Helpers\Classes\MarketplaceHelper::isRegistered('chatbot-agent')
 				)
-					<div class="connect-agent" x-show="connect_agent_at === null && showConnectButton">
+					<div
+						 x-show="connect_agent_at === null && showConnectButton"
+					>
+						<div
+							class="connect-agent"
+							x-show="showConnectButtonStepOne"
+						>
 
-						<!-- Thanks Button -->
-						<button  @click="dontConnectToAgent"  class="button thanks-button">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="24"
-								height="24"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="#3B82F6"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-							>
-								<path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3" />
-							</svg>
-							@lang('Thanks!')
-						</button>
+							<!-- Thanks Button -->
+							<button  @click="dontConnectToAgent"  class="button thanks-button">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="#3B82F6"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3" />
+								</svg>
+								@lang('This answered my question')
+							</button>
+							<!-- Talk to an Agent Button -->
+							<button @click="connectToAgentStepOne" class="button agent-button">
+								<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-help"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 17l0 .01" /><path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" /></svg>							@lang('Get more help')
+							</button>
+						</div>
 
-						<!-- Talk to an Agent Button -->
-						<button @click="connectToAgent" class="button agent-button">
-							<img class="icon" src="{{ asset('vendor/chatbot/icons/agent-button.svg') }}" alt="icon">
-							@lang('Talk to an Agent')
-						</button>
+						<div
+							class="connect-agent"
+							x-show="showConnectButtonStepTwo"
+						>
+							<!-- Thanks Button -->
+							<button  @click="dontConnectToAgent"  class="button thanks-button">
+{{--								<svg--}}
+{{--									xmlns="http://www.w3.org/2000/svg"--}}
+{{--									width="24"--}}
+{{--									height="24"--}}
+{{--									viewBox="0 0 24 24"--}}
+{{--									fill="none"--}}
+{{--									stroke="#3B82F6"--}}
+{{--									stroke-width="2"--}}
+{{--									stroke-linecap="round"--}}
+{{--									stroke-linejoin="round"--}}
+{{--								>--}}
+{{--									<path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3" />--}}
+{{--								</svg>--}}
+								@lang('Could you explain again?')
+							</button>
 
+							<!-- Talk to an Agent Button -->
+							<button @click="connectToAgent" class="button agent-button">
+								<img class="icon" src="{{ asset('vendor/chatbot/icons/agent-button.svg') }}" alt="icon">
+								@lang('Connect to agent')
+							</button>
+						</div>
 					</div>
+
 				@endif
 			</div>
 			@if (!$is_editor)
@@ -520,7 +554,7 @@
 	></script>
 
 	@if(\App\Helpers\Classes\MarketplaceHelper::isRegistered('chatbot-agent'))
-		<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+		<script src="https://cdn.ably.com/lib/ably.min-1.js" type="text/javascript"></script>
 	@endif
 
 	@include('chatbot::frontend-ui.frontend-ui-scripts', ['is_editor' => $is_editor])

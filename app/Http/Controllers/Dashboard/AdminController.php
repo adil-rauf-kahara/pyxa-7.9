@@ -378,6 +378,8 @@ class AdminController extends Controller
 
     public function usersSave(Request $request): void
     {
+        // dd( $request->all());
+        
         $request->validate([
             'user_id'                  => 'required|exists:users,id',
             'name'                     => 'required|string|max:255',
@@ -387,6 +389,9 @@ class AdminController extends Controller
             'country'                  => 'nullable',
             'type'                     => ['required', new Enum(Roles::class)],
             'status'                   => 'nullable|in:0,1',
+            'plan_ai_tools'            => 'nullable|json',
+            'plan_features'            => 'nullable|json',
+            'open_ai_items'            => 'nullable|json',
             'entities.*.*.isUnlimited' => [
                 'sometimes',
                 function ($attribute, $value, $fail) {
@@ -400,6 +405,9 @@ class AdminController extends Controller
         ]);
         $entities = $request->input('entities');
         $user = User::query()->find($request->user_id);
+        $planAiTools = json_decode($request->input('plan_ai_tools'), true);
+        $planFeatures = json_decode($request->input('plan_features'), true);
+        $openAiItems = json_decode($request->input('open_ai_items'), true);
         $user->update([
             'name'    => $request->name,
             'surname' => $request->surname,
@@ -408,7 +416,12 @@ class AdminController extends Controller
             'country' => $request->country,
             'type'    => $request->type,
             'status'  => $request->status,
+            'plan_ai_tools' => json_encode($planAiTools),  // Store as JSON
+            'plan_features' => json_encode($planFeatures),  // Store as JSON
+            'open_ai_items' => json_encode($openAiItems),  // Store as JSON
         ]);
+        
+        
 
         $user->updateCredits($entities);
     }

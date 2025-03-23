@@ -14,11 +14,13 @@ class ChatbotConversationResource extends JsonResource
     public function toArray(Request $request): array|Arrayable|JsonSerializable
     {
         return [
-            'id'               => $this->getAttribute('id'),
-            'chatbot_id'       => $this->getAttribute('chatbot_id'),
-            'session_id'       => $this->getAttribute('session_id'),
-            'connect_agent_at' => $this->getAttribute('connect_agent_at'),
-            'last_message'     => $this->whenLoaded('lastMessage', function () {
+            'id'                => $this->getAttribute('id'),
+            'ip_address'        => $this->getAttribute('ip_address'),
+            'conversation_name' => $this->getAttribute('conversation_name'),
+            'chatbot_id'        => $this->getAttribute('chatbot_id'),
+            'session_id'        => $this->getAttribute('session_id'),
+            'connect_agent_at'  => $this->getAttribute('connect_agent_at'),
+            'last_message'      => $this->whenLoaded('lastMessage', function () {
                 return $this->lastMessage?->getAttribute('message');
             }),
             'created_at' => $this->getAttribute('created_at')->timezone($this->timezone()),

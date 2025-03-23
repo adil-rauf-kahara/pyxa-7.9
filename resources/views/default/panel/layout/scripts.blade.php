@@ -59,7 +59,6 @@
         please_fill_message: @json(__('Please fill the message field')),
         api_connection_error: @json(__('Api Connection Error. You hit the rate limites of openai requests. Please check your Openai API Key')),
         api_connection_error_admin: @json(__('Api Connection Error. Please contact system administrator via Support Ticket. Error is: API Connection failed due to API keys')),
-        file_size_exceed: @json(__('This file exceed the limit of file upload')),
         something_wrong: @json(__('Something went wrong. Please reload the page and try it again')),
         fill_all_fields: @json(__('Please fill all fields in User Group Input areas')),
         at_least_one_group: @json(__('You must have at least one group of inputs')),

@@ -815,7 +815,10 @@ class MenuService
                 'active_condition' => [
                     'dashboard.user.apikeys.*',
                 ],
-                'show_condition' => Helper::appIsDemo() || Helper::setting('user_api_option', null, $setting) || auth()->user()->relationPlan?->getAttribute('user_api'),
+                // 'show_condition' => Helper::appIsDemo() || Helper::setting('user_api_option', null, $setting) || auth()->user()->relationPlan?->getAttribute('user_api'),
+                'show_condition' => Helper::appIsDemo() 
+                || Helper::setting('user_api_option', null, $setting) 
+                || (auth()->check() && auth()->user()->relationPlan?->getAttribute('user_api')),
             ],
             'affiliates' => [
                 'parent_key'       => null,

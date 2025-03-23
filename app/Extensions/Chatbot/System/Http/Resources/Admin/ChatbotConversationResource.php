@@ -15,9 +15,12 @@ class ChatbotConversationResource extends JsonResource
     public function toArray(Request $request): array|Arrayable|JsonSerializable
     {
         return [
-            'id'          => $this->getAttribute('id'),
-            'chatbot'     => ChatbotResource::make($this->getAttribute('chatbot')),
-            'lastMessage' => $this->getAttribute('lastMessage') ? ChatbotHistoryResource::make($this->getAttribute('lastMessage')) : [
+            'id'                => $this->getAttribute('id'),
+            'ip_address'        => $this->getAttribute('ip_address'),
+            'conversation_name' => $this->getAttribute('conversation_name'),
+            'chatbot'           => ChatbotResource::make($this->getAttribute('chatbot')),
+            'lastMessage'       => $this->getAttribute('lastMessage') ? ChatbotHistoryResource::make($this->getAttribute('lastMessage')) : [
+                'message' => 'No message',
                 'read_at' => now(),
             ],
             'chatbot_id'  => $this->getAttribute('chatbot_id'),

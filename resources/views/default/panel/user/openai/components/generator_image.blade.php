@@ -123,9 +123,9 @@
                 </x-button>
             @endif
 
-			@if(\App\Helpers\Classes\ApiHelper::setPiAPIKey())
-					@includeIf('midjourney::midjourney-tab')
-			@endif
+			<!--@if(\App\Helpers\Classes\ApiHelper::setPiAPIKey())-->
+			<!--		@includeIf('midjourney::midjourney-tab')-->
+			<!--@endif-->
 
             @if (\App\Helpers\Classes\ApiHelper::setFalAIKey())
                 @includeFirst(['flux-pro::flux-pro-tab', 'panel.user.openai.includes.flux-pro-tab', 'vendor.empty'])

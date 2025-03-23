@@ -14,6 +14,7 @@ class ChatbotHistoryResource extends JsonResource
     public function toArray(Request $request): array|Arrayable|JsonSerializable
     {
         return [
+            'conversation_id'     => $this->getAttribute('conversation_id'),
             'role'                => $this->getAttribute('role'),
             'message'             => $this->getAttribute('message'),
             'created_at'          => $this->getAttribute('created_at')->timezone($this->timezone()),

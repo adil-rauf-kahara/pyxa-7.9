@@ -78,12 +78,13 @@
             />
 
             <x-forms.input
-                class:container="w-full"
+                class="container w-full"
                 id="attachment"
                 name="attachment"
                 type="file"
                 size="lg"
                 label="{{ __('Attach File') }}"
+                accept="image/*,.pdf,.doc,.docx,.txt,.xlsx,.pptx,.zip,.rar"
             />
 
             <x-button

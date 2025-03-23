@@ -22,6 +22,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::post('register-user',  'App\Http\Controllers\Api\AuthController@registerUser');
+ 
+Route::post('add-feature-to-user', 'App\Http\Controllers\Api\AuthController@addFeatureToUser');
+
+Route::post('add-tokens','App\Http\Controllers\Api\AuthController@addTokensToUser');
+
+Route::post('update-Entity-Credits-To-Unlimited','App\Http\Controllers\Api\AuthController@updateEntityCreditsToUnlimited');
+
+Route::post('update-text-models-to-unlimited','App\Http\Controllers\Api\AuthController@updateTextModelsToUnlimited');
+
+
 Route::prefix('auth')->group(function () {
     Route::post('register', 'App\Http\Controllers\Api\AuthController@register');
     Route::post('forgot-password', 'App\Http\Controllers\Api\AuthController@sendPasswordResetMail');

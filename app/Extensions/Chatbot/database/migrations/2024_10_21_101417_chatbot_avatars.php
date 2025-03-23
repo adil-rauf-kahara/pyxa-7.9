@@ -12,6 +12,10 @@ return new class extends Migration
 
     public function up(): void
     {
+        if (Schema::hasTable(self::$prefix . '_chatbot_avatars')) {
+            return;
+        }
+
         Schema::create(self::$prefix . '_chatbot_avatars', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->nullable();
@@ -25,21 +29,26 @@ return new class extends Migration
             return;
         }
 
-        foreach ($avatars as $avatar) {
+        try {
+            foreach ($avatars as $avatar) {
 
-            $image = Storage::disk('extension')->path('Chatbot/resources/assets/avatars/' . $avatar);
+                $image = Storage::disk('extension')->path('Chatbot/resources/assets/avatars/' . $avatar);
 
-            if (\Illuminate\Support\Facades\File::exists($image) === false) {
-                continue;
+                if (\Illuminate\Support\Facades\File::exists($image) === false) {
+                    continue;
+                }
+
+                $file = Storage::disk('public')->putFile('avatars', $image);
+
+                ChatbotAvatar::query()->create([
+                    'avatar'     => 'uploads/' . $file,
+                    'created_at' => now(),
+                ]);
             }
+        } catch (\Exception $e) {
 
-            $file = Storage::disk('public')->putFile('avatars', $image);
-
-            ChatbotAvatar::query()->create([
-                'avatar'     => 'uploads/' . $file,
-                'created_at' => now(),
-            ]);
         }
+
     }
 
     public function down(): void

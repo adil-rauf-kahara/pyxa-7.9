@@ -11,9 +11,7 @@ use App\Extensions\Chatbot\System\Models\Chatbot;
 use App\Extensions\Chatbot\System\Models\ChatbotConversation;
 use App\Extensions\Chatbot\System\Models\ChatbotHistory;
 use App\Extensions\Chatbot\System\Services\GeneratorService;
-use App\Extensions\ChatbotAgent\System\Events\ChatbotForMenuEvent;
-use App\Extensions\ChatbotAgent\System\Events\ChatbotForPanelEvent;
-use App\Extensions\ChatbotAgent\System\Events\NewConversationForPanelEvent;
+use App\Extensions\ChatbotAgent\System\Services\ChatbotForPanelEventAbly;
 use App\Helpers\Classes\Helper;
 use App\Helpers\Classes\MarketplaceHelper;
 use App\Http\Controllers\Controller;
@@ -75,7 +73,7 @@ class ChatbotApplicationController extends Controller
                 }
 
                 try {
-                    NewConversationForPanelEvent::dispatch($chatbot, $conversation);
+                    ChatbotForPanelEventAbly::dispatch($chatbot, $conversation, $chatbotHistory);
                 } catch (Exception $e) {
                     Log::error($e->getMessage());
                 }
@@ -93,12 +91,18 @@ class ChatbotApplicationController extends Controller
     {
         $chatbotConversation = ChatbotConversation::query()
             ->create([
+                'ip_address'       => request()->header('cf-connecting-ip') ?: request()->ip(),
                 'chatbot_id'       => $chatbot->getAttribute('id'),
                 'session_id'       => $sessionId,
                 'connect_agent_at' => $chatbot->getAttribute('interaction_type') === InteractionType::HUMAN_SUPPORT ? now() : null,
             ]);
 
-        $this->insertMessage($chatbotConversation, $chatbot->getAttribute('welcome_message'), 'assistant', $chatbot->getAttribute('ai_model'));
+        $this->insertMessage(
+            $chatbotConversation,
+            $chatbot->getAttribute('welcome_message'),
+            'assistant', $chatbot->getAttribute('ai_model'),
+            (bool) $chatbotConversation->getAttribute('connect_agent_at')
+        );
 
         return ChatbotConversationResource::make($chatbotConversation);
     }
@@ -194,8 +198,11 @@ class ChatbotApplicationController extends Controller
         if ($sendEvent || $forcePanelEvent) {
             $conversation->touch();
             if (MarketplaceHelper::isRegistered('chatbot-agent')) {
-                ChatbotForPanelEvent::dispatch($chatbotHistory, $chatbot);
-                ChatbotForMenuEvent::dispatch($chatbot->getAttribute('user_id'));
+                ChatbotForPanelEventAbly::dispatch(
+                    $chatbot,
+                    $conversation->load('lastMessage'),
+                    $chatbotHistory
+                );
             }
         }
 

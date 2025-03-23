@@ -12,6 +12,10 @@ return new class extends Migration
 
     public function up(): void
     {
+        if (Schema::hasTable(self::$prefix . '_chatbots')) {
+            return;
+        }
+
         Schema::create(self::$prefix . '_chatbots', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();

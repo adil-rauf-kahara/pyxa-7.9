@@ -90,11 +90,12 @@ class AIArticleWizardController extends Controller
                         if (json_decode($record->image) != $extraImage['path']) {
                             if (($extraImage['storage'] ?? '') == self::STORAGE_S3) {
                                 Storage::disk(self::STORAGE_S3)->delete(basename($extraImage['path']));
-                            } else {
-                                if (file_exists(substr($extraImage['path'], 1))) {
-                                    unlink(substr($extraImage['path'], 1));
-                                }
-                            }
+                            } 
+                            // else {
+                            //     if (file_exists(substr($extraImage['path'], 1))) {
+                            //         unlink(substr($extraImage['path'], 1));
+                            //     }
+                            // }
                         }
                     }
                 }

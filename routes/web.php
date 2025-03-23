@@ -14,13 +14,17 @@ use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use RachidLaasri\LaravelInstaller\Middleware\ApplicationStatus;
 
+
+
 Route::view('test/chatbot', 'default.chatbot');
 
 Route::get('/test', [TestController::class, 'test']);
 
 Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['checkInstallation', 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath']], function () {
-    Route::get('/', [IndexController::class, 'index'])
-        ->name('index');
+Route::get('/', function () {
+    return redirect()->route('login');
+})->name('index');
+
 
     Route::get('/privacy-policy', [PageController::class, 'pagePrivacy']);
     Route::get('/terms', [PageController::class, 'pageTerms']);

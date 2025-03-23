@@ -499,10 +499,12 @@
                                 >
                                     {{ __('Cancel') }}
                                 </x-button>
+                               
                                 <x-button
                                     id="btn_add_new"
                                     tag="button"
                                     x-ref="submitBtn"
+                                    @click="modalOpen = false"
                                 >
                                     {{ __('Add') }}
                                 </x-button>

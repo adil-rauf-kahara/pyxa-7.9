@@ -80,7 +80,7 @@
                         title: '{{ __('MagicBot') }}',
                         bubble_message: '{{ __('Hey there, How can I help you?') }}',
                         welcome_message: '{{ __('Hi, how can I help you?') }}',
-						connect_message: '{{ __('Connecting you to an agent') }}',
+						connect_message: '{{ __('I’ve forwarded your request to a human agent. An agent will connect with you as soon as possible.') }}',
                         instructions: '',
                         do_not_go_beyond_instructions: 0,
                         language: '',

@@ -1,10 +1,7 @@
 $( '#file' ).on( 'change', function () {
 	"use strict";
 	var isNull = false;
-	if ( this.files[ 0 ].size > 24900000 ) {
-		toastr.error(magicai_localize?.file_size_exceed ||'This file exceed the limit of file upload')
-		isNull = true;
-	}
+	
 	var ext = $( '#file' ).val().split( '.' ).pop().toLowerCase();
 	if ( $.inArray( ext, [ 'mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'wav', 'webm', 'ogg' ] ) == -1 ) {
 		toastr.error(magicai_localize?.invalid_extension ||'Invalid extension. Accepted extensions are ogg, mp3, mp4, mpeg, mpga, m4a, wav, and webm')
