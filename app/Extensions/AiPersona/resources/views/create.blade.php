@@ -105,17 +105,7 @@
             <option value="false">{{ __('False') }}</option>
         </x-forms.input>
 
-        <x-forms.input
-            id="caption"
-            size="lg"
-            type="select"
-            label="{{ __('Caption') }}"
-            name="caption"
-            required
-        >
-            <option value="false">{{ __('False') }}</option>
-            <option value="true">{{ __('True') }}</option>
-        </x-forms.input>
+      
 
         <x-form-step
             step="2"
@@ -169,16 +159,20 @@
                 x-model="selectedVoiceId"
             >
         </div>
+    
 
-        <x-forms.input
+       <x-forms.input
             id="input_text"
-            label="{{ __('Input Text') }}"
+            label="{{ __('Input Text (Text must not be greater than 2000 characters.)') }}"
             placeholder="{{ __('Input for text to voice.') }}"
             type="textarea"
             rows="3"
             name="input_text"
             required
         ></x-forms.input>
+        
+        
+
 
         @if ($app_is_demo)
             <x-button

@@ -56,3 +56,7 @@ Stack trace:
 [15-Mar-2025 21:58:50 UTC] 1.846
 [15-Mar-2025 21:59:05 UTC] 1.846
 [15-Mar-2025 21:59:39 UTC] 1.846
+[02-Apr-2025 12:41:01 UTC] 5.526
+[04-Apr-2025 07:10:51 UTC] PHP Fatal error:  Cannot use Illuminate\Http\JsonResponse as JsonResponse because the name is already in use in /home/newpyxa/public_html/app/Extensions/AIPlagiarism/System/Http/Controllers/PlagiarismController.php on line 19
+[04-Apr-2025 09:18:47 UTC] PHP Fatal error:  Cannot use Exception as Exception because the name is already in use in /home/newpyxa/public_html/app/Extensions/AIPlagiarism/System/Http/Controllers/PlagiarismController.php on line 18
+[04-Apr-2025 09:18:51 UTC] PHP Fatal error:  Cannot use Exception as Exception because the name is already in use in /home/newpyxa/public_html/app/Extensions/AIPlagiarism/System/Http/Controllers/PlagiarismController.php on line 18

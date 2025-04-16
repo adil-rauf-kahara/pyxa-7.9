@@ -48,6 +48,9 @@
     {{ $currfolder?->name ? __("Folder: $currfolder?->name") : __('My Documents') }}
 @endsection
 
+
+
+
 {{-- Filter list --}}
 @if ($items && count($items) > 0)
     @section('titlebar_after')

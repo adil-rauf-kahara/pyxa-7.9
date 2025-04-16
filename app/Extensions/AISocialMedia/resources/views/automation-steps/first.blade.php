@@ -1,6 +1,16 @@
 @extends('ai-social-media::automation-steps.layout')
 
 @section('yield_content')
+
+	<div class="mb-8 border-b pb-6">
+    		<x-button
+            href="{{ asset('/uploads/AI-Social-Media-Setup.pdf') }}"  {{-- Replace with actual route if needed --}}
+            variant="secondary"
+            target="_blank"
+        >
+            {{ __('Instructions') }}
+        </x-button>
+	</div>
 	<div class="mb-8 border-b pb-6">
 		<h3 class="mb-5 flex flex-wrap items-center justify-between gap-3">
 			@lang('Select a Platform')
@@ -13,7 +23,7 @@
 			</x-button>
 		</h3>
 		<p>
-			@lang('Choose the social media platforms you would like to pubish your post. Feel free to select multiple platforms at once.')
+			@lang('Choose the social media platforms you would like to publish your post. Feel free to select multiple platforms at once.')
 		</p>
 	</div>
 

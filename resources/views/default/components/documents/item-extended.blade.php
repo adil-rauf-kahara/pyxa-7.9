@@ -12,6 +12,7 @@
         title="{{ __('View and edit') }}"
     ></a>
 
+
     <div
         class="lqd-posts-item-content lqd-docs-item-content sort-name grid grid-flow-col-dense items-center justify-start gap-3 text-sm transition-border group-[&[data-view-mode=grid]]:mb-1 group-[&[data-view-mode=grid]]:block group-[&[data-view-mode=grid]]:h-28 group-[&[data-view-mode=grid]]:items-start group-[&[data-view-mode=grid]]:overflow-hidden group-[&[data-view-mode=grid]]:border-b group-[&[data-view-mode=grid]]:pb-3 group-[&[data-view-mode=grid]]:pt-3 group-[&[data-view-mode=grid]]:text-2xs">
         @if ($entry->generator->type == 'image')
@@ -21,6 +22,19 @@
                 alt="{{ __($entry->generator->title) }}"
                 loading="lazy"
             />
+           
+       @elseif ($entry->generator->type == 'video')
+            <video
+                class="lqd-posts-item-img lqd-docs-item-img size-9 rounded-full object-cover object-center group-[&[data-view-mode=grid]]:mb-2 group-[&[data-view-mode=grid]]:aspect-video group-[&[data-view-mode=grid]]:h-auto group-[&[data-view-mode=grid]]:w-full group-[&[data-view-mode=grid]]:rounded-md"
+                controls
+                preload="metadata"
+                loading="lazy"
+                 aria-label="{{ __($entry->generator->title) }}"
+            >
+                <source src="{{ custom_theme_url($entry->output) }}" type="video/mp4"
+                >
+                Your browser does not support the video tag.
+            </video>
         @else
             <x-lqd-icon
                 class="lqd-posts-item-icon lqd-docs-item-icon"

@@ -66,62 +66,70 @@ class TTSController extends Controller
      * @throws Exception
      * @throws Throwable
      */
-    public function generateSpeech(Request $request)
-    {
-        // if (Helper::appIsDemo()) {
-        //    return $this->sendErrorResponse(__('This feature is disabled in Demo version.'));
-        // }
+   public function generateSpeech(Request $request)
+{
+    // Decode speeches JSON safely
+    $speeches = json_decode($request->speeches, true, 512, JSON_THROW_ON_ERROR);
 
-        $speeches = json_decode($request->speeches, true, 512, JSON_THROW_ON_ERROR);
-        if (empty($speeches)) {
-            return $this->sendErrorResponse(__('Please provide inputs.'));
+    // Validate each speech content length
+    foreach ($speeches as $speech) {
+        if (strlen($speech['content']) > 2000) {
+            // dd("Here");
+            return $this->sendErrorResponse(__('Speech content cannot exceed 2000 characters.'));
         }
-
-        if ($this->settingsTwo->daily_voice_limit_enabled) {
-            $limitResponse = $this->checkDailyVoiceLimit();
-            if ($limitResponse !== null) {
-                return $limitResponse;
-            }
-        }
-
-        $resAudio = '';
-        $langsAndVoices = [];
-        $wordCount = 0;
-
-        $user = Auth::user();
-        if (! $user) {
-            return $this->sendErrorResponse(__('Unauthorized Access.'));
-        }
-
-        $azureService = $this->hasAzureSpeech($speeches) ? new AzureService : null;
-        $speechifyService = $this->hasSpeechifySpeech($speeches) ? new SpeechifyService : null;
-
-        foreach ($speeches as $speech) {
-            $model = $this->getAIModel($speech['platform'], $speech['pace']);
-            $driver = Entity::driver($model)->inputVoiceCount(1)->calculateCredit();
-            $langsAndVoices['language'][] = $speech['lang'];
-            $langsAndVoices['voices'][] = $speech['voice'];
-
-            if (! $driver->hasCreditBalanceForInput()) {
-                return $this->sendErrorResponse(__('Insufficient credits to generate audio.'));
-            }
-
-            try {
-                $audioContent = $this->processSpeech($speech, $azureService, $speechifyService);
-            } catch (ApiException|GuzzleException $e) {
-                return $this->sendErrorResponse(__('Failed to connect to the AI service') . ': ' . $e->getMessage());
-            }
-
-            $resAudio .= $audioContent;
-            $wordCount += $this->countWords($speech['content']);
-            $driver->decreaseCredit();
-        }
-
-        $audioName = $this->storeAudio($user->id, $resAudio);
-        $this->saveSpeechRecord($user, $request, $audioName, $wordCount, $langsAndVoices);
-
-        return $this->buildResponse($request, $audioName, $user);
     }
+
+    if (empty($speeches)) {
+        return $this->sendErrorResponse(__('Please provide inputs.'));
+    }
+
+    if ($this->settingsTwo->daily_voice_limit_enabled) {
+        $limitResponse = $this->checkDailyVoiceLimit();
+        if ($limitResponse !== null) {
+            return $limitResponse;
+        }
+    }
+
+    $resAudio = '';
+    $langsAndVoices = [];
+    $wordCount = 0;
+
+    $user = Auth::user();
+    if (!$user) {
+        return $this->sendErrorResponse(__('Unauthorized Access.'));
+    }
+
+    $azureService = $this->hasAzureSpeech($speeches) ? new AzureService : null;
+    $speechifyService = $this->hasSpeechifySpeech($speeches) ? new SpeechifyService : null;
+
+    foreach ($speeches as $speech) {
+        $model = $this->getAIModel($speech['platform'], $speech['pace']);
+        $driver = Entity::driver($model)->inputVoiceCount(1)->calculateCredit();
+        $langsAndVoices['language'][] = $speech['lang'];
+        $langsAndVoices['voices'][] = $speech['voice'];
+
+        if (!$driver->hasCreditBalanceForInput()) {
+            return $this->sendErrorResponse(__('Insufficient credits to generate audio.'));
+        }
+
+        try {
+            $audioContent = $this->processSpeech($speech, $azureService, $speechifyService);
+        } catch (ApiException|GuzzleException $e) {
+            return $this->sendErrorResponse(__('Failed to connect to the AI service') . ': ' . $e->getMessage());
+        }
+
+        $resAudio .= $audioContent;
+        $wordCount += $this->countWords($speech['content']);
+        $driver->decreaseCredit();
+    }
+
+    $audioName = $this->storeAudio($user->id, $resAudio);
+    $this->saveSpeechRecord($user, $request, $audioName, $wordCount, $langsAndVoices);
+
+    return $this->buildResponse($request, $audioName, $user);
+}
+
+
 
     /**
      * Determines the appropriate AI model based on the platform and speech pace.

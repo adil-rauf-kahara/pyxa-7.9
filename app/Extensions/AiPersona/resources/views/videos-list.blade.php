@@ -52,6 +52,7 @@
             x-on:keydown.escape.window="setVideoSrc(null)"
     >
         @foreach ($list as $entry)
+        
 
             @include('ai-persona::video-item', ['entry' => $entry, 'loop' => $loop])
         @endforeach

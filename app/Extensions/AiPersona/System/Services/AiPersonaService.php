@@ -39,6 +39,8 @@ class AiPersonaService
                 'headers' => $this->getHeaders(),
                 'body'    => json_encode($params),
             ])->getBody()->getContents();
+            
+            // dd($response);
 
             return json_decode($response, true);
         } catch (RequestException $e) {

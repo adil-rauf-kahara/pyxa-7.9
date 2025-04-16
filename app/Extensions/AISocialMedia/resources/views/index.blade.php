@@ -3,7 +3,7 @@
 @endphp
 
 @extends('panel.layout.app', ['disable_tblr' => true])
-@section('title', 'AI Social Media')
+@section('title', 'AI Social Media1')
 @section('titlebar_actions', '')
 
 @section('additional_css')

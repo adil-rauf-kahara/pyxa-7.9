@@ -622,8 +622,17 @@ public function updateEntityCreditsToUnlimited(Request $request)
     foreach ($entityCredits as $toolName => $models) {
         foreach ($models as $modelName => $modelData) {
             // Set isUnlimited to true
-            $entityCredits[$toolName][$modelName]['isUnlimited'] = true;
+            // $entityCredits[$toolName][$modelName]['isUnlimited'] = true;
+            // if (in_array(strtolower($modelName), $textModels)) 
+            // {
+                if ($entityCredits[$toolName][$modelName]['credit'] > 0 && $entityCredits[$toolName][$modelName]['isUnlimited'] == false) 
+                {
+                    $entityCredits[$toolName][$modelName]['isUnlimited'] = true;
+                }
+            // }
+        
         }
+        
     }
 
     // Update the user's entity_credits field
@@ -762,9 +771,21 @@ public function updateTextModelsToUnlimited(Request $request)
     foreach ($entityCredits as $toolName => $models) {
         foreach ($models as $modelName => $modelData) {
             // If the model is a text-based model, set `isUnlimited` to true
-            if (in_array(strtolower($modelName), $textModels)) {
-                $entityCredits[$toolName][$modelName]['isUnlimited'] = true;
+            // if (in_array(strtolower($modelName), $textModels)) {
+            //     $entityCredits[$toolName][$modelName]['isUnlimited'] = true;
+            // }
+            
+            if (in_array(strtolower($modelName), $textModels)) 
+            {
+                if ($entityCredits[$toolName][$modelName]['credit'] > 0 && $entityCredits[$toolName][$modelName]['isUnlimited'] == false) 
+                {
+                    $entityCredits[$toolName][$modelName]['isUnlimited'] = true;
+                }
             }
+            
+             // Additional check: if credits > 0 and isUnlimited is false, set isUnlimited to true
+             
+            
         }
     }
 

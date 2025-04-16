@@ -166,6 +166,8 @@ class AuthenticationController extends Controller
      */
     public function registerStore(Request $request): JsonResponse
     {
+        // dd("Here");
+        
         $settings = Setting::getCache();
 
         if ($settings->recaptcha_register && ($settings->recaptcha_sitekey || $settings->recaptcha_secretkey)) {
@@ -215,7 +217,7 @@ class AuthenticationController extends Controller
             'email'                   => $request->email,
             'email_confirmation_code' => Str::random(67),
             'password'                => Hash::make($request->password),
-            'email_verification_code' => Str::random(67),
+            // 'email_verification_code' => Str::random(67),
             'affiliate_id'            => $affCode,
             'affiliate_code'          => Str::upper(Str::random(12)),
         ]);

@@ -3,11 +3,21 @@
 @section('titlebar_subtitle', __('Optimize content with our SEO Tool: keywords, meta titles, descriptions, and more. Integrated with Article Wizard for streamlined efficiency.'))
 
 @section('content')
+ 
     <div
-        class="py-10"
+        class="py-10 "
         x-data="{ 'activeFilter': 'Keywords' }"
     >
-        <div class="container">
+        <x-button
+                class="py-0.5"
+                id="generate_speech_button"
+                tag="button"
+                type="button"
+                size="lg"
+            >
+                {{ __('SEO Tool does not support Special characters and emojis...') }}
+    </x-button>
+        <div class="container mt-5">
             @include('seo-tool::seo-tool')
         </div>
     </div>

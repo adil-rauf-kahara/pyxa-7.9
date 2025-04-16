@@ -860,7 +860,9 @@ class AIController extends Controller
         try {
             $engine = EngineEnum::fromSlug($engineCheck);
             $model = $this->getDefaultModel($engine);
+            // dd($model);
             $code = $this->getEngineCode($engine);
+            // dd( $code);
             $number_of_images = (int) $param['image_number_of_images'];
 
             if ($param['image_generator'] === 'ideogram') {
@@ -868,6 +870,7 @@ class AIController extends Controller
             }
 
             $driver = Entity::driver($model)->inputImageCount($number_of_images)->calculateCredit();
+            // dd($driver);
 
             $chkLmt = Helper::checkImageDailyLimit();
 
@@ -878,12 +881,17 @@ class AIController extends Controller
             $driver->redirectIfNoCreditBalance();
 
             $apiKey = $this->getOpenAiApiKey($user);
+            
+            // dd($apiKey );
 
             config(['openai.api_key' => $apiKey]);
 
             set_time_limit(120);
 
             $entries = [];
+            
+            // dd($engine, $model, $param);
+            
             for ($i = 0; $i < $number_of_images; $i++) {
                 $imageDetails = $this->processImageGeneration($engine, $model, $param);
                 $savePath = $this->saveImageOutputToStorage($imageDetails);
@@ -891,6 +899,7 @@ class AIController extends Controller
                 $entry->img_id = 'img-' . $entry->response . '-' . $entry->id;
                 $entries[] = $entry;
             }
+            
 
             $driver->decreaseCredit();
 
@@ -913,7 +922,7 @@ class AIController extends Controller
      * @throws GuzzleException
      * @throws Exception
      */
-    public function videoOutput($param): JsonResponse
+       public function videoOutput($param): JsonResponse
     {
         set_time_limit(120);
         $imageToVideoModel = EntityEnum::IMAGE_TO_VIDEO;
@@ -1394,6 +1403,8 @@ class AIController extends Controller
      */
     private function processImageGeneration(?EngineEnum $engine, ?EntityEnum $model, array $param): array
     {
+        // dd($engine , $model, $param);
+        
         return match ($engine) {
             EngineEnum::OPEN_AI          => $this->processOpenAIImage($model, $param),
             EngineEnum::STABLE_DIFFUSION => $this->processStableDiffusionImage($model, $param),
@@ -1458,6 +1469,7 @@ class AIController extends Controller
      */
     private function processStableDiffusionImage(?EntityEnum $model, array $param): array
     {
+        // dd($model, $param);
         $stable_type = $param['type'];
         $prompt = $param['stable_description'];
         if (is_null($prompt)) {
@@ -1473,6 +1485,7 @@ class AIController extends Controller
         $mood = $param['mood'] ?? null;
         $defaultSdModel = $this->getStableDiffusionDefaultModel()->value;
         $isV2BetaModels = EntityEnum::fromSlug($defaultSdModel)->isV2BetaSdEntity();
+        // dd($isV2BetaModels);
 
         $width = (int) explode('x', $image_resolution)[0];
         $height = (int) explode('x', $image_resolution)[1];
@@ -1614,7 +1627,13 @@ class AIController extends Controller
         }
 
         try {
-            if ($isV2BetaModels && in_array($stable_type, ['text-to-image', 'image-to-image', 'upscale'], true)) {
+            // dd("Here");
+            // dd($stable_type);
+            
+            if (in_array($stable_type, ['text-to-image', 'image-to-image', 'upscale'], true)) {
+                
+                // dd("Here");
+                
                 $defaultSdModel = 'sd3';
                 $sd3Payload[] = ['name' => 'model', 'contents' => $defaultSdModel];
                 $sd3Payload[] = [
@@ -1623,6 +1642,7 @@ class AIController extends Controller
                 ];
 
                 if ($stable_type === 'upscale') {
+                    // dd("Here");
                     $http = new Client([
                         'headers'  => [
                             'Content-Type'  => $contentType,
@@ -1675,7 +1695,7 @@ class AIController extends Controller
             $nameOfPrompt = explode(' ', mb_substr($prompt[0]['text'], 0, 15))[0];
             $nameOfImage = Str::random(12) . '-STABLE-' . $nameOfPrompt . '.png';
             if (
-                ($stable_type === 'text-to-image' || $stable_type === 'image-to-image' || $stable_type === 'upscale') && $isV2BetaModels
+                ($stable_type === 'text-to-image' || $stable_type === 'image-to-image' || $stable_type === 'upscale')
             ) {
                 $contents = base64_decode(json_decode($body, false, 512, JSON_THROW_ON_ERROR)->image);
             } else {

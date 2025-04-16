@@ -200,7 +200,7 @@
                     class="ms-3 font-normal"
                     id="content_length"
                 >
-                    0/5000
+                    0/20000
                 </small>
             </h4>
         </x-card>
@@ -243,10 +243,42 @@
                     clearTimeout(typingTimer);
                     typingTimer = setTimeout(doneTyping, doneTypingInterval);
                 });
+                
+                
+                contentScan.addEventListener('input', () => {
+                let plainText = contentScan.innerText || "";
+                if (plainText.length > 20000) {
+                    // Trim to 20,000 characters
+                    let trimmed = plainText.substring(0, 20000);
+                    contentScan.innerText = trimmed;
+                    // Move cursor to end
+                    placeCaretAtEnd(contentScan);
+                    toastr.warning('Character limit of 20,000 has been reached.');
+                }
+            
+                // Update character count display
+                document.getElementById('content_length').innerText = (contentScan.innerText.length) + '/20000';
+            
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(doneTyping, doneTypingInterval);
+            });
 
                 // Initial check to set placeholder if div is empty
                 checkPlaceholder();
             });
+            
+            function placeCaretAtEnd(el) {
+                el.focus();
+                if (typeof window.getSelection != "undefined"
+                    && typeof document.createRange != "undefined") {
+                    let range = document.createRange();
+                    range.selectNodeContents(el);
+                    range.collapse(false);
+                    let sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            }
 
             function handleContentSubmit() {
                 let content = document.getElementById('content_scan').innerHTML;

@@ -9,12 +9,17 @@ use App\Models\SettingTwo;
 use App\Models\UserOpenai;
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Domains\Engine\Enums\EngineEnum;
+use App\Domains\Entity\Enums\EntityEnum;
+use App\Domains\Entity\Facades\Entity;
+use Throwable;
+use Illuminate\Http\JsonResponse;
 
 class PlagiarismController extends Controller
 {
+    
     // public function plagiarismCheck(Request $request): ?JsonResponse
     // {
     //     // dd("Here");
@@ -174,13 +179,37 @@ class PlagiarismController extends Controller
     //     }
     // }
     
+    
+    
     public function plagiarismCheck(Request $request)
 {
    
     ini_set('max_execution_time', 240);
     
     $settings = SettingTwo::first();
+    
+    $plagi = EngineEnum::PLAGIARISM_CHECK;
+    
+    // dd($plagi);
+    
+    $wordCount = str_word_count($request->text);
+    
+    // dd( $wordCount );
+    
+    $model = $this->getAIModel($plagi->value);
+    
+    // dd($model);
+    
+    $driver = Entity::driver($model)->input($request->text)->calculateCredit();
+    
+    // dd($driver);
+   
 
+    if (! $driver->hasCreditBalanceForInput()) {
+        throw new Exception(__('Insufficient credits to generate output.'));
+        // return $this->sendErrorResponse(__('Insufficient credits to generate output.'));
+    }
+            
     if($settings->plagiarism_key == ""){
         return response()->json(['message' => 'Please input plagiarism api key'], 401);
     }
@@ -214,8 +243,7 @@ class PlagiarismController extends Controller
         if($result->status == 200 )
         {
            
-           
-            $wordCount = str_word_count($request->text);
+            $driver->decreaseCredit();
             
             return response()->json(['$result' => $result]);
         }
@@ -265,6 +293,28 @@ class PlagiarismController extends Controller
 
     $settings = SettingTwo::first();
     
+    $plagi = EngineEnum::PLAGIARISM_CHECK;
+    
+    // dd($plagi);
+    
+    $wordCount = str_word_count($request->text);
+    
+    // dd( $wordCount );
+    
+    $model = $this->getAIModel($plagi->value);
+    
+    // dd($model);
+    
+    $driver = Entity::driver($model)->input($request->text)->calculateCredit();
+    
+    // dd($driver);
+   
+
+    if (! $driver->hasCreditBalanceForInput()) {
+        throw new Exception(__('Insufficient credits to generate output.'));
+        // return $this->sendErrorResponse(__('Insufficient credits to generate output.'));
+    }
+    
     if (empty($settings->plagiarism_key)) {
         return response()->json(['message' => 'Please input plagiarism API key'], 401);
     }
@@ -297,7 +347,9 @@ class PlagiarismController extends Controller
     
         if ($result['status'] == 200) {
             
-             $wordCount = str_word_count($request->text);
+            //  $wordCount = str_word_count($request->text);
+             
+             $driver->decreaseCredit();
             
             // userCreditDecreaseForWord(auth()->user(), $wordCount, 'plagiarismcheck');
             
@@ -415,27 +467,22 @@ class PlagiarismController extends Controller
 
         return response()->json([], 200);
     }
-    // public function serperapiTest(){
-    //     try {
-    //         $settings = SettingTwo::first();
-    //         if ($settings->serper_api_key == "") {
-    //             echo "You must provide Serper API Key.";
-    //             return;
-    //         }
-    //         $client = new Client();
-    //         $response = $client->post('https://google.serper.dev/search', [
-    //             'headers' => [
-    //                 'X-API-KEY' => $settings->serper_api_key,
-    //                 'Content-Type' => 'application/json',
-    //             ],
-    //             'json' => [
-    //                 'q' => 'Coffee',
-    //             ],
-    //         ]);
-    //         $responseData = json_decode($response->getBody(), true);
-    //         echo ' <br>'.$settings->serper_api_key.' - SUCCESS <br><hr> Example about "Coffee": <br>'. $responseData['organic'][0]['snippet'] .'<br>' ;
-    //     } catch (\Exception $e) {
-    //         echo $e->getMessage().' - '.$settings->serper_api_key.' -FAILED <br>';
-    //     }
-    // }
+   
+    private function getAIModel(string $platform): ?EntityEnum
+    {
+        return match ($platform) {
+           
+            EngineEnum::PLAGIARISM_CHECK->slug()     => EntityEnum::PLAGIARISMCHECK,
+            
+            default                        => throw new Exception(__('Invalid AI Model.')),
+        };
+    }
+    
+    private function sendErrorResponse(string $message): JsonResponse
+    {
+        return response()->json(['errors' => $message],429);
+    }
+    
+
+    
 }

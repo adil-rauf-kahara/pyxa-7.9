@@ -99,9 +99,16 @@
     <script src="/themes/default/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
     
     <script>
-        $("#content_scan").on('input', function(e) {
-            $("#content_length").text($(this).val().length + "/5000");
-        });
+       $("#content_scan").on('input', function(e) {
+    const currentLength = $(this).val().length;
+    if (currentLength <= 5000) {
+        $("#content_length").text(currentLength + "/5000");
+    } else {
+        // Truncate the input to 5000 characters
+        $(this).val($(this).val().substring(0, 5000));
+        $("#content_length").text("5000/5000");
+    }
+});
         
         let chart; // Declare chart as a global variable
 
