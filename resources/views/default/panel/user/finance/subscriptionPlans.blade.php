@@ -33,13 +33,15 @@
                         @endif
                     </div>
                 </div>
+               
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <x-card class="flex items-center text-start text-2xs" variant="shadow" size="sm">
                         <div class="flex items-center justify-between gap-1.5">
                             <p class="m-0">
+                                
                                 <span class="block font-semibold">@lang('Active Plan')</span>
-                                {{ Auth::user()->activePlan() != null ? getSubscriptionName() : __('None') }}
+                                {{ Auth::user()->activePlan()->name  }}
                             </p>
                         </div>
                     </x-card>
