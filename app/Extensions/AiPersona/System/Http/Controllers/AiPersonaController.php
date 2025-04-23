@@ -11,27 +11,12 @@ use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use App\Models\OpenAIGenerator;
-use App\Models\Setting;
-use App\Models\SettingTwo;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\File;
-use App\Models\UserOpenai;
-use App\Jobs\ProcessGeneratedAiPersonaVideo;
-use Illuminate\Support\Str;
 
 class AiPersonaController extends Controller
 {
-   public function __construct(
-    public AiPersonaService $service
-) {
-    $this->settings_two = SettingTwo::getCache();
-}
-    
-    public const STORAGE_S3 = 's3';
-
-    public const CLOUDFLARE_R2 = 'r2';
-    
+    public function __construct(
+        public AiPersonaService $service
+    ) {}
 
     public function index(): View
     {
@@ -65,89 +50,77 @@ class AiPersonaController extends Controller
         ]);
     }
 
-   public function store(Request $request)
-{
-    if (Helper::appIsDemo()) {
-        return response()->json([
-            'status'  => 'error',
-            'message' => trans('This feature is disabled in demo mode.'),
-        ]);
+    public function store(Request $request)
+    {
+        if (Helper::appIsDemo()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => trans('This feature is disabled in demo mode.'),
+            ]);
+        }
+
+        $avatarSettings = [
+            'type'         => 'avatar',
+            'avatar_id'    => $request->get('avatar_id'),
+            'avatar_style' => $request->get('avatar_style'),
+        ];
+
+        $voiceSettings = [
+            'type'       => 'text',
+            'input_text' => $request->get('input_text'),
+            'voice_id'   => $request->get('voice_id'),
+        ];
+
+        $videoInputs = [
+            'character' => $avatarSettings,
+            'voice'     => $voiceSettings,
+        ];
+
+        $body = [
+            'video_inputs' => [$videoInputs],
+            'caption'      => $request->get('caption'),
+            'dimension'    => [
+                'width'  => 1920,
+                'height' => 1080,
+            ],
+        ];
+
+        $driver = Entity::driver(EntityEnum::HEYGEN)->inputVideoCount(1)->calculateCredit();
+
+        try {
+            $driver->redirectIfNoCreditBalance();
+        } catch (Exception $e) {
+            return redirect()->back()->with([
+                'message' => 'You have no credits left. Please consider upgrading your plan.',
+                'type'    => 'error',
+            ]);
+        }
+
+        $service = new AiPersonaService;
+        $response = $service->createVideo($body);
+
+        if ($response['error'] == null) {
+
+            AiPersona::query()->create([
+                'user_id'   => auth()->user()->id,
+                'avatar_id' => $response['data']['video_id'],
+                'status'    => 'in_progress',
+            ]);
+
+            $driver->decreaseCredit();
+
+            return redirect()->route('dashboard.user.ai-persona.index')->with([
+                'message' => __('Video Created Successfully'),
+                'type'    => 'success',
+            ]);
+        } else {
+            return redirect()->back()->with([
+                'message' => $response['error']['message'],
+                'type'    => 'error',
+            ]);
+        }
+
     }
-
-    $request->validate([
-        'input_text' => 'required|string|max:2000',
-    ]);
-
-    $avatarSettings = [
-        'type'         => 'avatar',
-        'avatar_id'    => $request->get('avatar_id'),
-        'avatar_style' => $request->get('avatar_style'),
-    ];
-
-    $voiceSettings = [
-        'type'       => 'text',
-        'input_text' => $request->get('input_text'),
-        'voice_id'   => $request->get('voice_id'),
-    ];
-
-    $videoInputs = [
-        'character' => $avatarSettings,
-        'voice'     => $voiceSettings,
-    ];
-
-    $body = [
-        'video_inputs' => [$videoInputs],
-        'caption'      => true,
-        'dimension'    => [
-            'width'  => 1920,
-            'height' => 1080,
-        ],
-    ];
-
-    $driver = Entity::driver(EntityEnum::HEYGEN)->inputVideoCount(1)->calculateCredit();
-
-    try {
-        $driver->redirectIfNoCreditBalance();
-    } catch (Exception $e) {
-        return redirect()->back()->with([
-            'message' => 'You have no credits left. Please consider upgrading your plan.',
-            'type'    => 'error',
-        ]);
-    }
-
-    $service = new AiPersonaService();
-    $response = $service->createVideo($body);
-
-// if ($response['error'] === null) {
-    $videoId = $response['data']['video_id'];
-    
-   
-
-    // Dispatch background job
-    ProcessGeneratedAiPersonaVideo::dispatch(
-        $videoId,
-        $request->get('input_text'),
-        auth()->user()->id,
-        auth()->user()->team_id,
-        auth()->user()->fullName(),
-        $request->url
-    );
-
-    $driver->decreaseCredit();
-// } else {
-//     return redirect()->back()->with([
-//         'message' => $response['error']['message'] ?? 'Video generation failed.',
-//         'type'    => 'error',
-//     ]);
-// }
-
-return redirect()->route('dashboard.user.ai-persona.index')->with([
-    'message' => __('Video is being processed in background. Please check after some time.'),
-    'type'    => 'success',
-]);
-
-}
-
 
     /**
      * Remove the specified resource from storage.
@@ -186,8 +159,6 @@ return redirect()->route('dashboard.user.ai-persona.index')->with([
         $service = new AiPersonaService;
 
         $list = $service->listVideos()['data']['videos'];
-        
-        
 
         $data = [];
 
@@ -208,10 +179,5 @@ return redirect()->route('dashboard.user.ai-persona.index')->with([
         }
 
         return response()->json(['data' => $data]);
-    }
-    
-     private function sendErrorResponse(string $message): JsonResponse
-    {
-        return response()->json(['errors' => [$message]], 429);
     }
 }

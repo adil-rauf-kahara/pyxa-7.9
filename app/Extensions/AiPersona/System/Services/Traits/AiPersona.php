@@ -35,7 +35,7 @@ trait AiPersona
 
     public function listAvatars(): array
     {
-        $url = '/v2/avatars?premium=off';
+        $url = '/v2/avatars';
 
         return $this->get($url);
     }

@@ -5,15 +5,7 @@
     size="lg"
 >
     
-    <x-button
-                class="py-0.5"
-                id="generate_speech_button"
-                tag="button"
-                type="button"
-                size="lg"
-            >
-                {{ __('Per Generation = 8x Word Tokens') }}
-    </x-button>
+    
     
     <form
         class="workbook-form flex flex-col gap-8"

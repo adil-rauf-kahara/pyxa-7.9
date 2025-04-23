@@ -60,3 +60,14 @@ Stack trace:
 [04-Apr-2025 07:10:51 UTC] PHP Fatal error:  Cannot use Illuminate\Http\JsonResponse as JsonResponse because the name is already in use in /home/newpyxa/public_html/app/Extensions/AIPlagiarism/System/Http/Controllers/PlagiarismController.php on line 19
 [04-Apr-2025 09:18:47 UTC] PHP Fatal error:  Cannot use Exception as Exception because the name is already in use in /home/newpyxa/public_html/app/Extensions/AIPlagiarism/System/Http/Controllers/PlagiarismController.php on line 18
 [04-Apr-2025 09:18:51 UTC] PHP Fatal error:  Cannot use Exception as Exception because the name is already in use in /home/newpyxa/public_html/app/Extensions/AIPlagiarism/System/Http/Controllers/PlagiarismController.php on line 18
+[16-Apr-2025 14:03:47 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 11354879 bytes) in /home/newpyxa/public_html/vendor/smalot/pdfparser/src/Smalot/PdfParser/RawData/FilterHelper.php on line 239
+[16-Apr-2025 14:04:48 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 11354879 bytes) in /home/newpyxa/public_html/vendor/smalot/pdfparser/src/Smalot/PdfParser/RawData/FilterHelper.php on line 239
+[16-Apr-2025 14:05:12 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 11354879 bytes) in /home/newpyxa/public_html/vendor/smalot/pdfparser/src/Smalot/PdfParser/RawData/FilterHelper.php on line 239
+[16-Apr-2025 14:05:44 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 11354879 bytes) in /home/newpyxa/public_html/vendor/smalot/pdfparser/src/Smalot/PdfParser/RawData/FilterHelper.php on line 239
+[16-Apr-2025 14:15:33 UTC] 2.0097142857143
+[16-Apr-2025 14:45:24 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 44040224 bytes) in /home/newpyxa/public_html/app/Jobs/ProcessGeneratedAiPersonaVideo.php on line 61
+[17-Apr-2025 10:19:12 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 11354879 bytes) in /home/newpyxa/public_html/vendor/smalot/pdfparser/src/Smalot/PdfParser/RawData/FilterHelper.php on line 239
+[19-Apr-2025 16:09:29 UTC] 2.0097142857143
+[21-Apr-2025 13:14:04 UTC] 1
+[21-Apr-2025 13:14:13 UTC] 9.206
+[21-Apr-2025 13:15:45 UTC] 9.206

@@ -1484,13 +1484,16 @@ class AIController extends Controller
         $init_image = $param['image_src'] ?? null;
         $mood = $param['mood'] ?? null;
         $defaultSdModel = $this->getStableDiffusionDefaultModel()->value;
+        // dd($defaultSdModel);
         $isV2BetaModels = EntityEnum::fromSlug($defaultSdModel)->isV2BetaSdEntity();
         // dd($isV2BetaModels);
+        // dd(BedrockEngine::BEDROCK->value);
 
         $width = (int) explode('x', $image_resolution)[0];
         $height = (int) explode('x', $image_resolution)[1];
 
         if ($defaultSdModel === BedrockEngine::BEDROCK->value && $stable_type === 'text-to-image') {
+            // dd("Here");
             $response = $this->bedrockService->invokeStableDiffusion($prompt, random_int(1, 1000000), $width, $height);
             $nameOfImage = Str::random(12) . '-AWS-SD-' . Str::slug(explode(' ', mb_substr($prompt, 0, 15))[0]) . '.png';
 
@@ -1500,13 +1503,20 @@ class AIController extends Controller
                 'nameOfImage'           => $nameOfImage,
             ];
         }
+        // dd("Not Here");
+        
         $stableDiffusionKey = $this->getStableApiKey();
         if (empty($stableDiffusionKey)) {
             throw new RuntimeException(__('You must provide a StableDiffusion API Key.'));
         }
-
+        
+        // dd($isV2BetaModels, $stable_type);
+        
         $sd3Payload = [];
-        $baseUri = $isV2BetaModels && in_array($stable_type, ['text-to-image', 'image-to-image'], true)
+        
+        // $baseUri = $isV2BetaModels && in_array($stable_type, ['text-to-image', 'image-to-image'], true)
+        
+        $baseUri = in_array($stable_type, ['text-to-image', 'image-to-image'], true)
             ? 'https://api.stability.ai/v2beta/stable-image/generate/'
             : 'https://api.stability.ai/v1/generation/';
         $contentType = ($stable_type === 'image-to-image') ? 'multipart/form-data' : 'application/json';
@@ -1628,18 +1638,26 @@ class AIController extends Controller
 
         try {
             // dd("Here");
-            // dd($stable_type);
+            // dd("Here");
+            // dd($width . ':' . $height);
             
             if (in_array($stable_type, ['text-to-image', 'image-to-image', 'upscale'], true)) {
                 
-                // dd("Here");
+                // dd("Here" , $stable_type);
+                
                 
                 $defaultSdModel = 'sd3';
                 $sd3Payload[] = ['name' => 'model', 'contents' => $defaultSdModel];
-                $sd3Payload[] = [
-                    'name'     => 'aspect_ratio',
-                    'contents' => $width . ':' . $height,
-                ];
+                if($stable_type === 'upscale' && $stable_type === 'text-to-image')
+                {
+                    // dd("Here");
+                    
+                    $sd3Payload[] = [
+                        'name'     => 'aspect_ratio',
+                        'contents' => 21 . ':' . 9,
+                    ];
+                }
+                // dd("Not here");
 
                 if ($stable_type === 'upscale') {
                     // dd("Here");
