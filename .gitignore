@@ -1,3 +1,5 @@
 /public/uploads/
 /public/uploads/
 /pyxaextended.online/
+/vendor
+.env
