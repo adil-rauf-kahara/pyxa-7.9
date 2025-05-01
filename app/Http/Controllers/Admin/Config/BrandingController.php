@@ -60,6 +60,10 @@ class BrandingController extends Controller
 
     public function favicon(Request $request): RedirectResponse
     {
+        if (Helper::appIsDemo()) {
+            return back()->with(['message' => __('This feature is disabled in Demo version.'), 'type' => 'error']);
+        }
+
         $faviconPath = 'upload/images/favicon/';
 
         if ($request->hasFile('favicon')) {

@@ -23,12 +23,12 @@
                 ondragover="dragOverHandler(event);"
             >
                 <label
-                    class="lqd-filepicker-label min-h-64 flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-foreground/10 bg-background text-center transition-colors hover:bg-background/80"
+                    class="lqd-filepicker-label flex min-h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-foreground/10 bg-background text-center transition-colors hover:bg-background/80"
                     for="img2img_src"
                 >
                     <div class="flex flex-col items-center justify-center py-6">
                         <x-tabler-cloud-upload
-                            class="size-11 mb-4"
+                            class="mb-4 size-11"
                             stroke-width="1.5"
                         />
 
@@ -197,7 +197,7 @@
 
         @if ($userOpenai->count() > 0)
             <div
-                class="lqd-load-more-trigger min-h-px group w-full py-8 text-center font-medium text-heading-foreground"
+                class="lqd-load-more-trigger group min-h-px w-full py-8 text-center font-medium text-heading-foreground"
                 data-all-loaded="false"
             >
                 <span class="lqd-load-more-trigger-loading flex items-center justify-center gap-2 text-center leading-tight group-[&[data-all-loaded=true]]:hidden">
@@ -221,7 +221,7 @@
         <div
             class="lqd-modal-img fixed start-0 top-0 z-[999] hidden h-screen w-screen flex-col items-center border p-3 [&.is-active]:flex"
             id="modal_image"
-            x-data
+            x-data="{}"
             :class="{ 'is-active': modalShow }"
         >
             <div
@@ -233,7 +233,7 @@
                 <div class="container max-w-6xl">
                     <div class="lqd-modal-img-content relative flex flex-wrap justify-between rounded-xl bg-background !p-5 xl:min-h-[570px]">
                         <a
-                            class="size-9 absolute end-2 top-3 z-10 flex items-center justify-center rounded-full border bg-background text-inherit shadow-sm transition-all hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+                            class="absolute end-2 top-3 z-10 flex size-9 items-center justify-center rounded-full border bg-background text-inherit shadow-sm transition-all hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
                             @click.prevent="modalShow = false"
                             href="#"
                         >
@@ -251,7 +251,7 @@
                                     type="video/mp4"
                                 >
                                 <a
-                                    class="size-9 absolute !bottom-7 !end-7 inline-flex items-center justify-center rounded-full bg-background text-inherit shadow-sm transition-all hover:scale-105"
+                                    class="absolute !bottom-7 !end-7 inline-flex size-9 items-center justify-center rounded-full bg-background text-inherit shadow-sm transition-all hover:scale-105"
                                     href="#"
                                     :href="activeItem?.output"
                                     download
@@ -312,14 +312,14 @@
 
                         <!-- Prev/Next buttons -->
                         <a
-                            class="size-9 absolute -start-5 top-1/2 z-10 inline-flex -translate-y-1/2 items-center justify-center rounded-full bg-background text-inherit shadow-sm transition-all hover:scale-110 hover:bg-primary hover:text-primary-foreground"
+                            class="absolute -start-5 top-1/2 z-10 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-background text-inherit shadow-sm transition-all hover:scale-110 hover:bg-primary hover:text-primary-foreground"
                             href="#"
                             @click.prevent="prevItem()"
                         >
                             <x-tabler-chevron-left class="size-5" />
                         </a>
                         <a
-                            class="size-9 absolute -end-5 top-1/2 z-10 inline-flex -translate-y-1/2 items-center justify-center rounded-full bg-background text-inherit shadow-sm transition-all hover:scale-110 hover:bg-primary hover:text-primary-foreground"
+                            class="absolute -end-5 top-1/2 z-10 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-background text-inherit shadow-sm transition-all hover:scale-110 hover:bg-primary hover:text-primary-foreground"
                             href="#"
                             @click.prevent="nextItem()"
                         >

@@ -3,6 +3,7 @@
 namespace App\Services\PaymentGateways;
 
 use App\Actions\CreateActivity;
+use App\Actions\EmailPaymentConfirmation;
 use App\Enums\Plan\FrequencyEnum;
 use App\Enums\Plan\TypeEnum;
 use App\Events\IyzicoWebhookEvent;
@@ -657,6 +658,7 @@ class IyzicoService
                 $customSettings->delete();
                 \App\Models\Usage::getSingle()->updateSalesCount($newDiscountedPrice);
                 CreateActivity::for($user, __('Subscribed'), $plan->name . ' ' . __('Plan'));
+                EmailPaymentConfirmation::create($user, $plan)->send();
             } else {
                 // lifetime plan
                 $checkoutRequest = [
@@ -754,6 +756,7 @@ class IyzicoService
                         $customSettings->delete();
                         \App\Models\Usage::getSingle()->updateSalesCount($newDiscountedPrice);
                         CreateActivity::for($user, __('Subscribed'), $plan->name . ' ' . __('Plan'));
+                        EmailPaymentConfirmation::create($user, $plan)->send();
                     }
                 }
             }
@@ -1026,6 +1029,7 @@ class IyzicoService
                 $customSettings->delete();
                 \App\Models\Usage::getSingle()->updateSalesCount($newDiscountedPrice);
                 CreateActivity::for($user, __('Purchased'), $plan->name . ' ' . __('Token Pack'));
+                EmailPaymentConfirmation::create($user, $plan)->send();
             }
             DB::commit();
 

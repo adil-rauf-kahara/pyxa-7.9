@@ -16,6 +16,8 @@ function frontendSettingsSave() {
     var formData = new FormData();
     formData.append('site_name', $("#site_name").val());
     formData.append('register_active', $("#register_active").val());
+	formData.append('facebook_domain_verification', $("#facebook_domain_verification").val());
+	formData.append('google_robots', $("#google_robots").val());
     formData.append('site_url', $("#site_url").val());
     formData.append('site_email', $("#site_email").val());
     formData.append('frontend_pricing_section', $("#frontend_pricing_section").val());
@@ -43,10 +45,18 @@ function frontendSettingsSave() {
     formData.append('hero_button_url', $("#hero_button_url").val());
     formData.append('hero_button_type', $("#hero_button_type").val());
 
+
+
     formData.append('floating_button_small_text', $("#floating_button_small_text").val());
     formData.append('floating_button_bold_text', $("#floating_button_bold_text").val());
     formData.append('floating_button_link', $("#floating_button_link").val());
     formData.append('floating_button_active', $("#floating_button_active").val());
+
+	if ($("#no_credit_cart_required") && faster_content_creation && over_5000_businesses) {
+		formData.append('no_credit_cart_required', $("#no_credit_cart_required").val());
+		formData.append('faster_content_creation', faster_content_creation.getValue());
+		formData.append('over_5000_businesses', over_5000_businesses.getValue());
+	}
 
 
     if (frontend_code_before_head) {
@@ -158,6 +168,9 @@ function frontendSectionSettingsSave() {
     formData.append('faq_text_one', $("#faq_text_one").val());
     formData.append('faq_text_two', $("#faq_text_two").val());
 
+	if (join_the_ranks) {
+		formData.append('join_the_ranks', join_the_ranks.getValue());
+	}
 
     formData.append('blog_active', $("#blog_active").val());
     formData.append('blog_title', $("#blog_title").val());
@@ -246,16 +259,19 @@ function menuSettingsSave() {
         var title = $(this).find(".menu-title").val();
         var url = $(this).find(".menu-url").val();
         var target = $(this).find(".menu-target").prop("checked");
+		var mega_menu_id = $(this).find(".mega-menu-id option:selected").val();
 
         var data = {
             title: title,
             url: url,
-            target: target
+            target: target,
+			mega_menu_id: mega_menu_id,
         };
 
         menuData.push(data);
     });
 
+	console.log(menuData);
     var jsonData = JSON.stringify(menuData);
     formData.append('menu_options', jsonData);
 
@@ -553,6 +569,7 @@ function openaiSettingsSave() {
 	formData.append('hide_output_length_option', $("#hide_output_length_option").is(":checked") ? 1 : 0);
     formData.append('dalle_hidden', $("#dalle_hidden").is(":checked") ? 1 : 0);
     formData.append('realtime_voice_chat', $("#realtime_voice_chat").is(":checked") ? 1 : 0);
+	formData.append('openai_file_search', $("#openai_file_search").is(":checked") ? 1 : 0)
 
     $.ajax({
         type: "post",

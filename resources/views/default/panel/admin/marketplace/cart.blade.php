@@ -1,7 +1,7 @@
 @extends('panel.layout.app')
 @section('title', 'Cart')
 @section('titlebar_actions', '')
-
+@section('titlebar_pretitle', '')
 @section('content')
     <div class="py-10">
         <div class="mx-auto w-full text-center lg:w-6/12 lg:px-9">

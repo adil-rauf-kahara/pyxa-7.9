@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Extensions\AIPlagiarism\System;
 
 use App\Extensions\AIPlagiarism\System\Http\Controllers\PlagiarismController;
+use App\Http\Middleware\CheckTemplateTypeAndPlan;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
@@ -52,10 +53,10 @@ class AIPlagiarismServiceProvider extends ServiceProvider
                             ->name('user.')
                             ->group(function () {
                                 Route::prefix('openai')->name('openai.')->group(function () {
-                                    Route::get('detectaicontent', [PlagiarismController::class, 'detectAIContent'])->name('detectaicontent.index');
+                                    Route::get('detectaicontent', [PlagiarismController::class, 'detectAIContent'])->name('detectaicontent.index')->middleware(CheckTemplateTypeAndPlan::class);
                                     Route::post('aicontentcheck', [PlagiarismController::class, 'detectAIContentCheck'])->name('detectaicontent.check');
                                     Route::post('aicontentsave', [PlagiarismController::class, 'detectAIContentSave'])->name('detectaicontent.save');
-                                    Route::get('plagiarism', [PlagiarismController::class, 'plagiarism'])->name('plagiarism.index');
+                                    Route::get('plagiarism', [PlagiarismController::class, 'plagiarism'])->name('plagiarism.index')->middleware(CheckTemplateTypeAndPlan::class);
                                     Route::post('plagiarismcheck', [PlagiarismController::class, 'plagiarismCheck'])->name('plagiarism.check');
                                     Route::post('plagiarismsave', [PlagiarismController::class, 'plagiarismSave'])->name('plagiarism.save');
                                 });

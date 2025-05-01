@@ -4,9 +4,9 @@ namespace App\Http\Middleware;
 
 use App\Helpers\Classes\Helper;
 use Closure;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use PDOException;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckInstallation
@@ -19,18 +19,18 @@ class CheckInstallation
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            $dbConnectionStatus = Helper::dbConnectionStatus();
-            if ($dbConnectionStatus && Schema::hasTable('users')) {
-                return $next($request);
-            }
-
-            return redirect('/install');
-        } catch (QueryException $e) {
-            if (str_contains($e->getMessage(), 'Access denied for user')) {
+            if (! Helper::dbConnectionStatus()) {
                 return redirect('/install');
             }
 
-            throw $e;
+            static $hasUsersTable;
+            if ($hasUsersTable === null) {
+                $hasUsersTable = Schema::hasTable('users');
+            }
+
+            return $hasUsersTable ? $next($request) : redirect('/install');
+        } catch (PDOException $e) {
+            return redirect('/install');
         }
     }
 }

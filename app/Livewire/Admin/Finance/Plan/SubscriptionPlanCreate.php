@@ -221,7 +221,7 @@ class SubscriptionPlanCreate extends Component
         if (is_null($this->plan->hidden_url)) {
             $this->plan->hidden_url = Helper::parseUrl(
                 config('app.url'),
-                'dashboard/user/private',
+                'plan/private',
                 $this->plan->type,
                 Str::random(20)
             );

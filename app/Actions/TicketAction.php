@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Models\UserSupport;
-use App\Models\User;
 
 class TicketAction
 {
@@ -91,19 +90,13 @@ class TicketAction
 
         if ($this->isSenderAdmin()) {
             $this->sendNotify();
-        }
-        elseif($this->isSenderUser())
-        {
-            $this->sendNotifyToAdmins();
-        }
-        else {
+        } else {
             $this->createActivity();
         }
     }
 
     private function sendNotify(): void
     {
-       
         Notify::to(
             $this->ticket->user,
             $this->notifyTitle,
@@ -111,20 +104,6 @@ class TicketAction
             route('dashboard.support.view', $this->ticket->ticket_id)
         );
     }
-    
-    private function sendNotifyToAdmins(): void
-{
-    $admins = User::where('type', 'super_admin')->get(); // or use ->isAdmin() logic
-
-    foreach ($admins as $admin) {
-        Notify::to(
-            $admin,
-            $this->notifyTitle ?? 'New Support Ticket',
-            $this->message['message'] ?? 'A new support ticket has been submitted.',
-            route('dashboard.support.view', $this->ticket->ticket_id)
-        );
-    }
-}
 
     private function createActivity(): void
     {
@@ -139,11 +118,6 @@ class TicketAction
     private function isSenderAdmin(): bool
     {
         return $this->sender === 'admin';
-    }
-    
-     private function isSenderUser(): bool
-    {
-        return $this->sender === 'user';
     }
 
     private function updateStatus(): void

@@ -382,7 +382,7 @@
                         return_url: url,
                         payment_method_data: {
                             billing_details: {
-                                name: '{{ auth()->user()->fullName() }}',
+                                name: '{{ auth()->user()?->fullName() }}',
                                 email: '{{ auth()->user()->email }}',
                                 phone: '{{ auth()->user()->phone }}',
                                 address: {

@@ -1,5 +1,6 @@
 @php
     $base_class .= ' grid gap-4 px-4 py-3 text-2xs font-medium';
+	$isImage = $entry->generator->type === 'image';
 @endphp
 
 <div
@@ -8,33 +9,19 @@
 >
     <a
         class="lqd-posts-item-overlay-link lqd-docs-item-overlay-link absolute left-0 top-0 z-[2] h-full w-full"
-        href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.documents.single', $entry->slug)) }}"
+        href="{{  (route('dashboard.user.openai.documents.single', $entry->slug)) }}"
         title="{{ __('View and edit') }}"
     ></a>
 
-
     <div
         class="lqd-posts-item-content lqd-docs-item-content sort-name grid grid-flow-col-dense items-center justify-start gap-3 text-sm transition-border group-[&[data-view-mode=grid]]:mb-1 group-[&[data-view-mode=grid]]:block group-[&[data-view-mode=grid]]:h-28 group-[&[data-view-mode=grid]]:items-start group-[&[data-view-mode=grid]]:overflow-hidden group-[&[data-view-mode=grid]]:border-b group-[&[data-view-mode=grid]]:pb-3 group-[&[data-view-mode=grid]]:pt-3 group-[&[data-view-mode=grid]]:text-2xs">
-        @if ($entry->generator->type == 'image')
+        @if ($isImage)
             <img
                 class="lqd-posts-item-img lqd-docs-item-img size-9 rounded-full object-cover object-center group-[&[data-view-mode=grid]]:mb-2 group-[&[data-view-mode=grid]]:aspect-video group-[&[data-view-mode=grid]]:h-auto group-[&[data-view-mode=grid]]:w-full group-[&[data-view-mode=grid]]:rounded-md"
                 src="{{ ThumbImage(custom_theme_url($entry->output)) }}"
                 alt="{{ __($entry->generator->title) }}"
                 loading="lazy"
             />
-           
-       @elseif ($entry->generator->type == 'video')
-            <video
-                class="lqd-posts-item-img lqd-docs-item-img size-9 rounded-full object-cover object-center group-[&[data-view-mode=grid]]:mb-2 group-[&[data-view-mode=grid]]:aspect-video group-[&[data-view-mode=grid]]:h-auto group-[&[data-view-mode=grid]]:w-full group-[&[data-view-mode=grid]]:rounded-md"
-                controls
-                preload="metadata"
-                loading="lazy"
-                 aria-label="{{ __($entry->generator->title) }}"
-            >
-                <source src="{{ custom_theme_url($entry->output) }}" type="video/mp4"
-                >
-                Your browser does not support the video tag.
-            </video>
         @else
             <x-lqd-icon
                 class="lqd-posts-item-icon lqd-docs-item-icon"
@@ -51,10 +38,13 @@
         <div class="lqd-posts-item-content-inner lqd-docs-item-content-inner grow overflow-hidden group-[&[data-view-mode=grid]]:h-full">
             <p
                 class="lqd-posts-item-title lqd-docs-item-title overflow-hidden overflow-ellipsis whitespace-nowrap group-[&[data-view-mode=grid]]:h-full group-[&[data-view-mode=grid]]:whitespace-normal">
+				@php
+					$title = $entry->title ? ($entry->title. ' : ' . $entry->output) :  $entry->output
+				@endphp
                 @if (in_array($entry->generator->type, ['text', 'youtube', 'rss', 'code', 'image']))
-                    {{ str()->limit(strip_tags($entry->generator->type === 'image' ? $entry->title : $entry->title . ' : ' . $entry->output), $trim) }}
+                    {{ str()->limit(strip_tags($entry->generator->type === 'image' ? $entry->input : $title), $trim) }}
                 @elseif($entry->generator->type == 'audio')
-                    {!! str()->limit($entry->title . ' : ' . $entry->output, $trim) !!}
+                    {!! str()->limit($title, $trim) !!}
                 @elseif ($entry->generator->type == 'voiceover' || $entry->generator->type == 'isolator')
                     {{ str()->limit($entry->title, $trim) }}
                 @endif
@@ -74,10 +64,11 @@
         class="lqd-posts-item-date lqd-docs-item-date sort-date m-0 group-[&[data-view-mode=list]]:font-normal"
         data-date="{{ trim(strtotime($entry->created_at)) }}"
     >
-        {{ date('M j Y', strtotime($entry->created_at)) }}
-        <span class="opacity-50 group-[&[data-view-mode=grid]]:hidden">
-            , {{ date('H:i', strtotime($entry->created_at)) }}
-        </span>
+{{--        {{ date('M j Y', strtotime($entry->created_at)) }}--}}
+{{--        <span class="opacity-50 group-[&[data-view-mode=grid]]:hidden">--}}
+{{--            , {{ date('H:i', strtotime($entry->created_at)) }}--}}
+{{--        </span>--}}
+		{{ $entry->created_at->diffForHumans() }}
     </p>
 
     <span
@@ -101,7 +92,7 @@
             size="none"
             variant="ghost-shadow"
             hover-variant="danger"
-            href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.documents.delete', $entry->slug)) }}"
+            href="{{  (route('dashboard.user.openai.documents.delete', $entry->slug)) }}"
             onclick="return confirm('Are you sure?')"
             title="{{ __('Delete') }}"
         >
@@ -150,7 +141,7 @@
                     size="none"
                     variant="ghost-shadow"
                     hover-variant="danger"
-                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.documents.delete', $entry->slug)) }}"
+                    href="{{  (route('dashboard.user.openai.documents.delete', $entry->slug)) }}"
                     onclick="return confirm('Are you sure?')"
                 >
                     <x-tabler-circle-minus class="size-4 text-red-600" />

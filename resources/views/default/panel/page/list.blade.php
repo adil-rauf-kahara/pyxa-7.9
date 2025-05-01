@@ -3,7 +3,7 @@
 @section('titlebar_actions')
     <x-button
         onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-        href="{{ $app_is_demo ? '' : LaravelLocalization::localizeUrl(route('dashboard.page.addOrUpdate')) }}"
+        href="{{ $app_is_demo ? '' : route('dashboard.page.addOrUpdate') }}"
     >
         <x-tabler-plus class="size-4" />
         {{ __('Add Page') }}
@@ -59,7 +59,7 @@
                                 class="size-9"
                                 variant="ghost-shadow"
                                 size="none"
-                                href="{{ LaravelLocalization::localizeUrl(url('/page', $entry->slug)) }}"
+                                href="{{ url('/page', $entry->slug) }}"
                                 title="{{ __('View') }}"
                                 target="_blank"
                             >
@@ -91,7 +91,7 @@
                                         class="size-9"
                                         variant="ghost-shadow"
                                         size="none"
-                                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.page.addOrUpdate', $entry->id)) }}"
+                                        href="{{  (route('dashboard.page.addOrUpdate', $entry->id)) }}"
                                         title="{{ __('Edit') }}"
                                     >
                                         <x-tabler-pencil class="size-4" />
@@ -101,7 +101,7 @@
                                         variant="ghost-shadow"
                                         hover-variant="danger"
                                         size="none"
-                                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.page.delete', $entry->id)) }}"
+                                        href="{{  (route('dashboard.page.delete', $entry->id)) }}"
                                         onclick="confirm('{{ __('Are you sure? This is permanent.') }}')"
                                         title="{{ __('Delete') }}"
                                     >

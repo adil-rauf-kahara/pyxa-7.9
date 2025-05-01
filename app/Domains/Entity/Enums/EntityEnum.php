@@ -22,9 +22,11 @@ use App\Domains\Entity\Drivers\ClipDropDriver;
 use App\Domains\Entity\Drivers\Deepseek;
 use App\Domains\Entity\Drivers\ElevenLabs;
 use App\Domains\Entity\Drivers\FalAI;
+use App\Domains\Entity\Drivers\FreepikDriver;
 use App\Domains\Entity\Drivers\Gemini;
 use App\Domains\Entity\Drivers\GoogleDriver;
 use App\Domains\Entity\Drivers\HeygenDriver;
+use App\Domains\Entity\Drivers\NovitaDriver;
 use App\Domains\Entity\Drivers\OpenAI;
 use App\Domains\Entity\Drivers\OpenRouter;
 use App\Domains\Entity\Drivers\PebblelyDriver;
@@ -95,6 +97,9 @@ enum EntityEnum: string
 
     case GPT_4_O_MINI = 'gpt-4o-mini';
 
+    case GPT_4_O_SEARCH_PREVIEW = 'gpt-4o-search-preview';
+    case GPT_4_O_MINI_SEARCH_PREVIEW = 'gpt-4o-mini-search-preview';
+
     case GPT_4_O1_PREVIEW = 'o1-preview';
 
     case GPT_4_O1_MINI = 'o1-mini';
@@ -102,6 +107,18 @@ enum EntityEnum: string
     case GPT_O_03_mini = 'o3-mini';
 
     case GPT_4_5_PREVIEW = 'gpt-4.5-preview';
+
+    case GPT_4_O_REALTIME_PREVIEW = 'gpt-4o-realtime-preview-2024-12-17';
+
+    case GPT_4_1 = 'gpt-4.1';
+
+    case GPT_4_1_MINI = 'gpt-4.1-mini';
+
+    case GPT_4_1_NANO = 'gpt-4.1-nano';
+
+    case GPT_O_4_MINI = 'o4-mini';
+
+    case GPT_O_3 = 'o3';
 
     // embeding models for openai
     case TEXT_EMBEDDING_ADA_002 = 'text-embedding-ada-002';
@@ -141,6 +158,10 @@ enum EntityEnum: string
 
     case CLIPDROP = 'clipdrop';
 
+    case NOVITA = 'novita';
+
+    case FREEPIK = 'freepik';
+
     case PLAGIARISMCHECK = 'plagiarismcheck';
 
     case SYNTHESIA = 'synthesia';
@@ -149,11 +170,11 @@ enum EntityEnum: string
 
     case PEBBLELY = 'pebblely';
 
+    case DEEPSEEK_CHAT = 'deepseek-chat';
+
     case GEMINI_TEXT_EMBEDING_004 = 'text-embedding-004';
 
     case GEMINI_1_5_PRO_LATEST = 'gemini-1.5-pro-latest';
-
-    case DEEPSEEK_CHAT = 'deepseek-chat';
 
     case DEEPSEEK_REASONER = 'deepseek-reasoner';
 
@@ -205,6 +226,8 @@ enum EntityEnum: string
     case FLUX_SCHNELL = 'flux/schnell';
 
     case KLING = 'kling';
+
+    case KLING_IMAGE = 'klingImage';
 
     case LUMA_DREAM_MACHINE = 'luma-dream-machine';
 
@@ -296,31 +319,39 @@ enum EntityEnum: string
             self::ULTRA                             => __('Ultra'),
             self::AWS_BEDROCK                       => __('AWS Bedrock'),
             // OpenAI
-            self::DAVINCI                => __('Davinci 002 (Expensive &amp; Capable)'),
-            self::TEXT_DAVINCI_003       => __('Davinci 003 (Expensive &amp; Capable)'),
-            self::GPT_3_5_TURBO_16K      => __('GTP (3.5-turbo-16k)'),
-            self::GPT_3_5_TURBO          => __('GPT 3.5-turbo (Most Expensive & Fastest & Most Capable)'),
-            self::GPT_3_5_TURBO_0125     => __('GTP 3.5-turbo-0125 (Updated Knowleddge cutoff of Sep 2021, 16k)'),
-            self::GPT_3_5_TURBO_1106     => __('GTP 3.5-turbo-1106 (Updated Knowleddge cutoff of Nov 2021, 16k)'),
-            self::GPT_4_TURBO            => __('GPT-4 Turbo (Most Expensive & Fastest & Most Capable)'),
-            self::GPT_4                  => __('GPT-4 (Most Expensive & Fastest & Most Capable)'),
-            self::GPT_4_1106_PREVIEW     => __('GPT-4-1106 Turbo (Updated Knowleddge cutoff of April 2023, 128k)'),
-            self::GPT_4_0125_PREVIEW     => __('GPT-4-0125 Turbo (Updated Knowleddge cutoff of Dec 2023, 128k)'),
-            self::GPT_4_VISION_PREVIEW   => __('GPT-4 Turbo with vision (Understand images, in addition to all other GPT-4 Turbo capabilites)'),
-            self::TEXT_EMBEDDING_ADA_002 => __('Text Embedding Ada (Expensive &amp; Capable)'),
-            self::TEXT_EMBEDDING_3_SMALL => __('Text Embedding Small'),
-            self::TEXT_EMBEDDING_3_LARGE => __('Text Embedding Large'),
-            self::WHISPER_1              => __('WHISPER 1 The latest text to speech model, optimized for speed.'),
-            self::DALL_E_2               => __('DALL-E 2 The previous DALL·E model released in Nov 2022.'),
-            self::DALL_E_3               => __('DALL-E 3 The latest DALL·E model released in Nov 2023.'),
-            self::TTS_1                  => __('TTS 1 The latest text to speech model, optimized for speed.'),
-            self::TTS_1_HD               => __('TTS 1 HD The latest text to speech model, optimized for quality.'),
-            self::GPT_4_O                => __('GPT-4o Most advanced, multimodal flagship model that’s cheaper and faster than GPT-4 Turbo.  (Updated Knowleddge cutoff of Oct 2023, 128k)'),
-            self::GPT_4_O_MINI           => __('GPT-4o mini Our affordable and intelligent small model for fast, lightweight tasks. GPT-4o mini is cheaper and more capable than GPT-3.5 Turbo.'),
-            self::GPT_4_O1_PREVIEW       => __('GPT o1-preview (Updated Knowledge cutoff of Dec 2023, 128k)'),
-            self::GPT_4_O1_MINI          => __('GPT o1-mini (Updated Knowledge cutoff of Dec 2023, 128k)'),
-            self::GPT_O_03_mini          => __('GPT o3-mini (Updated Knowledge cutoff of October 2023, 200k)'),
-            self::GPT_4_5_PREVIEW        => __('GPT-4.5-preview (Updated Knowledge cutoff of October 2023, 128k)'),
+            self::DAVINCI                     => __('Davinci 002 (Expensive &amp; Capable)'),
+            self::TEXT_DAVINCI_003            => __('Davinci 003 (Expensive &amp; Capable)'),
+            self::GPT_3_5_TURBO_16K           => __('GTP (3.5-turbo-16k)'),
+            self::GPT_3_5_TURBO               => __('GPT 3.5-turbo (Most Expensive & Fastest & Most Capable)'),
+            self::GPT_3_5_TURBO_0125          => __('GTP 3.5-turbo-0125 (Updated Knowleddge cutoff of Sep 2021, 16k)'),
+            self::GPT_3_5_TURBO_1106          => __('GTP 3.5-turbo-1106 (Updated Knowleddge cutoff of Nov 2021, 16k)'),
+            self::GPT_4_TURBO                 => __('GPT-4 Turbo (Most Expensive & Fastest & Most Capable)'),
+            self::GPT_4                       => __('GPT-4 (Most Expensive & Fastest & Most Capable)'),
+            self::GPT_4_1106_PREVIEW          => __('GPT-4-1106 Turbo (Updated Knowleddge cutoff of April 2023, 128k)'),
+            self::GPT_4_0125_PREVIEW          => __('GPT-4-0125 Turbo (Updated Knowleddge cutoff of Dec 2023, 128k)'),
+            self::GPT_4_VISION_PREVIEW        => __('GPT-4 Turbo with vision (Understand images, in addition to all other GPT-4 Turbo capabilites)'),
+            self::TEXT_EMBEDDING_ADA_002      => __('Text Embedding Ada (Expensive &amp; Capable)'),
+            self::TEXT_EMBEDDING_3_SMALL      => __('Text Embedding Small'),
+            self::TEXT_EMBEDDING_3_LARGE      => __('Text Embedding Large'),
+            self::WHISPER_1                   => __('WHISPER 1 The latest text to speech model, optimized for speed.'),
+            self::DALL_E_2                    => __('DALL-E 2 The previous DALL·E model released in Nov 2022.'),
+            self::DALL_E_3                    => __('DALL-E 3 The latest DALL·E model released in Nov 2023.'),
+            self::TTS_1                       => __('TTS 1 The latest text to speech model, optimized for speed.'),
+            self::TTS_1_HD                    => __('TTS 1 HD The latest text to speech model, optimized for quality.'),
+            self::GPT_4_O                     => __('GPT-4o Most advanced works for Vision, multimodal flagship model that’s cheaper and faster than GPT-4 Turbo.  (Updated Knowleddge cutoff of Oct 2023, 128k)'),
+            self::GPT_4_O_MINI                => __('GPT-4o mini Our affordable and intelligent small model for fast, lightweight tasks. GPT-4o mini is cheaper and more capable than GPT-3.5 Turbo.'),
+            self::GPT_4_O_SEARCH_PREVIEW      => __('GPT-4o Search Preview'),
+            self::GPT_4_O_MINI_SEARCH_PREVIEW => __('GPT-4o Mini Search Preview'),
+            self::GPT_4_O1_PREVIEW            => __('GPT o1-preview (Updated Knowledge cutoff of Dec 2023, 128k)'),
+            self::GPT_4_O1_MINI               => __('GPT o1-mini (Updated Knowledge cutoff of Dec 2023, 128k)'),
+            self::GPT_O_03_mini               => __('GPT o3-mini (Updated Knowledge cutoff of October 2023, 200k)'),
+            self::GPT_4_5_PREVIEW             => __('GPT-4.5-preview (Updated Knowledge cutoff of October 2023, 128k)'),
+            self::GPT_4_O_REALTIME_PREVIEW    => __('GPT-4o Realtime Preview (Updated Knowledge cutoff of December 2024, 128k)'),
+            self::GPT_4_1                     => __('GPT-4.1 (Jun 01, 2024 knowledge cutoff, 32k max output tokens.)'),
+            self::GPT_4_1_MINI                => __('GPT-4.1 Mini (Jun 01, 2024 knowledge cutoff, 32k max output tokens.)'),
+            self::GPT_4_1_NANO                => __('GPT-4.1 Nano (Jun 01, 2024 knowledge cutoff, 32k max output tokens.)'),
+            self::GPT_O_4_MINI                => __('GPT o4-mini (Jun 01, 2024 knowledge cutoff, 100k max output tokens.)'),
+            self::GPT_O_3                     => __('GPT o3 (Jun 01, 2024 knowledge cutoff, 100k max output tokens.)'),
             // Anthropic
             self::CLAUDE_3_7_SONNET        => __('Claude 3.7 Sonnet'),
             self::CLAUDE_3_5_HAIKU         => __('Claude 3.5 Haiku'),
@@ -335,6 +366,8 @@ enum EntityEnum: string
             self::VOYAGE_LARGE_2           => __('Voyage Large 2'),
             self::VOYAGE_CODE_2            => __('Voyage Code 2'),
             self::CLIPDROP                 => __('Clipdrop for Photo Studio'),
+            self::NOVITA                   => __('Novita for Photo Studio'),
+            self::FREEPIK                  => __('Novita for Image Editor'),
             self::PLAGIARISMCHECK          => __('Plagiarism Check'),
             self::SYNTHESIA                => __('Synthesia'),
             self::HEYGEN                   => __('Heygen'),
@@ -379,6 +412,7 @@ enum EntityEnum: string
             self::FLUX_REALISM             => __('Flux Realism'),
             self::FLUX_SCHNELL             => __('Flux Schnell'),
             self::KLING                    => __('Kling 1.0'),
+            self::KLING_IMAGE              => __('Kling Image to Video'),
             self::LUMA_DREAM_MACHINE       => __('Luma Dream Machine'),
             self::HAIPER                   => __('Haiper'),
             self::MINIMAX                  => __('Minimax'),
@@ -475,10 +509,18 @@ enum EntityEnum: string
             self::TTS_1_HD,
             self::GPT_4_O,
             self::GPT_4_O_MINI,
+            self::GPT_4_O_SEARCH_PREVIEW,
+            self::GPT_4_O_MINI_SEARCH_PREVIEW,
             self::GPT_4_O1_PREVIEW,
             self::GPT_4_O1_MINI,
             self::GPT_O_03_mini,
-            self::GPT_4_5_PREVIEW => EngineEnum::OPEN_AI,
+            self::GPT_4_5_PREVIEW,
+            self::GPT_4_O_REALTIME_PREVIEW,
+            self::GPT_4_1,
+            self::GPT_4_1_MINI,
+            self::GPT_4_1_NANO,
+            self::GPT_O_3,
+            self::GPT_O_4_MINI => EngineEnum::OPEN_AI,
             // Anthropic
             self::CLAUDE_3_7_SONNET,
             self::CLAUDE_3_5_HAIKU,
@@ -496,6 +538,10 @@ enum EntityEnum: string
             self::DEEPSEEK_CHAT, self::DEEPSEEK_REASONER => EngineEnum::DEEP_SEEK,
             // Clipdrop
             self::CLIPDROP => EngineEnum::CLIPDROP,
+            // Novita
+            self::NOVITA => EngineEnum::NOVITA,
+            // Freepik
+            self::FREEPIK => EngineEnum::FREEPIK,
             // Plagiarism Check
             self::PLAGIARISMCHECK => EngineEnum::PLAGIARISM_CHECK,
             // SYNTHESIA
@@ -535,7 +581,7 @@ enum EntityEnum: string
             self::GROK_2_1212, self::GROK_2_VISION_1212 => EngineEnum::X_AI,
             // FAL AI
             self::VEO_2, self::VIDEO_UPSCALER, self::COGVIDEOX_5B, self::ANIMATEDIFF_V2V, self::FAST_ANIMATEDIFF_TURBO, self::FLUX_PRO, self::FLUX_PRO_1_1, self::FLUX_REALISM, self::FLUX_SCHNELL, self::IDEOGRAM,
-            self::KLING, self::LUMA_DREAM_MACHINE, self::HAIPER, self::MINIMAX => EngineEnum::FAL_AI,
+            self::KLING, self::KLING_IMAGE, self::LUMA_DREAM_MACHINE, self::HAIPER, self::MINIMAX => EngineEnum::FAL_AI,
             // AI/ML api minimax engine
             self::MUSIC_01 => EngineEnum::AI_ML_MINIMAX,
             // Open Router
@@ -588,31 +634,40 @@ enum EntityEnum: string
             self::ULTRA                            => StableDiffusion\UltraDriver::class,
             self::AWS_BEDROCK                      => StableDiffusion\AwsBedrockDriver::class,
             // OpenAI
-            self::DAVINCI                => OpenAI\DavinciDriver::class,
-            self::TEXT_DAVINCI_003       => OpenAI\TextDavinciDriver::class,
-            self::GPT_3_5_TURBO_16K      => OpenAI\GPT35Turbo16KDriver::class,
-            self::GPT_3_5_TURBO          => OpenAI\GPT35TurboDriver::class,
-            self::GPT_3_5_TURBO_0125     => OpenAI\GPT35Turbo0125Driver::class,
-            self::GPT_3_5_TURBO_1106     => OpenAI\GPT35Turbo1106Driver::class,
-            self::GPT_4_TURBO            => OpenAI\GPT4TurboDriver::class,
-            self::GPT_4                  => OpenAI\GPT4Driver::class,
-            self::GPT_4_1106_PREVIEW     => OpenAI\GPT41106PreviewDriver::class,
-            self::GPT_4_0125_PREVIEW     => OpenAI\GPT40125PreviewDriver::class,
-            self::GPT_4_VISION_PREVIEW   => OpenAI\GPT4VisionPreviewDriver::class,
-            self::TEXT_EMBEDDING_ADA_002 => OpenAI\TextEmbeddingAdaDriver::class,
-            self::TEXT_EMBEDDING_3_SMALL => OpenAI\TextEmbedding3SmallDriver::class,
-            self::TEXT_EMBEDDING_3_LARGE => OpenAI\TextEmbedding3LargeDriver::class,
-            self::WHISPER_1              => OpenAI\Whisper1Driver::class,
-            self::DALL_E_2               => OpenAI\DallE2Driver::class,
-            self::DALL_E_3               => OpenAI\DallE3Driver::class,
-            self::TTS_1                  => OpenAI\TTS1Driver::class,
-            self::TTS_1_HD               => OpenAI\TTS1HDDriver::class,
-            self::GPT_4_O                => OpenAI\GPT4ODriver::class,
-            self::GPT_4_O_MINI           => OpenAI\GPT4OMiniDriver::class,
-            self::GPT_4_O1_PREVIEW       => OpenAI\GPT4O1PreviewDriver::class,
-            self::GPT_4_O1_MINI          => OpenAI\GPT4O1MiniDriver::class,
-            self::GPT_O_03_mini          => OpenAI\GPTO3MiniDriver::class,
-            self::GPT_4_5_PREVIEW        => OpenAI\GPT45PreviewDriver::class,
+            self::DAVINCI                     => OpenAI\DavinciDriver::class,
+            self::TEXT_DAVINCI_003            => OpenAI\TextDavinciDriver::class,
+            self::GPT_3_5_TURBO_16K           => OpenAI\GPT35Turbo16KDriver::class,
+            self::GPT_3_5_TURBO               => OpenAI\GPT35TurboDriver::class,
+            self::GPT_3_5_TURBO_0125          => OpenAI\GPT35Turbo0125Driver::class,
+            self::GPT_3_5_TURBO_1106          => OpenAI\GPT35Turbo1106Driver::class,
+            self::GPT_4_TURBO                 => OpenAI\GPT4TurboDriver::class,
+            self::GPT_4                       => OpenAI\GPT4Driver::class,
+            self::GPT_4_1106_PREVIEW          => OpenAI\GPT41106PreviewDriver::class,
+            self::GPT_4_0125_PREVIEW          => OpenAI\GPT40125PreviewDriver::class,
+            self::GPT_4_VISION_PREVIEW        => OpenAI\GPT4VisionPreviewDriver::class,
+            self::TEXT_EMBEDDING_ADA_002      => OpenAI\TextEmbeddingAdaDriver::class,
+            self::TEXT_EMBEDDING_3_SMALL      => OpenAI\TextEmbedding3SmallDriver::class,
+            self::TEXT_EMBEDDING_3_LARGE      => OpenAI\TextEmbedding3LargeDriver::class,
+            self::WHISPER_1                   => OpenAI\Whisper1Driver::class,
+            self::DALL_E_2                    => OpenAI\DallE2Driver::class,
+            self::DALL_E_3                    => OpenAI\DallE3Driver::class,
+            self::TTS_1                       => OpenAI\TTS1Driver::class,
+            self::TTS_1_HD                    => OpenAI\TTS1HDDriver::class,
+            self::GPT_4_O                     => OpenAI\GPT4ODriver::class,
+            self::GPT_4_O_MINI                => OpenAI\GPT4OMiniDriver::class,
+            self::GPT_4_O_SEARCH_PREVIEW      => OpenAI\GPT4OSearchPreviewDriver::class,
+            self::GPT_4_O_MINI_SEARCH_PREVIEW => OpenAI\GPT4OMiniSearchPreviewDriver::class,
+            self::GPT_4_O1_PREVIEW            => OpenAI\GPT4O1PreviewDriver::class,
+            self::GPT_4_O1_MINI               => OpenAI\GPT4O1MiniDriver::class,
+            self::GPT_O_03_mini               => OpenAI\GPTO3MiniDriver::class,
+            self::GPT_4_5_PREVIEW             => OpenAI\GPT45PreviewDriver::class,
+            self::GPT_4_O_REALTIME_PREVIEW    => OpenAI\GPT4ORealtimePreviewDriver::class,
+            self::GPT_4_1                     => OpenAI\GPT41Driver::class,
+            self::GPT_O_4_MINI                => OpenAI\GPTO4MiniDriver::class,
+            self::GPT_4_1_NANO                => OpenAI\GPT41NanoDriver::class,
+            self::GPT_4_1_MINI                => OpenAI\GPT41MiniDriver::class,
+            self::GPT_O_3                     => OpenAI\GPTO3Driver::class,
+
             // Anthropic
             self::CLAUDE_3_7_SONNET    => Anthropic\Claude37SonnetDriver::class,
             self::CLAUDE_3_5_HAIKU     => Anthropic\Claude35HaikuDriver::class,
@@ -637,6 +692,8 @@ enum EntityEnum: string
             self::DEEPSEEK_REASONER => Deepseek\DeepseekReasonerDriver::class,
             // Others
             self::CLIPDROP        => ClipDropDriver::class,
+            self::NOVITA          => NovitaDriver::class,
+            self::FREEPIK         => FreepikDriver::class,
             self::PLAGIARISMCHECK => PlagiarismCheckDriver::class,
             self::SYNTHESIA       => SynthesiaDriver::class,
             self::HEYGEN          => HeygenDriver::class,
@@ -664,6 +721,7 @@ enum EntityEnum: string
             self::FLUX_REALISM             => FalAI\FluxRealismDriver::class,
             self::FLUX_SCHNELL             => FalAI\FluxSchnellDriver::class,
             self::KLING                    => FalAI\KlingDriver::class,
+            self::KLING_IMAGE              => FalAI\KlingImageDriver::class,
             self::LUMA_DREAM_MACHINE       => FalAI\LumaDreamMachineDriver::class,
             self::HAIPER                   => FalAI\HaiperDriver::class,
             self::MINIMAX                  => FalAI\MinimaxDriver::class,
@@ -709,8 +767,8 @@ enum EntityEnum: string
     {
         return match ($this) {
             self::IMAGE_TO_VIDEO                 => 0.2,
-            self::STABLE_DIFFUSION_XL_1024_V_1_0 => 0.006,
-            self::STABLE_DIFFUSION_V_1_6         => 0.01,
+            self::STABLE_DIFFUSION_XL_1024_V_1_0 => 0.009,
+            self::STABLE_DIFFUSION_V_1_6         => 0.009,
             self::SD_3, self::ULTRA, self::SD_3_TURBO => 0.03,
             self::SD_3_MEDIUM        => 0.035,
             self::SD_3_LARGE         => 0.065,
@@ -721,45 +779,57 @@ enum EntityEnum: string
             self::CORE               => 0.02,
             self::AWS_BEDROCK        => 0.02,
             // OpenAI
-            self::DAVINCI, self::GPT_3_5_TURBO_1106, self::GPT_3_5_TURBO => 0.002,
-            self::TEXT_DAVINCI_003       => 0.02,
-            self::GPT_3_5_TURBO_16K      => 0.004,
-            self::GPT_3_5_TURBO_0125     => 0.0015,
-            self::GPT_4_TURBO, self::GPT_4_1106_PREVIEW, self::GPT_4_0125_PREVIEW, self::GPT_4_VISION_PREVIEW, self::TTS_1_HD => 0.03,
-            self::GPT_4                  => 0.06,
-            self::TEXT_EMBEDDING_ADA_002 => 0.00005,
-            self::TEXT_EMBEDDING_3_SMALL => 0.00005,
-            self::TEXT_EMBEDDING_3_LARGE => 0.00005,
-            self::WHISPER_1              => 0.0006,
-            self::DALL_E_2               => 0.02,
-            self::DALL_E_3               => 0.12,
-            self::TTS_1, self::GPT_4_O => 0.015,
-            self::GPT_4_O_MINI     => 0.0006,
-            self::GPT_4_O1_PREVIEW => 0.06,
-            self::GPT_4_O1_MINI    => 0.06,
-            self::GPT_O_03_mini    => 0.06,
-            self::GPT_4_5_PREVIEW  => 0.06,
+            self::DAVINCI, self::GPT_3_5_TURBO_1106, self::GPT_3_5_TURBO => 0.00000266,
+            self::TEXT_DAVINCI_003       => 0.0000266,
+            self::GPT_3_5_TURBO_16K      => 0.00000532,
+            self::GPT_3_5_TURBO_0125     => 0.000001995,
+            self::GPT_4_TURBO, self::GPT_4_1106_PREVIEW, self::GPT_4_0125_PREVIEW, self::GPT_4_VISION_PREVIEW, self::TTS_1_HD => 0.0000399,
+            self::GPT_4                  => 0.0000798,
+            self::TEXT_EMBEDDING_ADA_002 => 0.0000000665,
+            self::TEXT_EMBEDDING_3_SMALL => 0.0000000665,
+            self::TEXT_EMBEDDING_3_LARGE => 0.0000000665,
+            self::WHISPER_1              => 0.000000798,
+            self::DALL_E_2               => 0.0000266,
+            self::DALL_E_3               => 0.0001596,
+            self::TTS_1, self::GPT_4_O   => 0.00001995,
+            self::GPT_4_O_MINI                => 0.000000798,
+            self::GPT_4_O_SEARCH_PREVIEW      => 0.0000798,
+            self::GPT_4_O_MINI_SEARCH_PREVIEW => 0.0000798,
+            self::GPT_4_O1_PREVIEW            => 0.0000798,
+            self::GPT_4_O1_MINI               => 0.000005852,
+            self::GPT_O_03_mini               => 0.000005852,
+            self::GPT_4_5_PREVIEW             => 0.0001995,
+            self::GPT_4_O_REALTIME_PREVIEW    => 0.0001064,
+            self::GPT_4_1                     => 0.000011852,
+            self::GPT_4_1_NANO                => 0.000000665,
+            self::GPT_4_1_MINI                => 0.00000266,
+            self::GPT_O_4_MINI                => 0.000007315,
+            self::GPT_O_3                     => 0.0000665,
             // Anthropic
-            self::CLAUDE_3_7_SONNET, self::CLAUDE_3_5_HAIKU, self::CLAUDE_3_5_SONNET_V2, self::CLAUDE_3_5_SONNET, self::CLAUDE_3_SONNET => 0.015,
-            self::CLAUDE_3_OPUS  => 0.075,
-            self::CLAUDE_3_HAIKU => 0.00125,
+            self::CLAUDE_3_7_SONNET, self::CLAUDE_3_5_SONNET_V2, self::CLAUDE_3_5_SONNET, self::CLAUDE_3_SONNET => 0.00002,
+            self::CLAUDE_3_5_HAIKU  => 0.00000533,
+            self::CLAUDE_3_OPUS     => 0.00002,
+            self::CLAUDE_3_HAIKU    => 0.00000533,
             self::CLAUDE_2_1, self::CLAUDE_2_0 => 0.024,
             self::VOYAGE_2, self::VOYAGE_LARGE_2, self::VOYAGE_CODE_2 => 0.00012,
             // Deepseek
-            self::DEEPSEEK_CHAT, self::DEEPSEEK_REASONER => 0.05,
+            self::DEEPSEEK_CHAT     => 0.00000037,
+            self::DEEPSEEK_REASONER => 0.00000292,
             // Others
-            self::CLIPDROP        => 0.5,
-            self::PLAGIARISMCHECK => 0.2,
-            self::SYNTHESIA       => 0.15,
-            self::HEYGEN          => 0.15,
-            self::PEBBLELY        => 0.019,
+            self::CLIPDROP         => 0.5,
+            self::NOVITA           => 0.017,
+            self::FREEPIK          => 0.20,
+            self::PLAGIARISMCHECK  => 0.2,
+            self::SYNTHESIA        => 2,
+            self::HEYGEN           => 0.5,
+            self::PEBBLELY         => 0.019,
             // Gemini
-            self::GEMINI_1_5_PRO_LATEST, self::GEMINI_PRO_VISION => 0.021,
-            self::GEMINI_PRO               => 0.0015,
-            self::GEMINI_1_5_FLASH         => 0.0006,
+            self::GEMINI_1_5_PRO_LATEST, self::GEMINI_PRO_VISION => 0.00000667,
+            self::GEMINI_PRO               => 0.00000667,
+            self::GEMINI_1_5_FLASH         => 0.0000004,
             self::GEMINI_TEXT_EMBEDING_004 => 0.00001,
             // Unsplash
-            self::UNSPLASH, self::PEXELS, self::PIXABAY => 0.0,
+            self::UNSPLASH, self::PEXELS, self::PIXABAY => 0.01,
             // Elevenlabs
             self::ELEVENLABS, self::ISOLATOR => 0.3,
             // Google
@@ -773,20 +843,20 @@ enum EntityEnum: string
             // Perplexity
             self::PERPLEXITY => 0.001,
             // PiAPI
-            self::MIDJOURNEY => 0.001,
+            self::MIDJOURNEY => 0.03,
             // X AI
             self::GROK_2_1212, self::GROK_2_VISION_1212 => 0.001,
             // FAL AI
             self::VEO_2, self::FLUX_PRO, self::FLUX_PRO_1_1, self::FLUX_REALISM, self::FLUX_SCHNELL, self::IDEOGRAM,
-            self::KLING, self::LUMA_DREAM_MACHINE, self::HAIPER, self::MINIMAX => 0.05,
+            self::KLING, self::KLING_IMAGE, self::LUMA_DREAM_MACHINE, self::HAIPER, self::MINIMAX => 0.05,
             self::VIDEO_UPSCALER, self::COGVIDEOX_5B, self::ANIMATEDIFF_V2V, self::FAST_ANIMATEDIFF_TURBO => 0.05,
             // AI/ML api minimax engine
             self::MUSIC_01	=> 0.05,
             // OpenRouter
-            self::ANTHROPIC_CLAUDE_3_5_HAIKU_20241022                => 0.005,
-            self::ANTHROPIC_CLAUDE_3_5_HAIKU_20241022_SELF_MODERATED => 0.005,
-            self::ANTHROPIC_CLAUDE_3_5_HAIKU                         => 0.005,
-            self::ANTHROPIC_CLAUDE_3_5_HAIKU_SELF_MODERATED          => 0.005,
+            self::ANTHROPIC_CLAUDE_3_5_HAIKU_20241022                => 0.00000533,
+            self::ANTHROPIC_CLAUDE_3_5_HAIKU_20241022_SELF_MODERATED => 0.00000533,
+            self::ANTHROPIC_CLAUDE_3_5_HAIKU                         => 0.00000533,
+            self::ANTHROPIC_CLAUDE_3_5_HAIKU_SELF_MODERATED          => 0.00000533,
             self::LUMIMAID_V02_70B                                   => 0.005,
             self::MAGNUM_V4_72B                                      => 0.005,
             self::XAI_GROK_BETA                                      => 0.005,
@@ -917,11 +987,7 @@ enum EntityEnum: string
 
     public function isBetaEntity(): bool
     {
-        return match ($this) {
-            self::GPT_4_O1_PREVIEW,
-            self::GPT_4_O1_MINI => true,
-            default             => false,
-        };
+        return false;
     }
 
     public static function embedingModels(EngineEnum $engineEnum): array
@@ -971,10 +1037,17 @@ enum EntityEnum: string
                 self::GPT_4_TURBO,
                 self::GPT_4_O,
                 self::GPT_4_O_MINI,
+                self::GPT_4_O_SEARCH_PREVIEW,
+                self::GPT_4_O_MINI_SEARCH_PREVIEW,
                 self::GPT_4_O1_PREVIEW,
                 self::GPT_4_O1_MINI,
                 self::GPT_O_03_mini,
                 self::GPT_4_5_PREVIEW,
+                self::GPT_4_1,
+                self::GPT_O_4_MINI,
+                self::GPT_4_1_NANO,
+                self::GPT_4_1_MINI,
+                self::GPT_O_3,
                 self::DEEPSEEK_CHAT,
                 self::DEEPSEEK_REASONER,
             ]

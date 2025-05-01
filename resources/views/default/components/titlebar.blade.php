@@ -9,8 +9,10 @@
     $title_base_class = 'lqd-titlebar-title m-0';
     $subtitle_base_class = 'lqd-titlebar-subtitle mt-1 text-2xs opacity-80 only:my-0 last:mb-0';
     $actions_base_class = 'lqd-titlebar-actions flex flex-wrap items-center gap-2';
-
-    $generator_link = route('dashboard.user.openai.list') === $current_url ? '#lqd-generators-filter-list' : LaravelLocalization::localizeUrl(route('dashboard.user.openai.list'));
+    $generator_link = route('dashboard.user.openai.list') === $current_url ? '#lqd-generators-filter-list' :  (route('dashboard.user.openai.list'));
+	if (! $setting->feature_ai_writer) {
+		$generator_link = route('dashboard.index');
+	}
     $wide_container_px = Theme::getSetting('wideLayoutPaddingX', '');
     $has_title = true;
     $has_pretitle = true;
@@ -70,7 +72,7 @@
                             <x-button
                                 class="text-inherit hover:text-foreground"
                                 variant="link"
-                                href="{{ LaravelLocalization::localizeUrl(route('dashboard.index')) }}"
+                                href="{{  (route('dashboard.index')) }}"
                             >
                                 <x-tabler-chevron-left
                                     class="size-4"
@@ -148,7 +150,7 @@
                     @else
                         <x-button
                             variant="ghost-shadow"
-                            href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.documents.all')) }}"
+                            href="{{  (route('dashboard.user.openai.documents.all')) }}"
                         >
                             {{ __('My Documents') }}
                         </x-button>

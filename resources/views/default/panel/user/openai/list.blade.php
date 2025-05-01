@@ -1,158 +1,166 @@
 @php
-    function rgbToHsl($r, $g, $b)
-    {
-        $r /= 255;
-        $g /= 255;
-        $b /= 255;
+    if (!function_exists('rgbToHsl')) {
+        function rgbToHsl($r, $g, $b)
+        {
+            $r /= 255;
+            $g /= 255;
+            $b /= 255;
 
-        $max = max($r, $g, $b);
-        $min = min($r, $g, $b);
+            $max = max($r, $g, $b);
+            $min = min($r, $g, $b);
 
-        $h = $s = $l = ($max + $min) / 2;
+            $h = $s = $l = ($max + $min) / 2;
 
-        if ($max == $min) {
-            $h = $s = 0; // achromatic
-        } else {
-            $diff = $max - $min;
-            $s = $l > 0.5 ? $diff / (2 - $max - $min) : $diff / ($max + $min);
-            switch ($max) {
-                case $r:
-                    $h = ($g - $b) / $diff + ($g < $b ? 6 : 0);
-                    break;
-                case $g:
-                    $h = ($b - $r) / $diff + 2;
-                    break;
-                case $b:
-                    $h = ($r - $g) / $diff + 4;
-                    break;
+            if ($max == $min) {
+                $h = $s = 0; // achromatic
+            } else {
+                $diff = $max - $min;
+                $s = $l > 0.5 ? $diff / (2 - $max - $min) : $diff / ($max + $min);
+                switch ($max) {
+                    case $r:
+                        $h = ($g - $b) / $diff + ($g < $b ? 6 : 0);
+                        break;
+                    case $g:
+                        $h = ($b - $r) / $diff + 2;
+                        break;
+                    case $b:
+                        $h = ($r - $g) / $diff + 4;
+                        break;
+                }
+                $h /= 6;
             }
-            $h /= 6;
-        }
 
-        return [$h, $s, $l];
+            return [$h, $s, $l];
+        }
     }
 
-    function hslToRgb($h, $s, $l)
-    {
-        $r = $l;
-        $g = $l;
-        $b = $l;
-        $v = $l <= 0.5 ? $l * (1.0 + $s) : $l + $s - $l * $s;
-        if ($v > 0) {
-            $m;
-            $sv;
-            $sextant;
-            $fract;
-            $vsf;
-            $mid1;
-            $mid2;
+    if (!function_exists('hslToRgb')) {
+        function hslToRgb($h, $s, $l)
+        {
+            $r = $l;
+            $g = $l;
+            $b = $l;
+            $v = $l <= 0.5 ? $l * (1.0 + $s) : $l + $s - $l * $s;
+            if ($v > 0) {
+                $m;
+                $sv;
+                $sextant;
+                $fract;
+                $vsf;
+                $mid1;
+                $mid2;
 
-            $m = $l + $l - $v;
-            $sv = ($v - $m) / $v;
-            $h *= 6.0;
-            $sextant = floor($h);
-            $fract = $h - $sextant;
-            $vsf = $v * $sv * $fract;
-            $mid1 = $m + $vsf;
-            $mid2 = $v - $vsf;
+                $m = $l + $l - $v;
+                $sv = ($v - $m) / $v;
+                $h *= 6.0;
+                $sextant = floor($h);
+                $fract = $h - $sextant;
+                $vsf = $v * $sv * $fract;
+                $mid1 = $m + $vsf;
+                $mid2 = $v - $vsf;
 
-            switch ($sextant) {
-                case 0:
-                    $r = $v;
-                    $g = $mid1;
-                    $b = $m;
-                    break;
-                case 1:
-                    $r = $mid2;
-                    $g = $v;
-                    $b = $m;
-                    break;
-                case 2:
-                    $r = $m;
-                    $g = $v;
-                    $b = $mid1;
-                    break;
-                case 3:
-                    $r = $m;
-                    $g = $mid2;
-                    $b = $v;
-                    break;
-                case 4:
-                    $r = $mid1;
-                    $g = $m;
-                    $b = $v;
-                    break;
-                case 5:
-                    $r = $v;
-                    $g = $m;
-                    $b = $mid2;
-                    break;
+                switch ($sextant) {
+                    case 0:
+                        $r = $v;
+                        $g = $mid1;
+                        $b = $m;
+                        break;
+                    case 1:
+                        $r = $mid2;
+                        $g = $v;
+                        $b = $m;
+                        break;
+                    case 2:
+                        $r = $m;
+                        $g = $v;
+                        $b = $mid1;
+                        break;
+                    case 3:
+                        $r = $m;
+                        $g = $mid2;
+                        $b = $v;
+                        break;
+                    case 4:
+                        $r = $mid1;
+                        $g = $m;
+                        $b = $v;
+                        break;
+                    case 5:
+                        $r = $v;
+                        $g = $m;
+                        $b = $mid2;
+                        break;
+                }
             }
+            return [$r * 255, $g * 255, $b * 255];
         }
-        return [$r * 255, $g * 255, $b * 255];
     }
 
-    function saturateColor($color, $percent)
-    {
-        // Convert the hex color to RGB
-        $color = str_replace('#', '', $color);
-        $r = hexdec(substr($color, 0, 2));
-        $g = hexdec(substr($color, 2, 2));
-        $b = hexdec(substr($color, 4, 2));
+    if (!function_exists('saturateColor')) {
+        function saturateColor($color, $percent)
+        {
+            // Convert the hex color to RGB
+            $color = str_replace('#', '', $color);
+            $r = hexdec(substr($color, 0, 2));
+            $g = hexdec(substr($color, 2, 2));
+            $b = hexdec(substr($color, 4, 2));
 
-        // Convert RGB to HSL
-        [$h, $s, $l] = rgbToHsl($r, $g, $b);
+            // Convert RGB to HSL
+            [$h, $s, $l] = rgbToHsl($r, $g, $b);
 
-        // Increase the saturation
-        $s += $percent / 100;
-        $s = max(0, min(1, $s));
+            // Increase the saturation
+            $s += $percent / 100;
+            $s = max(0, min(1, $s));
 
-        // Convert HSL back to RGB
-        [$r, $g, $b] = hslToRgb($h, $s, $l);
+            // Convert HSL back to RGB
+            [$r, $g, $b] = hslToRgb($h, $s, $l);
 
-        // Convert the RGB values back to hex
-        $r = dechex(round($r));
-        $g = dechex(round($g));
-        $b = dechex(round($b));
+            // Convert the RGB values back to hex
+            $r = dechex(round($r));
+            $g = dechex(round($g));
+            $b = dechex(round($b));
 
-        // Ensure each color component is two characters long
-        $r = str_pad($r, 2, '0', STR_PAD_LEFT);
-        $g = str_pad($g, 2, '0', STR_PAD_LEFT);
-        $b = str_pad($b, 2, '0', STR_PAD_LEFT);
+            // Ensure each color component is two characters long
+            $r = str_pad($r, 2, '0', STR_PAD_LEFT);
+            $g = str_pad($g, 2, '0', STR_PAD_LEFT);
+            $b = str_pad($b, 2, '0', STR_PAD_LEFT);
 
-        // Concatenate the color components
-        $saturatedColor = '#' . $r . $g . $b;
+            // Concatenate the color components
+            $saturatedColor = '#' . $r . $g . $b;
 
-        return $saturatedColor;
+            return $saturatedColor;
+        }
     }
 
-    function darkenColor($color, $percent)
-    {
-        // Convert the hex color to RGB
-        $color = str_replace('#', '', $color);
-        $r = hexdec(substr($color, 0, 2));
-        $g = hexdec(substr($color, 2, 2));
-        $b = hexdec(substr($color, 4, 2));
+    if (!function_exists('darkenColor')) {
+        function darkenColor($color, $percent)
+        {
+            // Convert the hex color to RGB
+            $color = str_replace('#', '', $color);
+            $r = hexdec(substr($color, 0, 2));
+            $g = hexdec(substr($color, 2, 2));
+            $b = hexdec(substr($color, 4, 2));
 
-        // Reduce the RGB values by the percentage
-        $r = max(0, min(255, $r - ($r * $percent) / 100));
-        $g = max(0, min(255, $g - ($g * $percent) / 100));
-        $b = max(0, min(255, $b - ($b * $percent) / 100));
+            // Reduce the RGB values by the percentage
+            $r = max(0, min(255, $r - ($r * $percent) / 100));
+            $g = max(0, min(255, $g - ($g * $percent) / 100));
+            $b = max(0, min(255, $b - ($b * $percent) / 100));
 
-        // Convert the RGB values back to hex
-        $r = dechex($r);
-        $g = dechex($g);
-        $b = dechex($b);
+            // Convert the RGB values back to hex
+            $r = dechex($r);
+            $g = dechex($g);
+            $b = dechex($b);
 
-        // Ensure each color component is two characters long
-        $r = str_pad($r, 2, '0', STR_PAD_LEFT);
-        $g = str_pad($g, 2, '0', STR_PAD_LEFT);
-        $b = str_pad($b, 2, '0', STR_PAD_LEFT);
+            // Ensure each color component is two characters long
+            $r = str_pad($r, 2, '0', STR_PAD_LEFT);
+            $g = str_pad($g, 2, '0', STR_PAD_LEFT);
+            $b = str_pad($b, 2, '0', STR_PAD_LEFT);
 
-        // Concatenate the color components
-        $darkerColor = '#' . $r . $g . $b;
+            // Concatenate the color components
+            $darkerColor = '#' . $r . $g . $b;
 
-        return $darkerColor;
+            return $darkerColor;
+        }
     }
 @endphp
 
@@ -163,7 +171,7 @@
     <x-button
         class="mx-2"
         variant="ghost-shadow"
-        href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.documents.all')) }}"
+        href="{{ route('dashboard.user.openai.documents.all') }}"
     >
         {{ __('My Documents') }}
     </x-button>
@@ -196,11 +204,12 @@
         <li>
             <x-button
                 class="lqd-filter-btn inline-flex rounded-full px-2.5 py-0.5 text-2xs leading-tight transition-colors hover:translate-y-0 hover:bg-foreground/5 [&.active]:bg-foreground/5"
+                data-filter="all"
                 tag="button"
                 type="button"
                 name="filter"
                 variant="ghost"
-                x-data
+                x-data="{}"
                 ::class="$store.generatorsFilter.filter === 'all' && 'active'"
                 @click="$store.generatorsFilter.changeFilter('all')"
             >
@@ -210,11 +219,12 @@
         <li>
             <x-button
                 class="lqd-filter-btn inline-flex rounded-full px-2.5 py-0.5 text-2xs leading-tight transition-colors hover:translate-y-0 hover:bg-foreground/5 [&.active]:bg-foreground/5"
+                data-filter="favorite"
                 tag="button"
                 type="button"
                 name="filter"
                 variant="ghost"
-                x-data
+                x-data="{}"
                 ::class="$store.generatorsFilter.filter === 'favorite' && 'active'"
                 @click="$store.generatorsFilter.changeFilter('favorite')"
             >
@@ -227,11 +237,12 @@
                 <li>
                     <x-button
                         class="lqd-filter-btn inline-flex rounded-full px-2.5 py-0.5 text-2xs leading-tight transition-colors hover:translate-y-0 hover:bg-foreground/5 [&.active]:bg-foreground/5"
+                        data-filter="{{ $filter->name }}"
                         tag="button"
                         type="button"
                         name="filter"
                         variant="ghost"
-                        x-data
+                        x-data="{}"
                         ::class="$store.generatorsFilter.filter === '{{ $filter->name }}' && 'active'"
                         @click="$store.generatorsFilter.changeFilter('{{ $filter->name }}')"
                     >

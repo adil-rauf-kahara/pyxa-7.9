@@ -1,14 +1,6 @@
 @extends('panel.layout.settings', ['disable_tblr' => true])
 @section('title', __('Integration Edit'))
-@section('titlebar_actions')
-    <x-button
-        href="{{ asset('/uploads/WordPress_Integration.pdf') }}"  {{-- Replace with actual route if needed --}}
-        variant="secondary"
-        target="_blank"
-    >
-        {{ __('Instructions') }}
-    </x-button>
-@endsection
+@section('titlebar_actions', '')
 
 @section('settings')
     <form

@@ -93,7 +93,7 @@
                                         class="py-2 group-[&.active]:flex"
                                         variant="ghost-shadow"
                                         size="none"
-                                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.admin.openai.custom.addOrUpdate', $entry->id)) }}"
+                                        href="{{  (route('dashboard.admin.openai.custom.addOrUpdate', $entry->id)) }}"
                                         title="{{ __('Edit') }}"
                                     >
                                         <x-tabler-pencil class="size-4" />

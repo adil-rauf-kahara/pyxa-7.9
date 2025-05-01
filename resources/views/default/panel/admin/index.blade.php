@@ -533,7 +533,7 @@
                                         <td>
                                             <div class="w-0 min-w-full overflow-hidden overflow-ellipsis whitespace-nowrap">
                                                 @if ($entry->user)
-                                                    <strong>{{ $entry->user->fullName() }}</strong>
+                                                    <strong>{{ $entry->user?->fullName() }}</strong>
                                                 @endif
                                                 {{ __($entry->activity_type) }}
                                                 @if (isset($entry->activity_title))
@@ -626,7 +626,7 @@
 
                                 <td class="text-foreground/60">
                                     <span class="text-heading-foreground">
-                                        {{ $order->user->fullName() }}
+                                        {{ $order->user?->fullName() }}
                                     </span>
                                     <br>
                                     <span class="opacity-70">

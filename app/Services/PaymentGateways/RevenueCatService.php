@@ -3,6 +3,7 @@
 namespace App\Services\PaymentGateways;
 
 use App\Actions\CreateActivity;
+use App\Actions\EmailPaymentConfirmation;
 use App\Enums\Plan\FrequencyEnum;
 use App\Models\Gateways;
 use App\Models\RevenueCatProducts;
@@ -217,6 +218,7 @@ class RevenueCatService
                     self::creditIncreaseSubscribePlan($user, $plan);
 
                     CreateActivity::for($user, __('Purchased'), $plan->name . ' ' . __('Token Pack'));
+                    EmailPaymentConfirmation::create($user, $plan)->send();
                 } else {
                     // / Order already exists, do nothing
                 }
@@ -336,6 +338,7 @@ class RevenueCatService
                     // / Plan is active, and we haven't added to orders before; so this is a new subscription. Hence add the plan to user's remaining words and images
 
                     CreateActivity::for($user, ! $isRefreshed ? __('Subscribed') : __('Renewed'), $plan->name . ' ' . __('Plan'));
+                    EmailPaymentConfirmation::create($user, $plan)->send();
                 } else {
                     // Subscription is cancelled
                     if ($subs['billing_issues_detected_at'] != null) {

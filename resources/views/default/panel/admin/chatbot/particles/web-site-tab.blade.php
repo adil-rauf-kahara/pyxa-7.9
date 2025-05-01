@@ -116,7 +116,7 @@
         >
         <div
             class="pages space-y-4"
-            id="pages"
+            id="chatbotPages"
         >
             @include('panel.admin.chatbot.particles.web-site.crawler', ['items' => $websites])
         </div>

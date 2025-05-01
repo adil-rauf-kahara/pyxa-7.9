@@ -2,12 +2,14 @@ import './bootstrap';
 import { Alpine, Livewire } from '~vendor/livewire/livewire/dist/livewire.esm';
 import ajax from '~nodeModules/@imacrayon/alpine-ajax';
 import sort from '~nodeModules/@alpinejs/sort';
+import intersect from '~nodeModules/@alpinejs/intersect';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import modal from './components/modal';
 import clipboard from './components/clipboard';
 import assignViewCredits from './components/assignViewCredits';
 import openaiRealtime from './components/realtime-frontend/openaiRealtime';
 import advancedImageEditor from './components/advancedImageEditor';
+import { debounce, throttle } from 'lodash';
 
 window.fetchEventSource = fetchEventSource;
 const darkMode = localStorage.getItem('lqdDarkMode');
@@ -16,7 +18,6 @@ const socialMediaPostsViewMode = localStorage.getItem('socialMediaPostsViewMode'
 const navbarShrink = localStorage.getItem('lqdNavbarShrinked');
 const currentTheme = document.querySelector('body').getAttribute('data-theme');
 const lqdFocusModeEnabled = localStorage.getItem(currentTheme +':lqdFocusModeEnabled');
-
 
 window.collectCreditsToFormData = function (formData) {
 	const inputs = document.querySelectorAll('input[name^="entities"]');
@@ -31,6 +32,7 @@ window.Alpine = Alpine;
 
 Alpine.plugin(ajax);
 Alpine.plugin(sort);
+Alpine.plugin(intersect);
 
 document.addEventListener('alpine:init', () => {
 	const persist = Alpine.$persist;
@@ -133,6 +135,26 @@ document.addEventListener('alpine:init', () => {
 			document.startViewTransition(() => this.filter = filter);
 		}
 	});
+
+	// Generator Item
+	Alpine.data('generatorItem', () => ({
+		get isHidden() {
+			return this.$store.generatorsFilter.filter !== 'all' &&
+				this.$el.getAttribute('data-filter').search(this.$store.generatorsFilter.filter) < 0;
+		},
+		updateDataFilter(id, isFavorite) {
+			const dataFilter = this.$el.getAttribute('data-filter');
+			const filterArray = new Set(dataFilter.split(','));
+
+			if (isFavorite) {
+				filterArray.add('favorite');
+			} else {
+				filterArray.delete('favorite');
+			}
+
+			this.$el.setAttribute('data-filter', Array.from(filterArray).join(','));
+		}
+	}));
 
 	// Documents filter
 	Alpine.store('documentsFilter', {
@@ -256,9 +278,9 @@ document.addEventListener('alpine:init', () => {
 		},
 		sideNavCollapsed: false,
 		/**
-         *
-         * @param {'collapse' | 'expand'} state
-         */
+		*
+		* @param {'collapse' | 'expand'} state
+		*/
 		toggleSideNavCollapse(state) {
 			this.sideNavCollapsed = state ? (state === 'collapse' ? true : false) : !this.sideNavCollapsed;
 
@@ -411,8 +433,8 @@ document.addEventListener('alpine:init', () => {
 			...options
 		},
 		/**
-		 * @type {IntersectionObserver | null}
-		 */
+		* @type {IntersectionObserver | null}
+		*/
 		io: null,
 		numberWrappers: [],
 		numberCols: [],
@@ -539,6 +561,283 @@ document.addEventListener('alpine:init', () => {
 				});
 			});
 		}
+	}));
+
+	// Shape Cutout
+	Alpine.data('shapeCutout', () => ({
+		init() {
+			this.onResize = this.onResize.bind( this );
+			this.afterResize = debounce( this.afterResize.bind( this ), 1 );
+
+			this.svgEl = this.$el.querySelector('svg');
+
+			if ( !this.svgEl ) return;
+
+			this.svgObjects = this.svgEl.querySelectorAll('rect, circle, path, polygon');
+
+			this.events();
+		},
+		events() {
+			$( window ).on( 'resize', this.onResize );
+
+			this.resizeObserver = new ResizeObserver( () => {
+				this.onResize();
+			} );
+
+			this.resizeObserver.observe( this.svgEl );
+		},
+		onResize() {
+			this.changeObjAttr( '-' );
+
+			this.afterResize();
+		},
+		afterResize() {
+			this.changeObjAttr( '+' );
+		},
+		changeObjAttr( operator ) {
+			this.svgObjects.forEach( obj => {
+				if ( obj.hasAttribute( 'x' ) ) {
+					obj.setAttribute( 'x', parseFloat( parseFloat( obj.getAttribute( 'x' ) ) + operator + '1' ) );
+				} else if ( obj.hasAttribute( 'width' ) ) {
+					obj.setAttribute( 'width', parseFloat( parseFloat( obj.getAttribute( 'width' ) ) + operator + '1' ) );
+				} else if ( obj.hasAttribute( 'cx' ) ) {
+					obj.setAttribute( 'cx', parseFloat( parseFloat( obj.getAttribute( 'cx' ) ) + operator + '1' ) );
+				} else if ( obj.hasAttribute( 'r' ) ) {
+					obj.setAttribute( 'r', parseFloat( parseFloat( obj.getAttribute( 'r' ) ) + operator + '1' ) );
+				}
+			} );
+		}
+	}));
+
+	// Marquee
+	Alpine.data('marquee', (options = {}) => ({
+		maxWidth: 0,
+		position: 0,
+		options: {
+			direction: -1,
+			speed: 0.5,
+			pauseOnHover: false,
+			...options
+		},
+		async init() {
+			this.direction = this.options.direction;
+			this.cellWidths = [];
+			this.cellHeights = [];
+			this.viewportEl = this.$el.querySelector('.lqd-marquee-viewport');
+			this.sliderEl = this.$el.querySelector('.lqd-marquee-slider');
+			this.cells = this.sliderEl.querySelectorAll('.lqd-marquee-cell');
+			this.sliderElStyles = window.getComputedStyle(this.sliderEl);
+			this.maxWidth = 0;
+			this.maxHeight = 0;
+
+			this.onResize = debounce(this.onResize.bind(this), 450);
+
+			await document.fonts.ready;
+
+			this.sizing();
+
+			this.startAnimation();
+		},
+		sizing() {
+			for (let i = 0; i < this.cells.length; i++) {
+				this.cellHeights.push(this.cells[i].offsetHeight);
+				this.cellWidths.push(this.cells[i].offsetWidth);
+			}
+
+			this.maxHeight = Math.max(...this.cellHeights);
+			this.maxWidth = this.cellWidths.reduce((acc, width) => acc + width, 0);
+
+			this.maxWidth += parseInt(this.sliderElStyles.paddingLeft) + parseInt(this.sliderElStyles.paddingRight);
+			// this.maxWidth += parseInt(this.sliderElStyles.marginLeft) + parseInt(this.sliderElStyles.marginRight);
+			// this.maxWidth += parseInt(this.sliderElStyles.borderLeftWidth) + parseInt(this.sliderElStyles.borderRightWidth);
+			this.maxWidth += parseInt(this.sliderElStyles.gap) * (this.cells.length - 1);
+
+			this.viewportEl.style.height = `${this.maxHeight + parseInt(this.sliderElStyles.paddingTop) + parseInt(this.sliderElStyles.paddingBottom)}px`;
+			this.sliderEl.classList.add('absolute', 'top-0', 'left-0', 'w-full', 'h-full');
+
+			this.maxWidth -= this.viewportEl.offsetWidth;
+		},
+		startAnimation() {
+			this.isAnimating = true;
+
+			if (this.options.pauseOnHover) {
+				this.sliderEl.addEventListener('pointerenter', () => {
+					this.isAnimating = false;
+				});
+
+				this.sliderEl.addEventListener('pointerleave', () => {
+					this.isAnimating = true;
+				});
+			}
+
+			const animate = () => {
+				if (this.isAnimating) {
+					this.position += this.options.speed * this.direction;
+
+					if (this.position <= -this.maxWidth) {
+						this.direction = 1;
+					} else if (this.position >= 0) {
+						this.direction = -1;
+					}
+
+					this.sliderEl.style.transform = `translateX(${this.position}px)`;
+				}
+
+				requestAnimationFrame(animate);
+			};
+
+			requestAnimationFrame(animate);
+		},
+		onResize() {
+			this.sizing();
+		}
+	}));
+
+	// Curtain
+	Alpine.data('curtain', (id = 'curtain', options = {}) => ({
+		id: id,
+		activeCurtain: 0,
+		options: {
+			itemsSelector: '.lqd-curtain-item',
+			contentSelector: '.lqd-curtain-item-content',
+			contentWidthOuter: '.lqd-curtain-item-content-width-outer',
+			contentWidthInner: '.lqd-curtain-item-content-width-inner',
+			activeClassname: 'lqd-curtain-item-active',
+			inactiveClassname: 'lqd-curtain-item-inactive',
+			duration: 0.65,
+			ease: 'cubic-bezier(0.23, 1, 0.320, 1)',
+			trigger: 'pointerenter',
+			...options
+		},
+		init() {
+			this.items = [ ...this.$el.querySelectorAll( this.options.itemsSelector ) ];
+
+			if ( !this.items.length ) return;
+
+			this.onElementActive = this.onElementActive.bind( this );
+			this.onWindowResize = debounce( this.onWindowResize.bind( this ), 450 );
+
+			this.setActiveCurtain();
+			this.setActiveElement();
+			this.setActiveContentWidth();
+			this.events();
+		},
+		events() {
+			const { trigger } = this.options;
+			const onElementActive = throttle( this.onElementActive, 50, { leading: true, trailing: false } );
+
+			this.items.forEach( item => {
+				item.addEventListener( trigger, onElementActive );
+			} );
+
+			window.addEventListener( 'resize', this.onWindowResize );
+		},
+		setActiveCurtain() {
+			this.activeCurtain = this.items.findIndex( item => item.classList.contains( this.options.activeClassname ) );
+
+			this.$dispatch(`curtain-changed-${this.id}`, { activeCurtain: this.activeCurtain });
+		},
+		setActiveElement() {
+			this.activeElement = this.items[ this.activeCurtain ];
+		},
+		setActiveContentWidth() {
+			if ( !this.getElDirection().includes( 'row' ) ) return;
+
+			const contentWidthOuter = this.activeElement.querySelector( this.options.contentWidthOuter );
+			const activeElContentWidth = contentWidthOuter.offsetWidth;
+
+			this.$el.style.setProperty( '--active-width', `${ activeElContentWidth }px` );
+		},
+		onElementActive( event ) {
+			const { activeClassname, inactiveClassname } = this.options;
+			const activeElement = event.currentTarget;
+
+			this.items.forEach( item => {
+				item.classList.remove( activeClassname );
+				item.classList.add( inactiveClassname );
+			} );
+
+			activeElement.classList.remove( inactiveClassname );
+			activeElement.classList.add( activeClassname );
+
+			this.setActiveCurtain();
+			this.setActiveElement();
+		},
+		/**
+		*
+		* @returns {string} - The flex-direction of the element
+		*/
+		getElDirection() {
+			const elStyles = window.getComputedStyle( this.activeElement );
+			return elStyles.flexDirection;
+		},
+		onWindowResize() {
+			this.setActiveContentWidth();
+		}
+	}));
+
+	// Slideshow
+	Alpine.data('slideshow', (id = 'slideshow', totalSlides = 0, options = {}) => ({
+		activeSlide: 0,
+		totalSlides: totalSlides,
+		id: id,
+		options: {
+			...options
+		},
+		init() {
+			this.setActiveSlide = this.setActiveSlide.bind( this );
+		},
+		/**
+		 * @param {number | '>' | '<'} index
+		 */
+		setActiveSlide(index) {
+			if (index === '>') {
+				index = this.activeSlide + 1;
+			} else if (index === '<') {
+				index = this.activeSlide - 1;
+			}
+
+			if (index < 0) {
+				index = this.totalSlides - 1;
+			} else if (index >= this.totalSlides) {
+				index = 0;
+			}
+
+			this.activeSlide = index;
+
+			this.$dispatch(`slide-changed-${this.id}`, { activeSlide: this.activeSlide });
+		}
+	}));
+
+	/**
+	 * Split Text
+	 * @requires GSAP SplitText
+	 */
+	Alpine.data('splitText', (options = {}) => ({
+		splitText: null,
+		options: {
+			type: 'words',
+			tag: 'span',
+			charsClass: 'lqd-split-unit lqd-split-char',
+			wordsClass: 'lqd-split-unit lqd-split-word',
+			linesClass: 'lqd-split-unit lqd-split-line',
+			...options,
+		},
+		init() {
+			this.splitText = new SplitText(this.$el, this.options);
+
+			const wordsLength = this.splitText.words.length;
+
+			this.splitText.words.forEach((word, i) => {
+				word.setAttribute('data-index', i);
+				word.setAttribute('data-last-index', wordsLength - 1 - i);
+
+				word.style.setProperty('--word-index', i);
+				word.style.setProperty('--word-last-index', wordsLength - 1 - i);
+			});
+
+			this.$dispatch('split-text-done', { splitText: this.splitText });
+		},
 	}));
 
 	// OpenAI Realtime

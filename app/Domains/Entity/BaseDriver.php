@@ -24,6 +24,8 @@ abstract class BaseDriver implements EntityDriverInterface, WithCalculate, WithC
 
     private ?User $user;
 
+    private bool $guest = false;
+
     private ?Plan $plan = null;
 
     private ?int $lastUsedUserId = 0;
@@ -41,6 +43,13 @@ abstract class BaseDriver implements EntityDriverInterface, WithCalculate, WithC
     protected function setUser(?User $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    protected function setGuest(bool $condition = true): static
+    {
+        $this->guest = $condition;
 
         return $this;
     }
@@ -76,6 +85,13 @@ abstract class BaseDriver implements EntityDriverInterface, WithCalculate, WithC
     public function forPlan(?Plan $plan): static
     {
         $this->plan = $plan;
+
+        return $this;
+    }
+
+    public function forGuest(): static
+    {
+        $this->setGuest(true);
 
         return $this;
     }
@@ -146,8 +162,9 @@ abstract class BaseDriver implements EntityDriverInterface, WithCalculate, WithC
 
     public function calculateCredit(): static
     {
-        $this->ensureUserProvided();
-
+        if (! $this->guest) {
+            $this->ensureUserProvided();
+        }
         $this->calculatedInputCredit = $this->calculate();
 
         return $this;

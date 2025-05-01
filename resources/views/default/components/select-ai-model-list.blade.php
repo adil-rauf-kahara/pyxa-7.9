@@ -26,7 +26,6 @@
     }
 
     $fullModels = collect($fullModels)->unique('value')->values();
-
     $defaultDriver = \App\Domains\Entity\Facades\Entity::driver(EntityEnum::tryFrom($defaultModel?->value));
     $selectedModel = $defaultDriver;
     if (!$defaultDriver->isUnlimitedCredit() && $defaultDriver->creditBalance() <= 0) {
@@ -92,7 +91,9 @@
 							 ? selectedModelLabel.slice(0, 20) + '...'
 							 : (selectedModelLabel || '@lang('None')')"
                     :title="selectedModelLabel || '@lang('None')'"
-                ></span>
+                >
+                    {{ Str::limit($selectedModel->model()?->selected_title ?? $selectedModel->enum()?->value, 20) }}
+                </span>
             </span>
 
         </x-slot:trigger>
@@ -138,7 +139,7 @@
                         <div class="grid w-full grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
                             @foreach ($fullModels as $engine)
                                 @php
-                                    $model = EntityEnum::tryFrom($engine?->value);
+                                    $model = EntityEnum::fromSlug($engine?->value);
                                     $driver = \App\Domains\Entity\Facades\Entity::driver($model);
                                 @endphp
 

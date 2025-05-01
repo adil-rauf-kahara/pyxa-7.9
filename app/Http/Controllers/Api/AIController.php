@@ -15,6 +15,7 @@ use App\Models\OpenAIGenerator;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Models\SettingTwo;
+use App\Models\Usage;
 use App\Models\User;
 use App\Models\UserOpenai;
 use App\Services\Bedrock\BedrockRuntimeService;
@@ -31,7 +32,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonException;
-use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use OpenAI;
 use OpenAI\Laravel\Facades\OpenAI as FacadesOpenAI;
 use Random\RandomException;
@@ -192,9 +192,9 @@ class AIController extends Controller
 
         try {
             $language = explode('-', $language);
-            if (count($language) > 1 && LaravelLocalization::getSupportedLocales()[$language[0]]['name']) {
+            if (count($language) > 1 && config('localization.supportedLocales.' . $language[0] . '.name')) {
                 $ek = $language[1];
-                $language = LaravelLocalization::getSupportedLocales()[$language[0]]['name'];
+                $language = config('localization.supportedLocales.' . $language[0] . '.name');
                 $language .= " $ek";
             } else {
                 $language = $request->language;
@@ -635,8 +635,8 @@ class AIController extends Controller
     {
         $entry = UserOpenai::create([
             'team_id'   => $user->team_id,
-            'title'     => request('title') ?: __('New Workbook'),
-            'slug'      => str()->random(7) . str($user->fullName())->slug() . '-workbook',
+            'title'     => request('title') ?: null,
+            'slug'      => str()->random(7) . str($user?->fullName())->slug() . '-workbook',
             'user_id'   => $user->id,
             'openai_id' => $post->id,
             'input'     => $prompt,
@@ -677,8 +677,8 @@ class AIController extends Controller
         }
         $entry = new UserOpenai([
             'team_id'     => $user->team_id,
-            'title'       => request('title') ?: __('New Workbook'),
-            'slug'        => Str::random(7) . Str::slug($user->fullName()) . '-workbook',
+            'title'       => request('title') ?: null,
+            'slug'        => Str::random(7) . Str::slug($user?->fullName()) . '-workbook',
             'user_id'     => Auth::id(),
             'openai_id'   => $post->id,
             'input'       => $prompt,
@@ -696,6 +696,7 @@ class AIController extends Controller
         $entry->save();
 
         $driver->input($entry->output)->calculateCredit()->decreaseCredit();
+        Usage::getSingle()->updateWordCounts($driver->calculate());
 
         return response()->json(compact('post', 'entry'));
     }
@@ -737,6 +738,7 @@ class AIController extends Controller
                 $entries[] = $entry;
             }
             $driver->decreaseCredit();
+            Usage::getSingle()->updateImageCounts($driver->calculate());
             Cache::lock($lockKey)->release();
 
         } catch (Exception $e) {
@@ -753,7 +755,7 @@ class AIController extends Controller
         $driver = Entity::driver(EntityEnum::WHISPER_1);
         $driver->redirectIfNoCreditBalance();
         $path = 'uploads/audio/';
-        $file_name = Str::random(4) . '-' . Str::slug($user->fullName()) . '-audio.' . $file->getClientOriginalExtension();
+        $file_name = Str::random(4) . '-' . Str::slug($user?->fullName()) . '-audio.' . $file->getClientOriginalExtension();
 
         // Audio Extension Control
         $imageTypes = ['mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'wav', 'webm'];
@@ -778,8 +780,8 @@ class AIController extends Controller
 
         UserOpenai::create([
             'team_id'   => $user->team_id,
-            'title'     => request('title') ?: __('New Workbook'),
-            'slug'      => Str::random(7) . Str::slug($user->fullName()) . '-speech-to-text-workbook',
+            'title'     => request('title') ?: null,
+            'slug'      => Str::random(7) . Str::slug($user?->fullName()) . '-speech-to-text-workbook',
             'user_id'   => $user->id,
             'openai_id' => $post->id,
             'input'     => $fullPath,
@@ -791,6 +793,8 @@ class AIController extends Controller
         ]);
 
         $driver->input($text)->calculateCredit()->decreaseCredit();
+        Usage::getSingle()->updateWordCounts($driver->calculate());
+
         $userOpenai = UserOpenai::where('user_id', Auth::id())->where('openai_id', $post->id)->orderBy('created_at', 'desc')->get();
         $openai = OpenAIGenerator::find($post->id);
 
@@ -1151,7 +1155,7 @@ class AIController extends Controller
         $data = [
             'team_id'   => $user->team_id,
             'title'     => $imageDetails['nameOfImage'],
-            'slug'      => Str::random(7) . Str::slug($user->fullName()) . '-workbook',
+            'slug'      => Str::random(7) . Str::slug($user?->fullName()) . '-workbook',
             'user_id'   => $user->id,
             'openai_id' => $post->id,
             'input'     => $imageDetails['prompt'],
@@ -1294,6 +1298,7 @@ class AIController extends Controller
         $wordsCount = $characterCost / $defaultWordChars;
 
         $driver->input($characterCost)->calculateCredit()->decreaseCredit();
+        Usage::getSingle()->updateWordCounts($driver->calculate());
 
         $audioName = $user->id . '-' . Str::random(20) . '.mp3';
         Storage::disk('public')->put($audioName, $resAudio);
@@ -1307,7 +1312,7 @@ class AIController extends Controller
             'output'    => $audioName,
             'input'     => $audioName,
             'title'     => __('Isolated Voice'),
-            'slug'      => Str::random(20) . Str::slug($user->fullName()) . '-isolated-voice',
+            'slug'      => Str::random(20) . Str::slug($user?->fullName()) . '-isolated-voice',
             'user_id'   => $user->id,
             'hash'      => Str::random(256),
             'openai_id' => $ai->id,

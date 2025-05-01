@@ -237,8 +237,8 @@
 
                                     <div
                                         class="lqd-generator-item group relative flex w-full items-center gap-2 rounded-full bg-[#E2E5FF] px-2.5 py-2 transition-all hover:scale-[1.03] hover:shadow-xl hover:shadow-black/5"
-                                        data-title="{{ str()->lower(__($item->title)) }}"
-                                        data-description="{{ str()->lower(__($item->description)) }}"
+                                        data-title="{{ str(__($item->title))->lower()->value() }}"
+                                        data-description="{{ str(__($item->description))->lower()->value() }}"
                                         data-filter="{{ $item->filters }}"
                                         :class="{
                                             'hidden': itemsSearchStr !== '' && (!$el.getAttribute('data-title')
@@ -281,7 +281,7 @@
                                                     </div>
                                                     <a
                                                         class="size-full absolute left-0 top-0 inline-block overflow-hidden text-start -indent-[99999px]"
-                                                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.payment.subscription')) }}"
+                                                        href="{{  (route('dashboard.user.payment.subscription')) }}"
                                                     >
                                                         {{ __('Upgrade') }}
                                                     </a>
@@ -289,14 +289,14 @@
                                                     @if ($item->slug == 'ai_article_wizard_generator')
                                                         <a
                                                             class="size-full absolute left-0 top-0 inline-block overflow-hidden text-start -indent-[99999px]"
-                                                            href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.articlewizard.new')) }}"
+                                                            href="{{  (route('dashboard.user.openai.articlewizard.new')) }}"
                                                         >
                                                             {{ __('Create Workbook') }}
                                                         </a>
                                                     @else
                                                         <a
                                                             class="size-full absolute left-0 top-0 inline-block overflow-hidden text-start -indent-[99999px]"
-                                                            href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.generator.workbook', $item->slug)) }}"
+                                                            href="{{  (route('dashboard.user.openai.generator.workbook', $item->slug)) }}"
                                                         >
                                                             {{ __('Create Workbook') }}
                                                         </a>
@@ -304,21 +304,21 @@
                                                 @elseif($item->type == 'voiceover' || $item->type == 'isolator')
                                                     <a
                                                         class="size-full absolute left-0 top-0 inline-block overflow-hidden text-start -indent-[99999px]"
-                                                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.generator', $item->slug)) }}"
+                                                        href="{{  (route('dashboard.user.openai.generator', $item->slug)) }}"
                                                     >
                                                         {{ __('Create Workbook') }}
                                                     </a>
                                                 @elseif($item->type == 'image')
                                                     <a
                                                         class="size-full absolute left-0 top-0 inline-block overflow-hidden text-start -indent-[99999px]"
-                                                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.generator', $item->slug)) }}"
+                                                        href="{{  (route('dashboard.user.openai.generator', $item->slug)) }}"
                                                     >
                                                         {{ __('Create') }}
                                                     </a>
                                                 @elseif($item->type == 'audio')
                                                     <a
                                                         class="size-full absolute left-0 top-0 inline-block overflow-hidden text-start -indent-[99999px]"
-                                                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.generator', $item->slug)) }}"
+                                                        href="{{  (route('dashboard.user.openai.generator', $item->slug)) }}"
                                                     >
                                                         {{ __('Create') }}
                                                     </a>

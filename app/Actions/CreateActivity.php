@@ -28,7 +28,7 @@ class CreateActivity
         Notify::toMany(
             User::admins()->get(),
             $activity_type . ' "' . $activity_title . '"',
-            $user->fullName(),
+            $user?->fullName(),
             $url
         );
     }

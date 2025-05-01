@@ -78,7 +78,7 @@
                     <div class="col-6">
                         <p class="h3">{{ __('Client') }}</p>
                         <address>
-                            {{ $invoice->user->fullName() }}<br>
+                            {{ $invoice->user?->fullName() }}<br>
 							{{ $invoice->user->email }}<br>
 							{{ $invoice->user->phone }}<br>
 							{{ $invoice->user->address }}<br>

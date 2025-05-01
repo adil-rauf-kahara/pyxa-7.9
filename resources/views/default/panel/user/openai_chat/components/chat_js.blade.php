@@ -45,7 +45,7 @@
 @if (count($list) == 0 && $category->slug != 'ai_pdf')
     <script>
         window.addEventListener("load", (event) => {
-            return startNewChat({{ $category->id }}, '{{ LaravelLocalization::getCurrentLocale() }}');
+            return startNewChat({{ $category->id }}, '{{ LaravelLocalization::getCurrentLocale() }}', '{{ auth()->check() ? null : 'chatpro' }}');
         });
     </script>
 @endif

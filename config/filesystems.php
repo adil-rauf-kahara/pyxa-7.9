@@ -48,6 +48,13 @@ return [
             'visibility' => 'public',
         ],
 
+        'uploads' => [
+            'driver' => 'local',
+            'root'   => public_path() . '/uploads',
+            'url'    => env('APP_URL') . '/uploads',
+            'throw'  => false,
+        ],
+
         'views' => [
             'driver' => 'local',
             'root'   => resource_path('views'),

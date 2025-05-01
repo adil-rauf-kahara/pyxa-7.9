@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Menu extends Model
 {
     protected $fillable = [
+        'menu_group_id',
         'parent_id',
         'key',
         'route',

@@ -3,6 +3,7 @@
 namespace App\Services\PaymentGateways;
 
 use App\Actions\CreateActivity;
+use App\Actions\EmailPaymentConfirmation;
 use App\Enums\Plan\FrequencyEnum;
 use App\Helpers\Classes\Helper;
 use App\Models\GatewayProducts;
@@ -243,6 +244,7 @@ class CoingateService implements BaseGatewayService
 
                             // sent mail if required here later
                             CreateActivity::for($order->user, __('Purchased'), $order->plan->name . ' ' . __('Plan') . ' ' . __('For free'));
+                            EmailPaymentConfirmation::create($user, $plan)->send();
                             \App\Models\Usage::getSingle()->updateSalesCount($total);
 
                             return redirect($payment_url);
@@ -706,6 +708,7 @@ class CoingateService implements BaseGatewayService
                     }
 
                     CreateActivity::for($user, 'Purchased', $plan->name . ' Plan');
+                    EmailPaymentConfirmation::create($user, $plan)->send();
                 }
             } catch (Exception $th) {
 

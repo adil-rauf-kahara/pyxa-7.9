@@ -3,7 +3,7 @@
 @section('titlebar_actions')
     <x-button
         variant="primary"
-        href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.affiliates.users')) }}"
+        href="{{  (route('dashboard.user.affiliates.users')) }}"
     >
         {{ __('Affilated Users') }}
     </x-button>
@@ -26,16 +26,16 @@
                         </p>
 
                         <div class="relative">
-							<x-forms.input
-								class="hidden"
-								id="ref-code"
-								disabled
-								value="{{ LaravelLocalization::localizeUrl(url('/') . '/register?aff=' . \Illuminate\Support\Facades\Auth::user()->affiliate_code) }}"
-							/>
+                            <x-forms.input
+                                class="hidden"
+                                id="ref-code"
+                                disabled
+                                value="{{  (url('/') . '/register?aff=' . \Illuminate\Support\Facades\Auth::user()->affiliate_code) }}"
+                            />
                             <x-forms.input
                                 class="h-10 bg-background"
                                 disabled
-                                value="{{ str()->limit(LaravelLocalization::localizeUrl(url('/') . '/register?aff=' . \Illuminate\Support\Facades\Auth::user()->affiliate_code), 60) }}"
+                                value="{{ str()->limit( (url('/') . '/register?aff=' . \Illuminate\Support\Facades\Auth::user()->affiliate_code), 60) }}"
                             />
                             <x-button
                                 class="copy-aff-link absolute end-0 top-0 inline-flex h-full w-9 items-center rounded-input bg-transparent text-heading-foreground hover:bg-emerald-400 hover:text-white"
@@ -71,11 +71,11 @@
                             <span class="opacity-60">
                                 {{ __('Referral Program') }}:
                             </span>
-							@if($is_onetime_commission)
-								{{ __('First Purchase') }}
-							@else
-								{{ __('All Purchases') }}
-							@endif
+                            @if ($is_onetime_commission)
+                                {{ __('First Purchase') }}
+                            @else
+                                {{ __('All Purchases') }}
+                            @endif
                         </p>
                     </div>
                 </div>
@@ -88,26 +88,26 @@
 
                 <ol class="mb-12 flex flex-col gap-4 text-heading-foreground">
                     <li>
-                        <span class="size-7 me-2 inline-flex items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
+                        <span class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
                             1
                         </span>
                         {!! __('You <strong>send your invitation link</strong> to your friends.') !!}
                     </li>
                     <li>
-                        <span class="size-7 me-2 inline-flex items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
+                        <span class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
                             2
                         </span>
                         {!! __('<strong>They subscribe</strong> to a paid plan by using your refferral link.') !!}
                     </li>
                     <li>
-                        <span class="size-7 me-2 inline-flex items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
+                        <span class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
                             3
                         </span>
-						@if($is_onetime_commission)
-							{!! __('From their first purchase, you will begin <strong>earning one-time commissions</strong>.') !!}
-						@else
-							{!! __('From their first purchase, you will begin <strong>earning recurring commissions</strong>.') !!}
-						@endif
+                        @if ($is_onetime_commission)
+                            {!! __('From their first purchase, you will begin <strong>earning one-time commissions</strong>.') !!}
+                        @else
+                            {!! __('From their first purchase, you will begin <strong>earning recurring commissions</strong>.') !!}
+                        @endif
                     </li>
                 </ol>
 
@@ -127,7 +127,7 @@
                         required
                     >
                         <x-slot:icon>
-                            <x-tabler-mail class="size-5 absolute end-3 top-1/2 -translate-y-1/2" />
+                            <x-tabler-mail class="absolute end-3 top-1/2 size-5 -translate-y-1/2" />
                         </x-slot:icon>
                     </x-forms.input>
 

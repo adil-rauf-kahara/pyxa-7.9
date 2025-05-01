@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OpenAIGenerator;
 use App\Models\Setting;
 use App\Models\SettingTwo;
+use App\Models\Usage;
 use App\Models\User;
 use App\Models\UserOpenai;
 use Exception;
@@ -191,6 +192,7 @@ class AIImageController extends Controller
                 $entries[] = $entry;
             }
             $driver->decreaseCredit();
+            Usage::getSingle()->updateImageCounts($driver->calculate());
             Cache::lock($lockKey)->release();
 
         } catch (Exception $e) {
@@ -541,7 +543,7 @@ class AIImageController extends Controller
         $data = [
             'team_id'   => $user->team_id,
             'title'     => $imageDetails['nameOfImage'],
-            'slug'      => Str::random(7) . Str::slug($user->fullName()) . '-workbook',
+            'slug'      => Str::random(7) . Str::slug($user?->fullName()) . '-workbook',
             'user_id'   => $user->id,
             'openai_id' => $post->id,
             'input'     => $imageDetails['prompt'],

@@ -5,7 +5,7 @@
         @include('news-letter::add-new-button')
     @elseif($installedExtension)
         <x-button
-            href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.newsletter.create')) }}"
+            href="{{ $app_is_demo ? '#' :  (route('dashboard.newsletter.create')) }}"
             onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
             variant="primary"
         >
@@ -69,7 +69,7 @@
                                         class="size-9"
                                         variant="ghost-shadow"
                                         size="none"
-                                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.email-templates.edit', $entry->id)) }}"
+                                        href="{{  (route('dashboard.email-templates.edit', $entry->id)) }}"
                                         title="{{ __('Edit') }}"
                                     >
                                         <x-tabler-pencil class="size-4" />

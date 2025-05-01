@@ -86,7 +86,7 @@
                             size="none"
                             variant="outline"
                             hover-variant="danger"
-                            href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.documents.image.delete', $entry->slug)) }}"
+                            href="{{  (route('dashboard.user.openai.documents.image.delete', $entry->slug)) }}"
                             onclick="return confirm('Are you sure?')"
                             title="{{ __('Delete') }}"
                         >
@@ -257,7 +257,7 @@
                             class="relative z-10 size-9"
                             size="none"
                             variant="danger"
-                            href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.documents.image.delete', $entry->slug)) }}"
+                            href="{{  (route('dashboard.user.openai.documents.image.delete', $entry->slug)) }}"
                             onclick="return confirm('Are you sure?')"
                             title="{{ __('Delete') }}"
                         >
@@ -401,7 +401,7 @@
                             class="relative z-10 size-9"
                             size="none"
                             variant="danger"
-                            href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.documents.image.delete', $entry->slug)) }}"
+                            href="{{  (route('dashboard.user.openai.documents.image.delete', $entry->slug)) }}"
                             onclick="return confirm('Are you sure?')"
                             title="{{ __('Delete') }}"
                         >

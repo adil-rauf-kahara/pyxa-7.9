@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\EmailConfirmation;
 use App\Events\UsersActivityEvent;
+use App\Helpers\Classes\Helper;
 use App\Helpers\Classes\MarketplaceHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
@@ -37,7 +38,8 @@ class AuthenticationController extends Controller
             $user = User::where('email', $githubUser->getEmail())->first();
             $user->github_token = $githubUser->token;
             $user->github_refresh_token = $githubUser->refreshToken;
-            $user->avatar = $githubUser->getAvatar();
+            $userSocialAvatar = $githubUser->getAvatar() ?? ($user->avatar ?? 'assets/img/auth/default-avatar.png');
+            $user->avatar = $user->avatar === 'assets/img/auth/default-avatar.png' ? $userSocialAvatar : $user->avatar;
             $user->affiliate_code = $user->affiliate_code ?? Str::upper(Str::random(12));
             $user->save();
         } else {
@@ -52,13 +54,18 @@ class AuthenticationController extends Controller
                 'avatar'               => $githubUser->getAvatar(),
                 'password'             => Hash::make(Str::random(12)),
                 'affiliate_code'       => Str::upper(Str::random(12)),
+                'email_verified_at'    => now(),
+                'email_confirmed'      => true,
             ]);
             $user->updateCredits(setting('freeCreditsUponRegistration', User::getFreshCredits()));
         }
         Auth::login($user);
         $ip = $request->ip();
         $connection = $request->header('User-Agent');
-        event(new UsersActivityEvent($user->email, $user->type, $ip, $connection));
+
+        if (Helper::appIsNotDemo()) {
+            event(new UsersActivityEvent($user->email, $user->type, $ip, $connection));
+        }
 
         return redirect('/dashboard/user');
     }
@@ -74,7 +81,8 @@ class AuthenticationController extends Controller
             $user = User::where('email', $googleUser->getEmail())->first();
             $user->google_token = $googleUser->token;
             $user->google_refresh_token = $googleUser->refreshToken;
-            $user->avatar = $googleUser->getAvatar();
+            $userSocialAvatar = $googleUser->getAvatar() ?? ($user->avatar ?? 'assets/img/auth/default-avatar.png');
+            $user->avatar = $user->avatar === 'assets/img/auth/default-avatar.png' ? $userSocialAvatar : $user->avatar;
             $user->affiliate_code = $user->affiliate_code ?? Str::upper(Str::random(12));
             $user->save();
         } else {
@@ -89,6 +97,8 @@ class AuthenticationController extends Controller
                 'avatar'               => $googleUser->getAvatar(),
                 'password'             => Hash::make(Str::random(12)),
                 'affiliate_code'       => Str::upper(Str::random(12)),
+                'email_verified_at'    => now(),
+                'email_confirmed'      => true,
             ]);
             $user->updateCredits(setting('freeCreditsUponRegistration', User::getFreshCredits()));
         }
@@ -111,20 +121,23 @@ class AuthenticationController extends Controller
             if ($checkUser) {
                 $user = User::where('email', $facebookUser->getEmail())->first();
                 $user->facebook_token = $facebookUser->token;
-                $user->avatar = $facebookUser->getAvatar();
+                $userSocialAvatar = $facebookUser->getAvatar() ?? ($user->avatar ?? 'assets/img/auth/default-avatar.png');
+                $user->avatar = $user->avatar === 'assets/img/auth/default-avatar.png' ? $userSocialAvatar : $user->avatar;
                 $user->affiliate_code = $user->affiliate_code ?? Str::upper(Str::random(12));
                 $user->save();
             } else {
                 $user = User::updateOrCreate([
                     'facebook_id' => $facebookUser->id,
                 ], [
-                    'name'             => $name,
-                    'surname'          => $surname,
-                    'email'            => $facebookUser->getEmail(),
-                    'facebook_token'   => $facebookUser->token,
-                    'avatar'           => $facebookUser->getAvatar(),
-                    'password'         => Hash::make(Str::random(12)),
-                    'affiliate_code'   => Str::upper(Str::random(12)),
+                    'name'              => $name,
+                    'surname'           => $surname,
+                    'email'             => $facebookUser->getEmail(),
+                    'facebook_token'    => $facebookUser->token,
+                    'avatar'            => $facebookUser->getAvatar(),
+                    'password'          => Hash::make(Str::random(12)),
+                    'affiliate_code'    => Str::upper(Str::random(12)),
+                    'email_verified_at' => now(),
+                    'email_confirmed'   => true,
                 ]);
                 $user->updateCredits(setting('freeCreditsUponRegistration', User::getFreshCredits()));
             }
@@ -166,8 +179,6 @@ class AuthenticationController extends Controller
      */
     public function registerStore(Request $request): JsonResponse
     {
-        // dd("Here");
-        
         $settings = Setting::getCache();
 
         if ($settings->recaptcha_register && ($settings->recaptcha_sitekey || $settings->recaptcha_secretkey)) {
@@ -217,7 +228,7 @@ class AuthenticationController extends Controller
             'email'                   => $request->email,
             'email_confirmation_code' => Str::random(67),
             'password'                => Hash::make($request->password),
-            // 'email_verification_code' => Str::random(67),
+            'email_verification_code' => Str::random(67),
             'affiliate_id'            => $affCode,
             'affiliate_code'          => Str::upper(Str::random(12)),
         ]);
@@ -241,7 +252,9 @@ class AuthenticationController extends Controller
             $ip = $request->ip();
             $connection = $request->header('User-Agent');
 
-            event(new UsersActivityEvent($user->email, $user->type, $ip, $connection));
+			if (Helper::appIsNotDemo()) {
+				event(new UsersActivityEvent($user->email, $user->type, $ip, $connection));
+			}
         } else {
             $data = [
                 'errors' => ['We have sent you an email for account confirmation. Please confirm your account to continue.'],

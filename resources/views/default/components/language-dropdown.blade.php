@@ -1,10 +1,10 @@
 <x-dropdown.dropdown
-    class="header-language-dropdown"
+    {{ $attributes->twMerge('header-language-dropdown') }}
     anchor="end"
     offsetY="26px"
 >
     <x-slot:trigger
-        class="size-6 max-lg:size-10 max-lg:border max-lg:dark:bg-white/[3%]"
+        {{ $attributes->twMergeFor('trigger', 'size-6 max-lg:size-10 max-lg:border max-lg:dark:bg-white/[3%]') }}
         size="none"
     >
         <x-tabler-world stroke-width="1.5" />
@@ -19,7 +19,7 @@
                     class="flex items-center gap-2 border-b px-3 py-2 text-heading-foreground transition-colors last:border-b-0 hover:bg-foreground/5 hover:no-underline"
                     rel="alternate"
                     hreflang="{{ $localeCode }}"
-                    href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}"
+                    href="?app_locale={{ $localeCode }}"
                 >
                     <span class="text-xl">
                         {{ country2flag(substr($properties['regional'], strrpos($properties['regional'], '_') + 1)) }}

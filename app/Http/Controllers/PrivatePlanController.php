@@ -7,14 +7,19 @@ use App\Enums\Plan\TypeEnum;
 use App\Models\Gateways;
 use App\Models\OpenAIGenerator;
 use App\Models\Plan;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class PrivatePlanController extends Controller
 {
-    public function index(Request $request, $url): View
+    public function index(Request $request, $url): View|RedirectResponse
     {
+        if (! Auth::check()) {
+            return redirect()->route('register');
+        }
+
         $activeGateways = Gateways::query()->where('is_active', 1)->get();
 
         $is_active_gateway = $activeGateways->count() > 0 ? 1 : 0;

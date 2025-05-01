@@ -34,7 +34,7 @@
     <p class="mb-5">{{ __('Start generating texts by adding a document.') }}</p>
     <x-button
         variant="ghost-shadow"
-        href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.list')) }}"
+        href="{{ route('dashboard.user.openai.list') }}"
     >
         <x-tabler-plus class="size-4" />
         {{ __('Add New') }}

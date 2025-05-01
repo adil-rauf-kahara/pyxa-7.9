@@ -75,7 +75,7 @@
                 {{--                />     --}}
                 {{--                            <div class="text-center mt-auto">--}}
                 {{--                                <a class="btn rounded-md p-[1.15em_2.1em] w-full text-[15px] group-[.theme-dark]/body:!bg-[rgba(255,255,255,1)] group-[.theme-dark]/body:!text-[rgba(0,0,0,0.9)]"--}}
-                {{--                                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.payment.subscription')) }}">{{ __('Change Plan') }}</a>--}}
+                {{--                                    href="{{  (route('dashboard.user.payment.subscription')) }}">{{ __('Change Plan') }}</a>--}}
                 {{--                            </div>--}}
                 {{--                        </div>--}}
                 {{--                    </div>--}}

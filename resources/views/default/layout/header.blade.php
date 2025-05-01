@@ -1,3 +1,7 @@
+@php
+    $menu_items = app(App\Services\Common\FrontMenuService::class)->generate();
+@endphp
+
 <header
     @class([
         'site-header group/header absolute inset-x-0 top-0 z-50 text-white transition-[background,shadow] [&.lqd-is-sticky]:text-black',
@@ -37,26 +41,44 @@
             class="site-nav-container basis-1/3 transition-all max-lg:absolute max-lg:right-0 max-lg:top-full max-lg:max-h-0 max-lg:w-full max-lg:overflow-hidden max-lg:bg-[#343C57] max-lg:text-white [&.lqd-is-active]:max-lg:max-h-[calc(100vh-150px)]">
             <div class="max-lg:max-h-[inherit] max-lg:overflow-y-scroll">
                 <ul class="flex items-center justify-center gap-14 whitespace-nowrap text-center max-xl:gap-10 max-lg:flex-col max-lg:items-start max-lg:gap-5 max-lg:p-10">
-                    @php
-                        $setting->menu_options = $setting->menu_options
-                            ? $setting->menu_options
-                            : '[{"title": "Home","url": "#banner","target": false},{"title": "Features","url": "#features","target": false},{"title": "How it Works","url": "#how-it-works","target": false},{"title": "Testimonials","url": "#testimonials","target": false},{"title": "Pricing","url": "#pricing","target": false},{"title": "FAQ","url": "#faq","target": false}]';
-                        $menu_options = json_decode($setting->menu_options, true);
-                        foreach ($menu_options as $menu_item) {
-                            printf(
-                                '
-								<li>
-									<a href="%1$s" target="%3$s" class="relative before:absolute before:-inset-x-4 before:-inset-y-2 before:scale-75 before:rounded-lg before:bg-current before:opacity-0 before:transition-all hover:before:scale-100 hover:before:opacity-10 [&.active]:before:scale-100 [&.active]:before:opacity-10">
-										%2$s
-									</a>
-								</li>
-								',
-                                Route::currentRouteName() != 'index' ? url('/') . $menu_item['url'] : $menu_item['url'],
-                                __($menu_item['title']),
-                                $menu_item['target'] === false ? '_self' : '_blank',
-                            );
-                        }
-                    @endphp
+                    @foreach ($menu_items as $menu_item)
+                        @php
+                            $has_children = !empty($menu_item['mega_menu_id']);
+                        @endphp
+                        <li
+                            @class([
+                                'group/li w-full relative flex flex-wrap items-center gap-2 after:pointer-events-none after:absolute after:-inset-x-4 after:bottom-[calc(var(--sub-offset,0)*-1)] after:top-full [&.is-hover]:after:pointer-events-auto',
+                                'has-children' => $has_children,
+                                'has-mega-menu' => !empty($menu_item['mega_menu_id']),
+                            ])
+                            x-data="{ hover: false }"
+                            x-on:mouseover="if(window.innerWidth < 992 ) return; hover = true"
+                            x-on:mouseleave="if(window.innerWidth < 992 ) return; hover = false"
+                            :class="{ 'is-hover': hover }"
+                        >
+                            <a
+                                class="relative before:absolute before:-inset-x-4 before:-inset-y-2 before:scale-75 before:rounded-lg before:bg-current before:opacity-0 before:transition-all hover:before:scale-100 hover:before:opacity-10 [&.active]:before:scale-100 [&.active]:before:opacity-10"
+                                href="{{ $menu_item['url'] }}"
+                                @if ($menu_item['target']) target="_blank" @endif
+                            >
+                                {{ $menu_item['title'] }}
+
+                                @if ($has_children)
+                                @endif
+                            </a>
+                            @if ($has_children)
+                                <span
+                                    class="relative ms-auto inline-grid size-8 shrink-0 place-content-center align-middle before:absolute before:inset-0 before:rounded-xl before:bg-current before:opacity-5 lg:hidden"
+                                    @click="hover = !hover"
+                                >
+                                    <x-tabler-chevron-down class="size-4" />
+                                </span>
+                            @endif
+                            @if (!empty($menu_item['mega_menu_id']))
+                                @includeFirst(['mega-menu::partials.frontend-megamenu', 'vendor.empty'], ['menu_item' => $menu_item])
+                            @endif
+                        </li>
+                    @endforeach
                 </ul>
                 @if (count(explode(',', $settings_two->languages)) > 1)
                     <div class="group relative -mt-3 block border-t border-white/5 px-10 pb-5 pt-6 md:hidden">
@@ -80,11 +102,11 @@
                             </svg>
                             {{ __('Languages') }}
                         </p>
-                        @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                        @foreach (\App\Helpers\Classes\Localization::getSupportedLocales() as $localeCode => $properties)
                             @if (in_array($localeCode, explode(',', $settings_two->languages)))
                                 <a
                                     class="block border-b border-black border-opacity-5 py-3 transition-colors last:border-none hover:bg-black hover:bg-opacity-5"
-                                    href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}"
+									href="{{ route('language.change', $localeCode) }}"
                                     rel="alternate"
                                     hreflang="{{ $localeCode }}"
                                 >{{ country2flag(substr($properties['regional'], strrpos($properties['regional'], '_') + 1)) }}
@@ -99,7 +121,7 @@
             @if (count(explode(',', $settings_two->languages)) > 1)
                 <div class="group relative hidden md:block">
                     <button
-                        class="size-10 inline-flex items-center justify-center rounded-full border-2 border-solid border-white !border-opacity-20 transition-colors before:absolute before:end-0 before:top-full before:h-4 before:w-full group-hover:!border-opacity-100 group-hover:bg-white group-hover:text-black group-[.lqd-is-sticky]/header:border-black group-[.lqd-is-sticky]/header:group-hover:bg-black group-[.lqd-is-sticky]/header:group-hover:text-white"
+                        class="inline-flex size-10 items-center justify-center rounded-full border-2 border-solid border-white !border-opacity-20 transition-colors before:absolute before:end-0 before:top-full before:h-4 before:w-full group-hover:!border-opacity-100 group-hover:bg-white group-hover:text-black group-[.lqd-is-sticky]/header:border-black group-[.lqd-is-sticky]/header:group-hover:bg-black group-[.lqd-is-sticky]/header:group-hover:text-white"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -121,15 +143,17 @@
                     </button>
                     <div
                         class="pointer-events-none absolute end-0 top-[calc(100%+1rem)] min-w-[145px] translate-y-2 rounded-md bg-white text-black opacity-0 shadow-lg transition-all group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
-                        @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                        @foreach (\App\Helpers\Classes\Localization::getSupportedLocales() as $localeCode => $properties)
                             @if (in_array($localeCode, explode(',', $settings_two->languages)))
                                 <a
                                     class="block border-b border-black border-opacity-5 px-3 py-3 transition-colors last:border-none hover:bg-black hover:bg-opacity-5"
-                                    href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}"
+									href="{{ route('language.change', $localeCode) }}"
                                     rel="alternate"
                                     hreflang="{{ $localeCode }}"
-                                >{{ country2flag(substr($properties['regional'], strrpos($properties['regional'], '_') + 1)) }}
-                                    {{ $properties['native'] }}</a>
+                                >
+                                    {{ country2flag(substr($properties['regional'], strrpos($properties['regional'], '_') + 1)) }}
+                                    {{ $properties['native'] }}
+                                </a>
                             @endif
                         @endforeach
                     </div>
@@ -140,7 +164,7 @@
                 <div class="mx-3">
                     <a
                         class="relative inline-flex items-center overflow-hidden rounded-lg border-[2px] border-white !border-opacity-0 bg-white !bg-opacity-10 px-4 py-2 font-medium text-white transition-all duration-300 hover:scale-105 hover:border-black hover:bg-black hover:!bg-opacity-100 hover:text-white hover:shadow-lg group-[.lqd-is-sticky]/header:bg-black group-[.lqd-is-sticky]/header:text-black group-[.lqd-is-sticky]/header:hover:!bg-opacity-100 group-[.lqd-is-sticky]/header:hover:text-white"
-                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.index')) }}"
+                        href="{{ route('dashboard.index') }}"
                     >
                         {!! __('Dashboard') !!}
                     </a>
@@ -148,20 +172,20 @@
             @else
                 <a
                     class="relative inline-flex items-center overflow-hidden rounded-lg border-[2px] border-white !border-opacity-10 px-4 py-2 font-medium text-white transition-all duration-300 hover:scale-105 hover:border-black hover:bg-black hover:text-white hover:shadow-lg group-[.lqd-is-sticky]/header:border-black group-[.lqd-is-sticky]/header:text-black group-[.lqd-is-sticky]/header:hover:text-white"
-                    href="{{ LaravelLocalization::localizeUrl(route('login')) }}"
+                    href="{{ route('login') }}"
                 >
                     {!! __($fSetting->sign_in) !!}
                 </a>
                 <a
                     class="relative inline-flex items-center overflow-hidden rounded-lg border-[2px] border-white !border-opacity-0 bg-white !bg-opacity-10 px-4 py-2 font-medium text-white transition-all duration-300 hover:scale-105 hover:border-black hover:bg-black hover:!bg-opacity-100 hover:text-white hover:shadow-lg group-[.lqd-is-sticky]/header:bg-black group-[.lqd-is-sticky]/header:text-black group-[.lqd-is-sticky]/header:hover:!bg-opacity-100 group-[.lqd-is-sticky]/header:hover:text-white"
-                    href="{{ LaravelLocalization::localizeUrl(route('register')) }}"
+                    href="{{ route('register') }}"
                 >
                     {!! __($fSetting->join_hub) !!}
                 </a>
             @endauth
 
             <button
-                class="mobile-nav-trigger size-10 group flex shrink-0 items-center justify-center rounded-full bg-white !bg-opacity-10 group-[.lqd-is-sticky]/header:bg-black lg:hidden"
+                class="mobile-nav-trigger group flex size-10 shrink-0 items-center justify-center rounded-full bg-white !bg-opacity-10 group-[.lqd-is-sticky]/header:bg-black lg:hidden"
             >
                 <span class="flex w-4 flex-col gap-1">
                     @for ($i = 0; $i <= 1; $i++)

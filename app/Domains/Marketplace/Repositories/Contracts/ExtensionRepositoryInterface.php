@@ -10,6 +10,8 @@ interface ExtensionRepositoryInterface extends PortalRepositoryInterface
 
     public function extensions(): array;
 
+    public function banners(): ?array;
+
     public function paidExtensions(): array;
 
     public function themes(): array;

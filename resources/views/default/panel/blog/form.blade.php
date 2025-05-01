@@ -5,7 +5,7 @@
         @if ($blog != null)
             <x-button
                 variant="ghost-shadow"
-                href="{{ LaravelLocalization::localizeUrl(url('/blog', $blog->slug)) }}"
+                href="{{ url('/blog', $blog->slug) }}"
                 target="_blank"
             >
                 {{ __('Preview') }}

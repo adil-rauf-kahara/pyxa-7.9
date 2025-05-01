@@ -4,7 +4,7 @@
 @section('titlebar_actions')
     <x-button
         onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-        href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.admin.openai.chat.addOrUpdateCategory')) }}"
+        href="{{ $app_is_demo ? '#' :  (route('dashboard.admin.openai.chat.addOrUpdateCategory')) }}"
     >
         {{ __('Add Category') }}
     </x-button>
@@ -62,7 +62,7 @@
                                     class="size-9"
                                     variant="ghost-shadow"
                                     size="none"
-                                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.admin.openai.chat.addOrUpdateCategory', $entry->id)) }}"
+                                    href="{{  (route('dashboard.admin.openai.chat.addOrUpdateCategory', $entry->id)) }}"
                                     title="{{ __('Edit') }}"
                                 >
                                     <x-tabler-pencil class="size-4" />
@@ -72,7 +72,7 @@
                                     variant="ghost-shadow"
                                     hover-variant="danger"
                                     size="none"
-                                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.admin.openai.chat.deleteCategory', $entry->id)) }}"
+                                    href="{{  (route('dashboard.admin.openai.chat.deleteCategory', $entry->id)) }}"
                                     onclick="return confirm('{{ __('Are you sure? This is permanent.') }}')"
                                     title="{{ __('Delete') }}"
                                 >

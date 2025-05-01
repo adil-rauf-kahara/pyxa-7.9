@@ -1,5 +1,36 @@
 @php
-    $features = ['SEO Tool / Checker', 'AI Social Media', 'WordPress Integration', 'Cryptomus Payment', 'Cloudflare R2 Storage', '+ All Upcoming Extensions'];
+	$features = [
+		'AI Chat Pro',
+ 		'AI Social Media Suite',
+ 		'Human Agent for External Chatbot',
+ 		'Mega Menu',
+ 		'AI Image Editor',
+ 		'External Chatbot',
+ 		'Menu Manager',
+ 		'Onboarding Pro',
+ 		'Realtime Voice Chat',
+ 		'AI Persona',
+ 		'AI Video Pro',
+ 		'Focus Mode',
+ 		'SEO Tool',
+ 		'Cryptomus Payment Gateway',
+ 		'AI Social Media',
+ 		'AI Product Photography',
+ 		'AI Avatar',
+ 		'WordPress integration',
+ 		'Cloudflare R2',
+ 		'Included Themes',
+ 		'Sleek Theme',
+ 		'Creative Theme',
+ 		'Classic Theme',
+ 		'Dark Theme',
+ 		'Modern Theme',
+ 		'The Bolt Theme',
+ 		'Social Media Frontend',
+ 		'Social Media Dashboard',
+	];
+
+
 @endphp
 
 <section

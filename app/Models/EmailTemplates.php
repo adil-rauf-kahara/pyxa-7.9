@@ -13,5 +13,6 @@ class EmailTemplates extends Model
         'subject',
         'content',
         'system',
+        'slug',
     ];
 }

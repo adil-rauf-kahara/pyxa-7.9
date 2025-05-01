@@ -1,6 +1,6 @@
 <a
         {{ $attributes->class(['flex shrink-0 items-center justify-center']) }}
-        href="{{ LaravelLocalization::localizeUrl(route('dashboard.index')) }}"
+        href="{{  (route('dashboard.index')) }}"
 >
     @if (isset($setting->logo_dashboard))
         <img

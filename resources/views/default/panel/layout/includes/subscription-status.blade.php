@@ -1,3 +1,4 @@
+@if ($app_is_not_demo)
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         fetch('{{ route('dashboard.user.check.payment') }}')
@@ -7,3 +8,4 @@
             });
     });
 </script>
+@endif

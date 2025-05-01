@@ -7,9 +7,17 @@ function lqdFormatString( string ) {
 		return string;
 	}
 
-	string
-		.replace(/>(\s*\r?\n\s*)</g, '><')
-		.replace(/\n(?!.*\n)/, '');
+	string = string
+		.replace(
+			/(?<=\[START_REASONING\])(?:.*?\n\n.*?)(?=\[END_REASONING\]|$)/gs,
+			match => match.replace(/\n\n/g, '\n'),
+		)
+		.replace('[START_REASONING]', '>')
+		.replace('[END_REASONING]', '\n')
+		.replaceAll('\\(', '$')
+		.replaceAll('\\)', '$')
+		.replaceAll('\\[', '$$')
+		.replaceAll('\\]', '$$');
 
 	const renderer = window.markdownit({
 		breaks: true,
@@ -25,6 +33,10 @@ function lqdFormatString( string ) {
 			return codeString;
 		}
 	});
+
+	if ( 'katex' in window && 'markdownItKatex' in window ) {
+		renderer.use(markdownItKatex);
+	}
 
 	renderer.use(function (md) {
 		md.core.ruler.after('inline', 'convert_links', function (state) {

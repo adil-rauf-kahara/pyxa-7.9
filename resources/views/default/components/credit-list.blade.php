@@ -1,6 +1,6 @@
 @php
-
     use App\Domains\Entity\Enums\EntityEnum;
+
     $base_class = 'lqd-remaining-credit relative mx-2 flex flex-col gap-3 text-2xs';
     $progress_base_class = 'lqd-progress flex h-2 overflow-hidden rounded-full';
     $progressbar_text_base_class = 'lqd-progress-bar grow-0 basis-auto bg-primary';
@@ -121,7 +121,8 @@
 			set generator(value) {
 				this._generator = value;
 			}
-        }" @endif
+        }"
+		@active-generator-changed.window="console.log($event.detail);generator = $event.detail" @endif
     >
         @if ($showType !== 'button')
             <div

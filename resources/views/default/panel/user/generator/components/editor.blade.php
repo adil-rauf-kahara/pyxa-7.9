@@ -7,7 +7,7 @@
         <div class="mx-auto lg:w-2/3">
             <form
                 class="lqd-tinymce-toolbar-fixed workbook-form pt-[calc(var(--editor-tb-h)+var(--editor-bb-h)+3rem)] max-md:group-[&.lqd-generator-sidebar-collapsed]/generator:ps-8"
-                x-data
+                x-data="{}"
                 @submit.prevent
             >
                 <textarea
@@ -46,7 +46,7 @@
                     placeholder="{{ __('Keep writing the next paragraph...') }}"
                 >
                 <button
-                    class="size-6 relative ms-2 flex items-center justify-center rounded-full bg-heading-foreground/5 p-0 text-heading-foreground transition-all hover:bg-heading-foreground hover:text-heading-background disabled:pointer-events-none"
+                    class="relative ms-2 flex size-6 items-center justify-center rounded-full bg-heading-foreground/5 p-0 text-heading-foreground transition-all hover:bg-heading-foreground hover:text-heading-background disabled:pointer-events-none"
                     type="submit"
                 >
                     {{-- blade-formatter-disable --}}
@@ -55,9 +55,9 @@
                     <span
                         class="absolute inset-0 grid scale-150 grid-cols-1 grid-rows-1 place-items-center opacity-0 transition-all group-[&.is-loading]/form:scale-100 group-[&.is-loading]/form:opacity-100"
                     >
-                        <span class="size-1.5 col-start-1 col-end-1 row-start-1 row-end-1 inline-block rounded-full bg-current"></span>
+                        <span class="col-start-1 col-end-1 row-start-1 row-end-1 inline-block size-1.5 rounded-full bg-current"></span>
                         <span
-                            class="size-2 col-start-1 col-end-1 row-start-1 row-end-1 inline-block animate-ping rounded-full bg-current [animation-play-state:paused] group-[&.is-loading]/form:[animation-play-state:running]"
+                            class="col-start-1 col-end-1 row-start-1 row-end-1 inline-block size-2 animate-ping rounded-full bg-current [animation-play-state:paused] group-[&.is-loading]/form:[animation-play-state:running]"
                         ></span>
                     </span>
                 </button>
@@ -90,6 +90,11 @@
     }
 @endphp
 @push('script')
+    <link
+        rel="stylesheet"
+        href="{{ custom_theme_url('/assets/libs/katex/katex.min.css') }}"
+    >
+
     <script>
         @if (setting('default_ai_engine', 'openai') == \App\Domains\Engine\Enums\EngineEnum::ANTHROPIC->value)
             const stream_type = 'backend';
@@ -104,6 +109,8 @@
     <script src="{{ custom_theme_url('/assets/libs/ace/src-min-noconflict/ext-language_tools.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/markdown-it.min.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/turndown.js') }}"></script>
+    <script src="{{ custom_theme_url('/assets/libs/katex/katex.min.js') }}"></script>
+    <script src="{{ custom_theme_url('/assets/libs/vscode-markdown-it-katex/index.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/tinymce/tinymce.min.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/html2pdf/html2pdf.bundle.min.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/js/panel/tinymce-theme-handler.js') }}"></script>

@@ -40,7 +40,7 @@ class UsersExportService
             $words = EntityStats::word()->forUser($user)->totalCredits();
             $images = EntityStats::image()->forUser($user)->totalCredits();
 
-            $sheet->setCellValue('A' . $row, $user->fullName());
+            $sheet->setCellValue('A' . $row, $user?->fullName());
             $sheet->setCellValue('B' . $row, $user->type->value);
             $sheet->setCellValue('C' . $row, $words);
             $sheet->setCellValue('D' . $row, $images);
@@ -80,7 +80,7 @@ class UsersExportService
 
             $words = EntityStats::word()->forUser($user)->totalCredits();
             $images = EntityStats::image()->forUser($user)->totalCredits();
-            $csv .= "{$user->fullName()},{$user->type->value},{$words},{$images},{$user->country},{$status},{$user->created_at}\n";
+            $csv .= "{$user?->fullName()},{$user->type->value},{$words},{$images},{$user->country},{$status},{$user->created_at}\n";
         }
 
         return $csv;

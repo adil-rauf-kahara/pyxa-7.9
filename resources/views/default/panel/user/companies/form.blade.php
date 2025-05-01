@@ -137,14 +137,6 @@
             value="{{ $item?->logo }}"
             size="lg"
         />
-        
-        @if ($item?->logo)
-            <div class="mt-2">
-                <label>{{ __('Current Logo') }}</label>
-                <img src="{{ asset('uploads/' . $item->logo) }}" alt="Logo" class="img-fluid" />
-            </div>
-        @endif
-
 
         <x-forms.input
             id="c_color"

@@ -1,4 +1,3 @@
-import defaultTheme from 'tailwindcss/defaultTheme';
 import defaultConfig from './tailwind.config';
 
 /** @type {import('tailwindcss').Config} */
@@ -14,6 +13,7 @@ export default {
 		'./resources/views/**/panel/admin/frontend/**/*.blade.php',
 		'./resources/views/**/panel/admin/custom/**/*.blade.php',
 		'./resources/views/**/panel/chatbot/**/*.blade.php',
+		'./app/Extensions/MegaMenu/**/*.blade.php',
 	],
 	theme: {
 		extend: {
@@ -49,4 +49,7 @@ export default {
 			},
 		},
 	},
+	plugins: [
+		require('tailwindcss-motion')
+	]
 };

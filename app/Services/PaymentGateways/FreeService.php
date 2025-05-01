@@ -3,6 +3,7 @@
 namespace App\Services\PaymentGateways;
 
 use App\Actions\CreateActivity;
+use App\Actions\EmailPaymentConfirmation;
 use App\Enums\Plan\FrequencyEnum;
 use App\Models\GatewayProducts;
 use App\Models\Plan;
@@ -192,6 +193,7 @@ class FreeService
 
             // sent mail if required here later
             CreateActivity::for($order->user, __('Purchased'), $order->plan->name . ' ' . __('Plan') . ' ' . __('For free'));
+            EmailPaymentConfirmation::create($user, $plan)->send();
         } catch (Exception $th) {
             DB::rollBack();
             Log::error(self::$GATEWAY_CODE . '-> subscribe(): ' . $th->getMessage());
@@ -274,6 +276,7 @@ class FreeService
             self::creditIncreaseSubscribePlan($user, $plan);
             // sent mail if required here later
             CreateActivity::for($order->user, __('Purchased'), $order->plan->name . ' ' . __('Plan') . ' ' . __('For free'));
+            EmailPaymentConfirmation::create($user, $plan)->send();
         } catch (Exception $th) {
             DB::rollBack();
             Log::error(self::$GATEWAY_CODE . '-> subscribe(): ' . $th->getMessage());

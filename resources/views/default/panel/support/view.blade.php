@@ -18,7 +18,7 @@
                                     ])>
                                         <strong class="mb-1 block w-full text-heading-foreground">
                                             @if ($message->sender == 'user')
-                                                {{ $ticket->user->fullName() }}
+                                                {{ $ticket->user?->fullName() }}
                                             @else
                                                 {{ __('Administrator') }}
                                             @endif

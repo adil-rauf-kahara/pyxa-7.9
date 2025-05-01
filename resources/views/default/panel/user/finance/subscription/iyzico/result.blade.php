@@ -119,7 +119,7 @@
                 <p>
                     <a
                         class="btn btn-primary"
-                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.index')) }}"
+                        href="{{  (route('dashboard.index')) }}"
                     >
                         <span>{{ __('Generate New Content') }}</span>
                         <svg

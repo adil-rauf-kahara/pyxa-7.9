@@ -38,7 +38,7 @@ class HealthController extends Controller
 
             return response()->json(['success' => true]);
         } catch (Throwable $th) {
-            return response()->json(['success' => false]);
+            return response()->json(['success' => false, 'message' => $th->getMessage()]);
         }
     }
 }

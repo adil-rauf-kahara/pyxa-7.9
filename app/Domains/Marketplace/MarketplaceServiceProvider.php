@@ -11,7 +11,6 @@ use App\Domains\Marketplace\Services\ExtensionUninstallService;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class MarketplaceServiceProvider extends ServiceProvider
 {
@@ -59,6 +58,7 @@ class MarketplaceServiceProvider extends ServiceProvider
         'maintenance'          => \App\Extensions\Maintenance\System\MaintenanceServiceProvider::class,
         'open-router'          => \App\Extensions\OpenRouter\System\OpenRouterServiceProvider::class,
         'advanced-image'       => \App\Extensions\AdvancedImage\System\AdvancedImageServiceProvider::class,
+        'mega-menu'            => \App\Extensions\MegaMenu\System\MegaMenuServiceProvider::class,
         'onboarding-pro'       => \App\Extensions\OnboardingPro\System\OnboardingProServiceProvider::class,
         'ideogram'             => \App\Extensions\Ideogram\System\IdeogramServiceProvider::class,
         'perplexity'       	   => \App\Extensions\Perplexity\System\PerplexityServiceProvider::class,
@@ -70,6 +70,8 @@ class MarketplaceServiceProvider extends ServiceProvider
         'chatbot-agent'        => \App\Extensions\ChatbotAgent\System\ChatbotAgentServiceProvider::class,
         'xero'                 => \App\Extensions\Xero\System\XeroServiceProvider::class,
         'speechify-tts'        => \App\Extensions\SpeechifyTTS\System\SpeechifyServiceProvider::class,
+        'ai-chat-pro'          => \App\Extensions\AIChatPro\System\AIChatProServiceProvider::class,
+        'anouncement'          => \App\Extensions\Anouncement\System\AnouncementServiceProvider::class,
     ];
 
     public function register(): void
@@ -86,8 +88,7 @@ class MarketplaceServiceProvider extends ServiceProvider
     {
         $this->router()
             ->group([
-                'prefix'     => LaravelLocalization::setLocale(),
-                'middleware' => ['web', 'auth', 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath'],
+                'middleware' => ['web', 'auth'],
             ], function (Router $route) {
                 $route->get('dashboard/marketplace/extension/{slug}/install', function (string $slug) {
                     return $this

@@ -1,4 +1,4 @@
-@extends('layout.error')
+@extends('layout.error', ['disable_navbar' => true, 'disable_header' => true])
 
 @section('error_code', '404')
 @section('error_title', __('Looks like you’re lost.'))

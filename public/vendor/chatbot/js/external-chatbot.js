@@ -1,6 +1,4 @@
 (async function () {
-
-
 	const scriptTag = document.currentScript;
 	const url = new URL(scriptTag.getAttribute('src'));
 	const iframeWidth = scriptTag.getAttribute('data-iframe-width');
@@ -10,7 +8,6 @@
 	const chatBotUuid = scriptTag.getAttribute('data-chatbot-uuid');
 	const iFrameUrl = `${chatbotHostOrigin}/chatbot/${chatBotUuid}/frame`;
 	const jsonUrl = `${chatbotHostOrigin}/api/v2/chatbot/${chatBotUuid}`;
-
 
 	if (document.querySelector("html")?.getAttribute("lang")) {
 

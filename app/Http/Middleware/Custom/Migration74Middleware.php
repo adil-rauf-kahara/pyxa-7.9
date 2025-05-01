@@ -18,8 +18,8 @@ class Migration74Middleware
     {
 
         $tables = app('magicai_tables');
-        // and route not 'install'
-        if (! TableSchema::hasTable('roles', $tables) && $request->route()?->uri() !== 'install') {
+        // and route not 'install' and not contain install
+        if (! TableSchema::hasTable('roles', $tables) && $request->route()?->uri() !== 'install' && ! str_contains($request->route()?->uri(), 'install')) {
             Artisan::call('migrate', ['--force' => true]);
 
             InstallationHelper::runInstallation();

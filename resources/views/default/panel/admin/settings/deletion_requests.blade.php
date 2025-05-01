@@ -39,7 +39,7 @@
                     @forelse ($deletionRequests as $deletionRequest)
                         <tr>
                             <td class="sort-name">
-                                {{ $deletionRequest->user->fullName() }}
+                                {{ $deletionRequest->user?->fullName() }}
                             </td>
                             <td class="sort-group">
                                 {{ $deletionRequest->user->email }}

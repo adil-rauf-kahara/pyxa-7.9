@@ -1,7 +1,7 @@
 @php
     $prompt_filters = [
-        'all' => 'All',
-        'favorite' => 'Favorite',
+        'all' => __('All'),
+        'favorite' => __('Favorite'),
     ];
 @endphp
 
@@ -21,7 +21,7 @@
 >
     {{-- using form element cause issues in webchat after analyzing a website --}}
     <div
-        class="lqd-chat-form flex w-full items-end gap-3 self-end rounded-ee-[inherit] bg-background/95 p-8 py-6 backdrop-blur-lg backdrop-saturate-150 max-md:items-end max-md:p-4 max-sm:p-3"
+        class="lqd-chat-form flex w-full items-end gap-3 self-end rounded-ee-[inherit] bg-background/95 px-8 py-6 backdrop-blur-lg backdrop-saturate-150 max-md:items-end max-md:p-4 max-sm:p-3"
         id="chat_form"
     >
         @csrf
@@ -156,7 +156,7 @@
                                 </x-slot:trigger>
 
                                 <x-slot:modal
-                                    x-data
+                                    x-data="{}"
                                 >
                                     <div class="flex flex-col gap-6">
                                         <x-forms.input

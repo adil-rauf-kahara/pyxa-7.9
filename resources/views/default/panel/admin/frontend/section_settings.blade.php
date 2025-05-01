@@ -91,7 +91,23 @@
                     </x-alert>
                 </div>
 
+				@if(setting('front_theme') === 'social-media')
+					<div class="col-md-12">
+						<div class="mb-3">
+							<label class="form-label">
+								{{ __('Section Title') }}
+							</label>
+							<textarea
+								class="form-control"
+								id="join_the_ranks"
+								name="join_the_ranks"
+							>{!! $fSetting->join_the_ranks !!}</textarea>
+						</div>
+					</div>
+				@endif
             </div>
+
+
 
             <x-form-step
                 step="2"
@@ -839,4 +855,22 @@
 
 @push('script')
     <script src="{{ custom_theme_url('/assets/js/panel/settings.js?v='. time()) }}"></script>
+	<script
+		src="{{ custom_theme_url('/assets/libs/ace/src-min-noconflict/ace.js') }}"
+		type="text/javascript"
+		charset="utf-8"
+	></script>
+	<style
+		type="text/css"
+		media="screen"
+	>
+		.ace_editor {
+			min-height: 200px;
+		}
+	</style>
+
+	<script>
+		var join_the_ranks = ace.edit("join_the_ranks");
+		join_the_ranks.session.setMode("ace/mode/html");
+	</script>
 @endpush

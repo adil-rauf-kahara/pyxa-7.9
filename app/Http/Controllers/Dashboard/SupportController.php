@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Dashboard;
 use App\Actions\TicketAction;
 use App\Http\Controllers\Controller;
 use App\Models\UserSupport;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -26,41 +25,24 @@ class SupportController extends Controller
         return view('panel.support.new');
     }
 
-    public function newTicketSend(Request $request)
-{
-   
+    public function newTicketSend(Request $request): void
+    {
+        if (! $user = Auth::user()) {
+            return;
+        }
 
-    if (! $user = Auth::user()) {
-        return;
+        $support = $user->supportRequests()->create([
+            'ticket_id' => Str::upper(Str::random(10)),
+            'priority'  => $request->priority,
+            'category'  => $request->category,
+            'subject'   => $request->subject,
+        ]);
+
+        TicketAction::ticket($support)
+            ->fromUser()
+            ->new($request->message)
+            ->send();
     }
-
-
-    // Create support ticket
-    $support = $user->supportRequests()->create([
-        'ticket_id' => Str::upper(Str::random(10)),
-        'priority'  => $request->priority,
-        'category'  => $request->category,
-        'subject'   => $request->subject,
-    ]);
-
-    // Handle file upload
-    if ($request->hasFile('attachment')) {
-        $file = $request->file('attachment');
-        $filePath = $file->store('support_attachments', 'public'); // Save in 'storage/app/public/support_attachments'
-
-        // Save attachment path to the database
-        $support->update(['attachment' => $filePath]);
-    }
-
-    // Create ticket action
-    TicketAction::ticket($support)
-        ->fromUser()
-        ->new($request->message)
-        ->send();
-        
-
-}
-
 
     public function viewTicket($ticket_id)
     {

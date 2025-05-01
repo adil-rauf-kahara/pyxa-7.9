@@ -29,7 +29,7 @@
                     'absolute left-0 top-0 z-2 block h-full w-full',
                     'border-[3px] border-secondary' => $entry->plan == 'premium',
                 ])
-                href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.chat.chat', $entry->slug)) }}"
+                href="{{  (route('dashboard.user.openai.chat.chat', $entry->slug)) }}"
             ></a>
 
             <x-favorite-button

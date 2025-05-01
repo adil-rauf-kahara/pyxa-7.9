@@ -18,9 +18,6 @@
             $target = '_blank';
         }
 
-        if ($localizeHref) {
-            $href = LaravelLocalization::localizeUrl($href);
-        }
     }
 
     // if (empty(trim($activeCondition)) && !empty($href)) {
@@ -69,25 +66,25 @@
         </span>
     @endif
 
-    @if (($new && $app_is_demo) || !empty($badge))
-        <x-badge
-            class="ms-auto rounded-md text-4xs group-[&.navbar-shrinked]/body:hidden"
-            variant="secondary"
-        >
-            @if ($new && $app_is_demo)
-                {{ __('New') }}
-            @elseif (!empty($badge))
-                {{ $badge }}
-            @endif
-        </x-badge>
-    @endif
-
     @if ($dropdownTrigger)
-        <span class="lqd-nav-link-expander ms-auto shrink-0 group-[&.navbar-shrinked]/body:hidden">
+        <span class="lqd-nav-link-expander  shrink-0 group-[&.navbar-shrinked]/body:hidden">
             <x-tabler-plus
                 class="w-3"
                 stroke-width="2.5"
             />
         </span>
+    @endif
+
+   @if ($badge && $app_is_demo)
+        <x-badge
+            class=" rounded-md text-4xs group-[&.navbar-shrinked]/body:hidden"
+            variant="secondary"
+        >
+            @if (!empty($badge))
+                {{ mb_strtoupper($badge) }}
+			@else
+				{{ __('NEW') }}
+            @endif
+        </x-badge>
     @endif
 </a>

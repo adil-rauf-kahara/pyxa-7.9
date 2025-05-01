@@ -13,6 +13,7 @@ use App\Models\User;
 use Closure;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\RateLimiter;
 
 trait HasCreditLimit
 {
@@ -106,7 +107,24 @@ trait HasCreditLimit
      */
     public function hasCreditBalance(): bool
     {
+        if ($this->guest) {
+            return $this->guestHasAttempts();
+        }
+
         return $this->creditBalance() > 0 || $this->isUnlimitedCredit();
+    }
+
+    public function guestHasAttempts(): bool
+    {
+        $key = 'guest-attempt:' . request()?->ip();
+        $tryCount = (int) setting('guest_user_daily_message_limit', '10') + 1;
+        if (! RateLimiter::tooManyAttempts($key, $tryCount)) {
+            RateLimiter::hit($key, 60 * 60 * 24);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -176,7 +194,7 @@ trait HasCreditLimit
      */
     public function decreaseCredit(float $value = 1.00): bool
     {
-        if ($this->isUnlimitedCredit()) {
+        if ($this->guest || $this->isUnlimitedCredit()) {
             return true;
         }
 

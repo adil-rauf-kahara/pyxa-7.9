@@ -1,5 +1,5 @@
 @extends('panel.layout.app', ['disable_tblr' => true])
-@section('title', isset($user) ? $user->fullName() . " " . ('Orders') :  __('My Orders'))
+@section('title', isset($user) ? $user?->fullName() . " " . ('Orders') :  __('My Orders'))
 @section('titlebar_actions')
 	<x-dropdown.dropdown
 		class="header-language-dropdown"
@@ -125,7 +125,7 @@
                         <td class="whitespace-nowrap text-end">
                             <x-button
                                 class="size-9"
-                                href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.orders.invoice', $entry->order_id)) }}"
+                                href="{{  (route('dashboard.user.orders.invoice', $entry->order_id)) }}"
                                 size="none"
                                 variant="ghost-shadow"
                                 title="{{ __('Invoice') }}"

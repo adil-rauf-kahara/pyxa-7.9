@@ -6,7 +6,9 @@ use App\Actions\CreateActivity;
 use App\Actions\EmailConfirmation;
 use App\Domains\Marketplace\Repositories\Contracts\ExtensionRepositoryInterface;
 use App\Enums\Roles;
+use App\Extensions\MegaMenu\System\Models\MegaMenu;
 use App\Helpers\Classes\Helper;
+use App\Helpers\Classes\MarketplaceHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Finance\PaymentProcessController;
 use App\Models\AccountDeletionReqs;
@@ -49,6 +51,7 @@ use App\Services\Dashboard\DashboardService;
 use App\Services\UsersExportService;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -326,7 +329,7 @@ class AdminController extends Controller
             if ($image->getClientOriginalExtension() === 'svg') {
                 $image = self::sanitizeSVG($request->file('avatar'));
             }
-            $image_name = Str::random(4) . '-' . Str::slug($user->fullName()) . '-avatar.' . $image->getClientOriginalExtension();
+            $image_name = Str::random(4) . '-' . Str::slug($user?->fullName()) . '-avatar.' . $image->getClientOriginalExtension();
             // Image extension check
             $imageTypes = ['jpg', 'jpeg', 'png', 'svg', 'webp'];
             if (! in_array(Str::lower($image->getClientOriginalExtension()), $imageTypes)) {
@@ -378,8 +381,6 @@ class AdminController extends Controller
 
     public function usersSave(Request $request): void
     {
-        // dd( $request->all());
-        
         $request->validate([
             'user_id'                  => 'required|exists:users,id',
             'name'                     => 'required|string|max:255',
@@ -389,9 +390,6 @@ class AdminController extends Controller
             'country'                  => 'nullable',
             'type'                     => ['required', new Enum(Roles::class)],
             'status'                   => 'nullable|in:0,1',
-            'plan_ai_tools'            => 'nullable|json',
-            'plan_features'            => 'nullable|json',
-            'open_ai_items'            => 'nullable|json',
             'entities.*.*.isUnlimited' => [
                 'sometimes',
                 function ($attribute, $value, $fail) {
@@ -405,9 +403,6 @@ class AdminController extends Controller
         ]);
         $entities = $request->input('entities');
         $user = User::query()->find($request->user_id);
-        $planAiTools = json_decode($request->input('plan_ai_tools'), true);
-        $planFeatures = json_decode($request->input('plan_features'), true);
-        $openAiItems = json_decode($request->input('open_ai_items'), true);
         $user->update([
             'name'    => $request->name,
             'surname' => $request->surname,
@@ -416,12 +411,7 @@ class AdminController extends Controller
             'country' => $request->country,
             'type'    => $request->type,
             'status'  => $request->status,
-            'plan_ai_tools' => json_encode($planAiTools),  // Store as JSON
-            'plan_features' => json_encode($planFeatures),  // Store as JSON
-            'open_ai_items' => json_encode($openAiItems),  // Store as JSON
         ]);
-        
-        
 
         $user->updateCredits($entities);
     }
@@ -556,7 +546,7 @@ class AdminController extends Controller
         }
 
         $assistantService = new AssistantService;
-        $assistants = $assistantService->listAssistant();
+        $assistants = $assistantService->listAssistant()['data'] ?? [];
 
         $categoryList = ChatCategory::all();
 
@@ -609,55 +599,57 @@ class AdminController extends Controller
 
     public function openAIChatAddOrUpdateSave(Request $request)
     {
-        if ($request->template_id !== null) {
-            $template = OpenaiGeneratorChatCategory::where('id', $request->template_id)->firstOrFail();
-            $slug = $template->slug;
-        } else {
-            $template = new OpenaiGeneratorChatCategory;
-            $slug = Str::slug($request->name) . '-' . Str::random(5);
-        }
-
-        if ($request->chatbot_id == 'undefined') {
-            $request->chatbot_id = null;
-        }
-
-        if ($request->hasFile('avatar')) {
-            $path = 'upload/images/chatbot/';
-            $image = $request->file('avatar');
-            $image_name = Str::random(4) . '-' . Str::slug($request->name) . '-avatar.' . $image->getClientOriginalExtension();
-
-            // Resim uzantı kontrolü
-            $imageTypes = ['jpg', 'jpeg', 'png', 'svg', 'webp'];
-            if (! in_array(Str::lower($image->getClientOriginalExtension()), $imageTypes)) {
-                $data = [
-                    'errors' => ['The file extension must be jpg, jpeg, png, webp or svg.'],
-                ];
-
-                return response()->json($data, 419);
+        if (Helper::appIsNotDemo()) {
+            if ($request->template_id !== null) {
+                $template = OpenaiGeneratorChatCategory::where('id', $request->template_id)->firstOrFail();
+                $slug = $template->slug;
+            } else {
+                $template = new OpenaiGeneratorChatCategory;
+                $slug = Str::slug($request->name) . '-' . Str::random(5);
             }
 
-            $image->move($path, $image_name);
+            if ($request->chatbot_id == 'undefined') {
+                $request->chatbot_id = null;
+            }
 
-            $template->image = $path . $image_name;
+            if ($request->hasFile('avatar')) {
+                $path = 'upload/images/chatbot/';
+                $image = $request->file('avatar');
+                $image_name = Str::random(4) . '-' . Str::slug($request->name) . '-avatar.' . $image->getClientOriginalExtension();
+
+                // Resim uzantı kontrolü
+                $imageTypes = ['jpg', 'jpeg', 'png', 'svg', 'webp'];
+                if (! in_array(Str::lower($image->getClientOriginalExtension()), $imageTypes)) {
+                    $data = [
+                        'errors' => ['The file extension must be jpg, jpeg, png, webp or svg.'],
+                    ];
+
+                    return response()->json($data, 419);
+                }
+
+                $image->move($path, $image_name);
+
+                $template->image = $path . $image_name;
+            }
+
+            $template->name = $request->name;
+            $template->category = $request->chat_category ?? '';
+            $template->slug = $slug;
+            $template->short_name = $request->short_name;
+            $template->description = $request->description;
+            $template->instructions = $request->instructions;
+            $template->first_message = $request->first_message;
+            $template->role = $request->role;
+            $template->human_name = $request->human_name;
+            $template->helps_with = $request->helps_with;
+            $template->color = $request->color;
+            $template->plan = 'regular';
+            $template->chat_completions = $request->chat_completions;
+            $template->prompt_prefix = 'As a ' . $request->role . ', ';
+            $template->chatbot_id = $request->chatbot_id;
+            $template->assistant = $request->assistant;
+            $template->save();
         }
-
-        $template->name = $request->name;
-        $template->category = $request->chat_category ?? '';
-        $template->slug = $slug;
-        $template->short_name = $request->short_name;
-        $template->description = $request->description;
-        $template->instructions = $request->instructions;
-        $template->first_message = $request->first_message;
-        $template->role = $request->role;
-        $template->human_name = $request->human_name;
-        $template->helps_with = $request->helps_with;
-        $template->color = $request->color;
-        $template->plan = 'regular';
-        $template->chat_completions = $request->chat_completions;
-        $template->prompt_prefix = 'As a ' . $request->role . ', ';
-        $template->chatbot_id = $request->chatbot_id;
-        $template->assistant = $request->assistant;
-        $template->save();
 
         return redirect()->route('dashboard.admin.openai.chat.list')->with(['message' => __('Saved Successfully'), 'type' => 'success']);
     }
@@ -1102,23 +1094,25 @@ class AdminController extends Controller
 
     public function testimonialsSave(Request $request)
     {
-        if ($request->testimonial_id != 'undefined') {
-            $testimonial = Testimonials::where('id', $request->testimonial_id)->firstOrFail();
-        } else {
-            $testimonial = new Testimonials;
-        }
+        if (Helper::appIsNotDemo()) {
+            if ($request->testimonial_id != 'undefined') {
+                $testimonial = Testimonials::where('id', $request->testimonial_id)->firstOrFail();
+            } else {
+                $testimonial = new Testimonials;
+            }
 
-        if ($request->file('avatar')) {
-            $file = $request->file('avatar');
-            $filename = date('YmdHi') . $file->getClientOriginalName();
-            $file->move(public_path('testimonialAvatar'), $filename);
-            $testimonial->avatar = $filename;
-        }
+            if ($request->file('avatar')) {
+                $file = $request->file('avatar');
+                $filename = date('YmdHi') . $file->getClientOriginalName();
+                $file->move(public_path('testimonialAvatar'), $filename);
+                $testimonial->avatar = $filename;
+            }
 
-        $testimonial->full_name = $request->full_name;
-        $testimonial->job_title = $request->job_title;
-        $testimonial->words = $request->words;
-        $testimonial->save();
+            $testimonial->full_name = $request->full_name;
+            $testimonial->job_title = $request->job_title;
+            $testimonial->words = $request->words;
+            $testimonial->save();
+        }
     }
 
     // Testimonials End
@@ -1180,29 +1174,31 @@ class AdminController extends Controller
 
     public function howitWorksSave(Request $request)
     {
-        if ($request->howitWorks_id != 'undefined') {
-            $howitWorks = HowitWorks::where('id', $request->howitWorks_id)->firstOrFail();
-        } else {
-            $howitWorks = new HowitWorks;
+        if (Helper::appIsNotDemo()) {
+            if ($request->howitWorks_id != 'undefined') {
+                $howitWorks = HowitWorks::where('id', $request->howitWorks_id)->firstOrFail();
+            } else {
+                $howitWorks = new HowitWorks;
+            }
+            $howitWorks->bg_color = $request->bg_color;
+            if ($request->file('bg_image')) {
+                $file = $request->file('bg_image');
+                $filename = date('YmdHi') . $file->getClientOriginalName();
+                $file->move(public_path('howitWorks'), $filename);
+                $howitWorks->bg_image = $filename;
+            }
+            $howitWorks->text_color = $request->text_color;
+            if ($request->file('image')) {
+                $file = $request->file('image');
+                $filename = date('YmdHi') . $file->getClientOriginalName();
+                $file->move(public_path('howitWorks'), $filename);
+                $howitWorks->image = $filename;
+            }
+            $howitWorks->order = (int) $request->order;
+            $howitWorks->title = $request->title;
+            $howitWorks->description = $request->description;
+            $howitWorks->save();
         }
-        $howitWorks->bg_color = $request->bg_color;
-        if ($request->file('bg_image')) {
-            $file = $request->file('bg_image');
-            $filename = date('YmdHi') . $file->getClientOriginalName();
-            $file->move(public_path('howitWorks'), $filename);
-            $howitWorks->bg_image = $filename;
-        }
-        $howitWorks->text_color = $request->text_color;
-        if ($request->file('image')) {
-            $file = $request->file('image');
-            $filename = date('YmdHi') . $file->getClientOriginalName();
-            $file->move(public_path('howitWorks'), $filename);
-            $howitWorks->image = $filename;
-        }
-        $howitWorks->order = (int) $request->order;
-        $howitWorks->title = $request->title;
-        $howitWorks->description = $request->description;
-        $howitWorks->save();
     }
 
     public function howitWorksBottomLineSave(Request $request)
@@ -1263,27 +1259,35 @@ class AdminController extends Controller
         return back()->with(['message' => __('Client deleted.'), 'type' => 'success']);
     }
 
-    public function clientsSave(Request $request)
+    public function clientsSave(Request $request): JsonResponse
     {
-        if ($request->client_id != 'undefined') {
-            $client = Clients::where('id', $request->client_id)->firstOrFail();
-        } else {
-            $client = new Clients;
+        if (Helper::appIsNotDemo()) {
+            $request->validate([
+                'avatar' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'alt'    => 'string|max:255',
+                'title'  => 'string|max:255',
+            ]);
+
+            if ($request->client_id !== 'undefined') {
+                $client = Clients::where('id', $request->client_id)->firstOrFail();
+            } else {
+                $client = new Clients;
+            }
+
+            if ($request->file('avatar')) {
+                $file = $request->file('avatar');
+                $filename = date('YmdHi') . $file->getClientOriginalName();
+                $file->move(public_path('clientAvatar'), $filename);
+                $client->avatar = $filename;
+            }
+
+            $client->alt = $request->alt;
+            $client->title = $request->title;
+            $client->save();
         }
 
-        if ($request->file('avatar')) {
-            $file = $request->file('avatar');
-            $filename = date('YmdHi') . $file->getClientOriginalName();
-            $file->move(public_path('clientAvatar'), $filename);
-            $client->avatar = $filename;
-        }
-
-        $client->alt = $request->alt;
-        $client->title = $request->title;
-        $client->save();
+        return response()->json(['status' => 'success']);
     }
-
-    // Testimonials End
 
     // Affiliates
     public function affiliatesList()
@@ -1440,7 +1444,6 @@ class AdminController extends Controller
 
     public function frontendSettingsSave(Request $request)
     {
-
         if (Helper::appIsNotDemo()) {
             $settings = Setting::getCache();
             $settings->site_name = $request->site_name;
@@ -1458,6 +1461,11 @@ class AdminController extends Controller
             $settings->frontend_code_before_body = $request->frontend_code_before_body;
             $settings->save();
 
+            setting([
+                'facebook_domain_verification' => $request->facebook_domain_verification ?: '',
+                'google_robots'                => $request->google_robots,
+            ])->save();
+
             $fSettings = FrontendSetting::first();
             $fSettings->header_title = $request->header_title;
             $fSettings->header_text = $request->header_text;
@@ -1473,6 +1481,12 @@ class AdminController extends Controller
             $fSettings->hero_button = $request->hero_button;
             $fSettings->hero_button_url = $request->hero_button_url;
             $fSettings->hero_button_type = $request->hero_button_type;
+
+            if (setting('front_theme') === 'social-media') {
+                $fSettings->no_credit_cart_required = $request->no_credit_cart_required;
+                $fSettings->faster_content_creation = $request->faster_content_creation;
+                $fSettings->over_5000_businesses = $request->over_5000_businesses;
+            }
 
             $fSettings->floating_button_small_text = $request->floating_button_small_text;
             $fSettings->floating_button_bold_text = $request->floating_button_bold_text;
@@ -1656,6 +1670,12 @@ class AdminController extends Controller
             $settings->plan_footer_text = $request->plan_footer_text;
             $settings->save();
 
+            if (setting('front_theme') === 'social-media') {
+                $find = \App\Models\Frontend\FrontendSetting::query()->first();
+                $find->join_the_ranks = $request->join_the_ranks;
+                $find->save();
+            }
+
             // Handle advanced features section
             $advancedFeaturesKeys = array_filter(array_keys($request->all()), function ($key) {
                 return preg_match('/^advanced_features_title_\d+$/', $key);
@@ -1781,18 +1801,25 @@ class AdminController extends Controller
     // Menu
     public function menuSettings()
     {
-        return view('panel.admin.frontend.menu');
+        $menus = Setting::getCache()->menu_options;
+
+        $frontMenus = $menus ?: '[{"title": "Home","url": "#banner","target": false},{"title": "Features","url": "#features","target": false},{"title": "How it Works","url": "#how-it-works","target": false},{"title": "Testimonials","url": "#testimonials","target": false},{"title": "Pricing","url": "#pricing","target": false},{"title": "FAQ","url": "#faq","target": false}]';
+
+        $megaMenus = MarketplaceHelper::isRegistered('mega-menu') ? MegaMenu::query()->where('status', 1)->get() : collect([]);
+
+        return view('panel.admin.frontend.menu', [
+            'menus'      => json_decode($frontMenus, true),
+            'mega_menus' => $megaMenus,
+        ]);
     }
 
     public function menuSettingsSave(Request $request)
     {
-
         if (Helper::appIsNotDemo()) {
             $settings = Setting::getCache();
             $settings->menu_options = $request->menu_options;
             $settings->save();
         }
-
     }
 
     public function authSettings()
@@ -1890,39 +1917,41 @@ class AdminController extends Controller
 
     public function frontendToolscreateOrUpdateSave(Request $request)
     {
-        if ($request->item_id != 'undefined') {
-            $item = FrontendTools::where('id', $request->item_id)->firstOrFail();
-        } else {
-            $item = new FrontendTools;
-        }
-        $item->title = $request->title;
-        $item->description = $request->description;
-        $item->buy_link = $request->buy_link;
-        $item->buy_link_url = $request->buy_link_url;
-        $item->learn_more_link = $request->learn_more_link;
-        $item->learn_more_link_url = $request->learn_more_link_url;
+        if (Helper::appIsNotDemo()) {
+            if ($request->item_id != 'undefined') {
+                $item = FrontendTools::where('id', $request->item_id)->firstOrFail();
+            } else {
+                $item = new FrontendTools;
+            }
+            $item->title = $request->title;
+            $item->description = $request->description;
+            $item->buy_link = $request->buy_link;
+            $item->buy_link_url = $request->buy_link_url;
+            $item->learn_more_link = $request->learn_more_link;
+            $item->learn_more_link_url = $request->learn_more_link_url;
 
-        if ($request->hasFile('image')) {
-            $path = 'upload/images/frontent/tools/';
-            $image = $request->file('image');
-            $image_name = Str::random(4) . '-' . Str::slug($request->title) . '.' . $image->getClientOriginalExtension();
+            if ($request->hasFile('image')) {
+                $path = 'upload/images/frontent/tools/';
+                $image = $request->file('image');
+                $image_name = Str::random(4) . '-' . Str::slug($request->title) . '.' . $image->getClientOriginalExtension();
 
-            // Resim uzantı kontrolü
-            $imageTypes = ['jpg', 'jpeg', 'png', 'svg', 'webp'];
-            if (! in_array(Str::lower($image->getClientOriginalExtension()), $imageTypes)) {
-                $data = [
-                    'errors' => ['The file extension must be jpg, jpeg, png, webp or svg.'],
-                ];
+                // Resim uzantı kontrolü
+                $imageTypes = ['jpg', 'jpeg', 'png', 'svg', 'webp'];
+                if (! in_array(Str::lower($image->getClientOriginalExtension()), $imageTypes)) {
+                    $data = [
+                        'errors' => ['The file extension must be jpg, jpeg, png, webp or svg.'],
+                    ];
 
-                return response()->json($data, 419);
+                    return response()->json($data, 419);
+                }
+
+                $image->move($path, $image_name);
+
+                $item->image = $path . $image_name;
             }
 
-            $image->move($path, $image_name);
-
-            $item->image = $path . $image_name;
+            $item->save();
         }
-
-        $item->save();
     }
 
     public function frontendToolsDelete($id)
@@ -2034,42 +2063,44 @@ class AdminController extends Controller
 
     public function frontendGeneratorlistcreateOrUpdateSave(Request $request)
     {
-        if ($request->item_id != 'undefined') {
-            $item = FrontendGenerators::where('id', $request->item_id)->firstOrFail();
-        } else {
-            $item = new FrontendGenerators;
-        }
-
-        if ($request->hasFile('image')) {
-            $path = 'upload/images/generatorlist/';
-            $image = $request->file('image');
-            $image_name = Str::random(4) . '-' . Str::slug($request->title) . '-image.' . $image->getClientOriginalExtension();
-
-            // Resim uzantı kontrolü
-            $imageTypes = ['jpg', 'jpeg', 'png', 'svg', 'webp'];
-            if (! in_array(Str::lower($image->getClientOriginalExtension()), $imageTypes)) {
-                $data = [
-                    'errors' => ['The file extension must be jpg, jpeg, png, webp or svg.'],
-                ];
-
-                return response()->json($data, 419);
+        if (Helper::appIsNotDemo()) {
+            if ($request->item_id != 'undefined') {
+                $item = FrontendGenerators::where('id', $request->item_id)->firstOrFail();
+            } else {
+                $item = new FrontendGenerators;
             }
 
-            $image->move($path, $image_name);
+            if ($request->hasFile('image')) {
+                $path = 'upload/images/generatorlist/';
+                $image = $request->file('image');
+                $image_name = Str::random(4) . '-' . Str::slug($request->title) . '-image.' . $image->getClientOriginalExtension();
 
-            $item->image = $path . $image_name;
+                // Resim uzantı kontrolü
+                $imageTypes = ['jpg', 'jpeg', 'png', 'svg', 'webp'];
+                if (! in_array(Str::lower($image->getClientOriginalExtension()), $imageTypes)) {
+                    $data = [
+                        'errors' => ['The file extension must be jpg, jpeg, png, webp or svg.'],
+                    ];
+
+                    return response()->json($data, 419);
+                }
+
+                $image->move($path, $image_name);
+
+                $item->image = $path . $image_name;
+            }
+
+            $item->menu_title = $request->menu_title;
+            $item->subtitle_one = $request->subtitle_one;
+            $item->subtitle_two = $request->subtitle_two;
+            $item->icon = $request->icon;
+            $item->title = $request->title;
+            $item->text = $request->text;
+            $item->image_title = $request->image_title;
+            $item->image_subtitle = $request->image_subtitle;
+            $item->color = $request->color;
+            $item->save();
         }
-
-        $item->menu_title = $request->menu_title;
-        $item->subtitle_one = $request->subtitle_one;
-        $item->subtitle_two = $request->subtitle_two;
-        $item->icon = $request->icon;
-        $item->title = $request->title;
-        $item->text = $request->text;
-        $item->image_title = $request->image_title;
-        $item->image_subtitle = $request->image_subtitle;
-        $item->color = $request->color;
-        $item->save();
     }
 
     public function frontendGeneratorlistDelete($id)
@@ -2115,7 +2146,7 @@ class AdminController extends Controller
     {
         if (Helper::appIsNotDemo() && auth()->user()->isAdmin()) {
             $deletionRequest = AccountDeletionReqs::where('user_id', $id)->firstOrFail();
-            CreateActivity::for($deletionRequest->user, 'Deleted', $deletionRequest->user->fullName() . ' deleted his/her account.');
+            CreateActivity::for($deletionRequest->user, 'Deleted', $deletionRequest->user?->fullName() . ' deleted his/her account.');
             $deletionRequest->user->delete();
 
             return response()->json([
@@ -2136,8 +2167,12 @@ class AdminController extends Controller
     public function userPermissionSave(Request $request): RedirectResponse
     {
         $permissions = $request->input('permissionItems', []);
+
         $role = Role::findByName(Roles::ADMIN->value);
+
         $role->syncPermissions($permissions);
+
+        Cache::forget('admin_permissions');
 
         return back()->with(['message' => __('Saved Successfully'), 'type' => 'success']);
     }

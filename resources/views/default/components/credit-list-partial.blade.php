@@ -18,7 +18,7 @@
                 @continue
             @endif
             <tr>
-                <td class="flex justify-between border p-2">
+                <td class="flex justify-between border-b p-2">
                     {{ $groupName }}
                     <x-info-tooltip
                         class:content="max-h-48 overflow-y-auto"

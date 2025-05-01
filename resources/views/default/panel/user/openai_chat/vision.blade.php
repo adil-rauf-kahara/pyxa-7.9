@@ -8,7 +8,7 @@
                 <div class="col">
                     <a
                         class="page-pretitle flex items-center"
-                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.index')) }}"
+                        href="{{ route('dashboard.index') }}"
                     >
                         <svg
                             class="!me-2 rtl:-scale-x-100"
@@ -91,7 +91,7 @@
                             <div
                                 class="lqd-clipboard-copy-wrap group/copy-wrap pointer-events-auto invisible absolute -start-5 bottom-0 opacity-0 transition-all group-hover:!visible group-hover:!opacity-100">
                                 <button
-                                    class="lqd-clipboard-copy inline-flex h-10 w-10 items-center justify-center rounded-full border-none bg-white p-0 text-black !shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
+                                    class="lqd-clipboard-copy inline-flex size-10 items-center justify-center rounded-full border-none bg-white p-0 text-black shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
                                     data-copy-options='{ "content": ".chat-content", "contentIn": "<.chat-content-container" }'
                                     title="{{ __('Copy to clipboard') }}"
                                 >
@@ -115,9 +115,9 @@
                             class="chat-content-container relative mb-[7px] min-h-[44px] max-w-[calc(100%-64px)] rounded-[2em] border-none text-[#090A0A] before:absolute before:inset-0 before:inline-block before:rounded-[2em] before:bg-[#E5E7EB] before:content-[''] group-[&.loading]:before:animate-pulse-intense dark:text-white dark:before:bg-[rgba(255,255,255,0.02)]">
                             <div class="lqd-typing relative inline-flex items-center gap-3 rounded-full px-3 py-2 font-medium leading-none">
                                 <div class="lqd-typing-dots flex h-5 items-center gap-1">
-                                    <span class="lqd-typing-dot size-1 inline-block rounded-full bg-current opacity-40 ![animation-delay:0.2s]"></span>
-                                    <span class="lqd-typing-dot size-1 inline-block rounded-full bg-current opacity-60 ![animation-delay:0.3s]"></span>
-                                    <span class="lqd-typing-dot size-1 inline-block rounded-full bg-current opacity-80 ![animation-delay:0.4s]"></span>
+                                    <span class="lqd-typing-dot inline-block size-1 rounded-full bg-current opacity-40 ![animation-delay:0.2s]"></span>
+                                    <span class="lqd-typing-dot inline-block size-1 rounded-full bg-current opacity-60 ![animation-delay:0.3s]"></span>
+                                    <span class="lqd-typing-dot inline-block size-1 rounded-full bg-current opacity-80 ![animation-delay:0.4s]"></span>
                                 </div>
                             </div>
                             <pre
@@ -125,7 +125,7 @@
                             <div
                                 class="lqd-clipboard-copy-wrap group/copy-wrap pointer-events-auto invisible absolute -end-5 bottom-0 opacity-0 transition-all group-hover:!visible group-hover:!opacity-100">
                                 <button
-                                    class="lqd-clipboard-copy inline-flex h-10 w-10 items-center justify-center rounded-full border-none bg-white p-0 text-black !shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
+                                    class="lqd-clipboard-copy inline-flex size-10 items-center justify-center rounded-full border-none bg-white p-0 text-black shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
                                     data-copy-options='{ "content": ".chat-content", "contentIn": "<.chat-content-container" }'
                                     title="{{ __('Copy to clipboard') }}"
                                 >

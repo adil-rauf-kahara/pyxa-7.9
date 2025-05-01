@@ -71,7 +71,7 @@
             @forelse ($users as $user)
                 <tr>
                     <td class="sort-name">
-                        {{ $user->fullName() }}
+                        {{ $user?->fullName() }}
                     </td>
                     <td class="sort-group">
                         {{ $user->type->label() }}
@@ -107,7 +107,7 @@
                     <td class="whitespace-nowrap text-end">
                         <x-button
                             class="size-9"
-                            href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.orders.list', $user)) }}"
+                            href="{{  (route('dashboard.user.orders.list', $user)) }}"
                             size="none"
                             variant="ghost-shadow"
                             title="{{ __('Invoice') }}"

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domains\Marketplace\Http\Middleware\NewExtensionInstalled;
 use App\Http\Middleware\Custom\Migration74Middleware;
 use App\Http\Middleware\ViewSharedMiddleware;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -26,7 +27,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/api.php'));
 
             Route::middleware([
-                Migration74Middleware::class, 'web',  ViewSharedMiddleware::class,
+                Migration74Middleware::class, 'web',  ViewSharedMiddleware::class, NewExtensionInstalled::class,
             ])->group(base_path('routes/web.php'));
         });
     }

@@ -17,16 +17,20 @@ class PlanDetailsCard extends Component
 
     public string $period;
 
+    public string $style;
+
     /**
      * Create a new component instance.
      */
     public function __construct(
         ?Plan $plan = null,
         string $period = 'month',
+        string $style = 'style-1'
     ) {
         $this->assignFeatures();
         $this->plan = $plan;
         $this->period = $period;
+        $this->style = $style;
     }
 
     private function assignFeatures(): void

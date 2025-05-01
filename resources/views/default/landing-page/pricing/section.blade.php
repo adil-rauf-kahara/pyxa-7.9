@@ -14,10 +14,8 @@
             <div class="lqd-tabs text-center">
                 <div class="lqd-tabs-triggers mx-auto mb-9 inline-flex flex-wrap gap-2 rounded-md border text-[15px] font-medium leading-none">
                     @php
-                    $plan = $plansSubscriptionMonthly;
+                        $plan = $plansSubscriptionMonthly;
                     @endphp
-
-
 
                     @if ($plansSubscriptionMonthly->count() > 0)
                         @include('landing-page.pricing.item-trigger', [
@@ -94,7 +92,7 @@
             </div>
             <div class="mt-9 flex justify-center">
                 <div class="flex w-[305px] items-center gap-5 text-[12px] text-[#002A40] text-opacity-60">
-                    <span class="size-10 inline-flex shrink-0 items-center justify-center rounded-xl bg-[#6C727B] bg-opacity-10">
+                    <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#6C727B] bg-opacity-10">
                         <svg
                             width="13"
                             height="18"

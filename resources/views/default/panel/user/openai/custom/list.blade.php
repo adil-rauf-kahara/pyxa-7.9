@@ -109,7 +109,7 @@
                                 size="none"
                                 variant="ghost-shadow"
                                 hover-variant="primary"
-                                href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.custom.addOrUpdate', $entry->id)) }}"
+                                href="{{ route('dashboard.user.openai.custom.addOrUpdate', $entry->id) }}"
                                 title="{{ __('Edit') }}"
                             >
                                 <x-tabler-pencil class="size-4" />
@@ -119,7 +119,7 @@
                                 size="none"
                                 variant="ghost-shadow"
                                 hover-variant="danger"
-                                href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.custom.delete', $entry->id)) }}"
+                                href="{{ route('dashboard.user.openai.custom.delete', $entry->id) }}"
                                 onclick="return confirm('{{ __('Are you sure? This is permanent.') }}')"
                                 title="{{ __('Delete') }}"
                             >

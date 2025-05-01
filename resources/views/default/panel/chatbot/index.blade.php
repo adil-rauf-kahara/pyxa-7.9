@@ -8,7 +8,7 @@
                 <div class="col">
                     <a
                         class="page-pretitle flex items-center"
-                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.index')) }}"
+                        href="{{  (route('dashboard.index')) }}"
                     >
                         <svg
                             class="!me-2 rtl:-scale-x-100"
@@ -69,7 +69,7 @@
                     @else
                         <a
                             class="btn btn-success"
-                            href="{{ LaravelLocalization::localizeUrl(route('dashboard.page.addOrUpdate')) }}"
+                            href="{{  (route('dashboard.page.addOrUpdate')) }}"
                         >
                             <svg
                                 class="mr-2"
@@ -556,7 +556,7 @@
                             @else
                                 <a
                                     class="btn btn-success"
-                                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.chatbot.addOrUpdate')) }}"
+                                    href="{{  (route('dashboard.chatbot.addOrUpdate')) }}"
                                 >
                                     <svg
                                         class="mr-2"
@@ -653,7 +653,7 @@
                                                 @else
                                                     <a
                                                         class="btn h-[36px] w-[36px] border p-0 hover:bg-[var(--tblr-primary)] hover:text-white"
-                                                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.chatbot.addOrUpdate', $chatbot->id)) }}"
+                                                        href="{{  (route('dashboard.chatbot.addOrUpdate', $chatbot->id)) }}"
                                                         title="{{ __('Edit') }}"
                                                     >
                                                         <svg
@@ -675,7 +675,7 @@
                                                     @if ($chatbot->id != 1)
                                                         <a
                                                             class="btn h-[36px] w-[36px] border p-0 hover:bg-red-600 hover:text-white"
-                                                            href="{{ LaravelLocalization::localizeUrl(route('dashboard.chatbot.delete', $chatbot->id)) }}"
+                                                            href="{{  (route('dashboard.chatbot.delete', $chatbot->id)) }}"
                                                             onclick="return confirm('{{ __('Are you sure? This is permanent.') }}')"
                                                             title="{{ __('Delete') }}"
                                                         >

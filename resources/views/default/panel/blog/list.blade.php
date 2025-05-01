@@ -3,7 +3,7 @@
 @section('titlebar_actions')
     <x-button
         onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-        href="{{ $app_is_demo ? '' : LaravelLocalization::localizeUrl(route('dashboard.blog.addOrUpdate')) }}"
+        href="{{ $app_is_demo ? '' : route('dashboard.blog.addOrUpdate') }}"
     >
         <x-tabler-plus class="size-4" />
         {{ __('Add Post') }}
@@ -51,7 +51,7 @@
                                     <a
                                         class="text-heading-foreground"
                                         target="_blank"
-                                        href="{{ LaravelLocalization::localizeUrl(url('/blog/category', $cat)) }}"
+                                        href="{{ url('/blog/category', $cat) }}"
                                     >
                                         {{ $cat }}
                                     </a>
@@ -67,7 +67,7 @@
                                     <a
                                         class="font-normal text-heading-foreground"
                                         target="_blank"
-                                        href="{{ LaravelLocalization::localizeUrl(url('/blog/tag', $tag)) }}"
+                                        href="{{ url('/blog/tag', $tag) }}"
                                     >
                                         {{ $tag }}
                                     </a>
@@ -89,7 +89,7 @@
                             <a
                                 class="text-heading-foreground"
                                 target="_blank"
-                                href="{{ LaravelLocalization::localizeUrl(url('/blog/author', $entry->user_id)) }}"
+                                href="{{ url('/blog/author', $entry->user_id) }}"
                             >
                                 {{ App\Models\User::where('id', $entry->user_id)->first()->name }}
                             </a>
@@ -107,7 +107,7 @@
                                 class="size-9"
                                 variant="ghost-shadow"
                                 size="none"
-                                href="{{ LaravelLocalization::localizeUrl(url('/blog', $entry->slug)) }}"
+                                href="{{ url('/blog', $entry->slug) }}"
                                 title="{{ __('View') }}"
                                 target="_blank"
                             >
@@ -139,7 +139,7 @@
                                         class="size-9"
                                         variant="ghost-shadow"
                                         size="none"
-                                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.blog.addOrUpdate', $entry->id)) }}"
+                                        href="{{ route('dashboard.blog.addOrUpdate', $entry->id) }}"
                                         title="{{ __('Edit') }}"
                                     >
                                         <x-tabler-pencil class="size-4" />
@@ -149,7 +149,7 @@
                                         variant="ghost-shadow"
                                         hover-variant="danger"
                                         size="none"
-                                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.blog.delete', $entry->id)) }}"
+                                        href="{{ route('dashboard.blog.delete', $entry->id) }}"
                                         onclick="confirm('{{ __('Are you sure? This is permanent.') }}')"
                                         title="{{ __('Delete') }}"
                                     >

@@ -64,8 +64,8 @@ trait MoveDefaultEngineCredits
 
         foreach ($users as $user) {
             try {
-                $oldModelDriver = Entity::driver($oldDefaultModel)->forUser($user);
-                $newModelDriver = Entity::driver($newDefaultModel)->forUser($user);
+                $oldModelDriver = clone Entity::driver($oldDefaultModel)->forUser($user);
+                $newModelDriver = clone Entity::driver($newDefaultModel)->forUser($user);
 
                 if ($oldModelDriver->isUnlimitedCredit()) {
                     $oldModelDriver->setAsUnlimited(false);

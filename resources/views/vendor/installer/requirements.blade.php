@@ -110,26 +110,26 @@
             @endforeach
         </ul>
 
-        @if (!isset($requirements['errors']) && $phpSupportInfo['supported'])
-            <a
-                class="flex items-center justify-center gap-2 rounded-xl p-2 font-medium shadow-[0_4px_10px_rgba(0,0,0,0.05)] transition-all duration-300 hover:scale-105 hover:bg-black hover:text-white"
-                href="{{ route('LaravelInstaller::environmentWizard') }}"
-            >
-                {{ __('Next') }}
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    stroke-width="2"
-                    stroke="currentColor"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <path d="M9 6l6 6l-6 6"></path>
-                </svg>
-            </a>
-        @endif
     @endforeach
+	@if (!isset($requirements['errors']) && $phpSupportInfo['supported'])
+		<a
+			class="flex items-center justify-center gap-2 rounded-xl p-2 font-medium shadow-[0_4px_10px_rgba(0,0,0,0.05)] transition-all duration-300 hover:scale-105 hover:bg-black hover:text-white"
+			href="{{ route('LaravelInstaller::environmentWizard') }}"
+		>
+			{{ __('Next') }}
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="18"
+				height="18"
+				viewBox="0 0 24 24"
+				stroke-width="2"
+				stroke="currentColor"
+				fill="none"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
+				<path d="M9 6l6 6l-6 6"></path>
+			</svg>
+		</a>
+	@endif
 @endsection

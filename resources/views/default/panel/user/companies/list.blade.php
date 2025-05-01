@@ -36,7 +36,7 @@
 								class="size-9"
 								variant="ghost-shadow"
 								size="none"
-								href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.brand.edit', $entry->id)) }}"
+								href="{{  (route('dashboard.user.brand.edit', $entry->id)) }}"
 								title="{{ __('Edit') }}"
 							>
 								<x-tabler-pencil class="size-4" />
@@ -59,7 +59,7 @@
 									hover-variant="danger"
 									size="none"
 									onclick="return confirm('{{ __('Are you sure? This is permanent and will delete all documents related to user.') }}')"
-									href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.brand.delete', $entry->id)) }}"
+									href="{{  (route('dashboard.user.brand.delete', $entry->id)) }}"
 									title="{{ __('Delete') }}"
 								>
 									<x-tabler-x class="size-4" />

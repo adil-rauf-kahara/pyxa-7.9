@@ -16,6 +16,8 @@ use RachidLaasri\LaravelInstaller\Repositories\ApplicationStatusRepository;
 
 class ExtensionRepository implements ExtensionRepositoryInterface
 {
+    public ?array $banners = [];
+
     public const APP_VERSION = 7.2;
 
     public const API_URL = 'https://liquidlabs.uk/market/api/';
@@ -33,6 +35,17 @@ class ExtensionRepository implements ExtensionRepositoryInterface
             ->sortBy('id')
             ->merge($this->extensions())
             ->where('price', '>', 0)->toArray();
+    }
+
+    public function banners(): ?array
+    {
+        if (is_array($this->banners)) {
+            return $this->banners ?: [];
+        }
+
+        $this->all();
+
+        return $this->banners ?: [];
     }
 
     public function extensions(): array
@@ -58,6 +71,8 @@ class ExtensionRepository implements ExtensionRepositoryInterface
         if ($response->ok()) {
 
             $data = $response->json('data');
+
+            $this->banners = $response->json('banners') ?: [];
 
             $this->updateExtensionsTable($data);
 

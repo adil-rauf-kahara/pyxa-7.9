@@ -117,7 +117,7 @@
             class="hover:bg-primary"
             data-name="{{ \App\Enums\Introduction::SELECT_PLAN }}"
             variant="ghost-shadow"
-            href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.payment.subscription')) }}"
+            href="{{  (route('dashboard.user.payment.subscription')) }}"
         >
             <x-tabler-plus class="size-4" />
             {{ __('Select a Plan') }}
@@ -126,8 +126,8 @@
         @if (getSubscriptionStatus())
             <x-button
                 variant="danger"
-                
-                href="{{ route('dashboard.support.new') }}"
+                onclick="return confirm('Are you sure to cancel your plan? You will lose your remaining usage.');"
+                href="{{  (route('dashboard.user.payment.cancelActiveSubscription')) }}"
             >
                 <x-tabler-circle-minus class="size-4" />
                 {{ __('Cancel My Plan') }}

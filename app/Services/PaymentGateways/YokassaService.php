@@ -3,6 +3,7 @@
 namespace App\Services\PaymentGateways;
 
 use App\Actions\CreateActivity;
+use App\Actions\EmailPaymentConfirmation;
 use App\Enums\Plan\FrequencyEnum;
 use App\Events\YokassaWebhookEvent;
 use App\Models\Coupon;
@@ -193,6 +194,7 @@ class YokassaService
                 self::creditIncreaseSubscribePlan($user, $plan);
 
                 CreateActivity::for($user, __('Subscribed'), $plan->name . ' ' . __('Plan'));
+                EmailPaymentConfirmation::create($user, $plan)->send();
                 DB::commit();
             } else {
                 DB::rollBack();
@@ -395,6 +397,7 @@ class YokassaService
                 self::creditIncreaseSubscribePlan($user, $plan);
 
                 CreateActivity::for($user, __('Purchased'), $plan->name . ' ' . __('Token Pack'));
+                EmailPaymentConfirmation::create($user, $plan)->send();
                 DB::commit();
                 \App\Models\Usage::getSingle()->updateSalesCount($total);
 

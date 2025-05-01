@@ -308,25 +308,40 @@
             >{{ $settings->bank_account_details ?? "Bank Name:\nAccount Name:\nIBAN:\nBIC/Swift:\nRouting Number:\n" }}</x-forms.input>
         @endif
 
-        <div class="border rounded-lg p-3">
-            @if(isset($options['automate_tax']) && $options['automate_tax'])
-                <x-forms.input
-                    id="automate_tax"
-                    type="checkbox"
-                    name="automate_tax"
-                    label="{{ __('Automate taxes') }}"
-                    :checked="$settings['automate_tax'] == 1"
-                    switcher
-                />
-            @endif
+		@if($options['code'] === 'stripe')
+			<div class="border rounded-lg p-3">
+				@if(isset($options['automate_tax']) && $options['automate_tax'])
+					<x-forms.input
+						id="automate_tax"
+						type="checkbox"
+						name="automate_tax"
+						label="{{ __('Automate taxes') }}"
+						:checked="$settings['automate_tax'] == 1"
+						switcher
+					/>
+				@endif
 
-            <x-alert class="mt-3">
-                <p>
-                    {{ __('Automate taxes will automatically calculate taxes based on the user\'s country.') }}
-                </p>
-            </x-alert>
-        </div>
-        <!-- bankTransfer fields end -->
+				<x-alert class="mt-3">
+					<p>
+						{{ __('Automate taxes will automatically calculate taxes based on the user\'s country.') }}
+					</p>
+				</x-alert>
+			</div>
+		@endif
+
+		@if($options['code'] === 'stripe' || $options['code'] === 'razorpay')
+			<x-forms.input
+				disabled
+				value="{{ url('webhook').'/' . $options['code'] }}"
+				id="bank_account_details"
+				name="bank_account_details"
+				size="lg"
+				label="{{ __('Webhook') }}"
+				rows="7"
+			/>
+			<!-- bankTransfer fields end -->
+		@endif
+
 
         @if ($app_is_demo)
             <x-button

@@ -18,8 +18,6 @@ trait HasApiKeys
 
         return Arr::random($apiKeys);
     }
-    
-
 
     public static function setAnthropicKey($setting = null): string
     {

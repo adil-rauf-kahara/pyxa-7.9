@@ -16,7 +16,14 @@ trait UninstallExtension
     {
         $responseExtension = $this->extensionRepository->find($extensionSlug);
 
-        $extensionFolderName = $responseExtension['extension_folder'];
+        if (! $responseExtension) {
+            return [
+                'status'  => false,
+                'message' => trans('index.json not found'),
+            ];
+        }
+
+        $extensionFolderName = $responseExtension['extension_folder'] ?? null;
 
         if ($extensionFolderName && $this->extensionRepository->appVersion() >= 7.3 && $newVersion) {
             return app(ExtensionUninstallService::class)

@@ -56,13 +56,13 @@
             'SLOWEST' => 'SLOWEST',
         ],
         'image_resolution' => [
-            '1x1'  => '1:1',
+            '1x1' => '1:1',
             '16x9' => '16:9',
             '21x9' => '21:9',
-            '2x3'  => '2:3',
-            '3x2'  => '3:2',
-            '4x5'  => '4:5',
-            '5x4'  => '5:4',
+            '2x3' => '2:3',
+            '3x2' => '3:2',
+            '4x5' => '4:5',
+            '5x4' => '5:4',
             '9x16' => '9:16',
             '9x21' => '9:21',
         ],
@@ -74,22 +74,22 @@
             '5' => '5',
         ],
     ];
-	$engine = $settings_two->stablediffusion_default_model;
+    $engine = $settings_two->stablediffusion_default_model;
     $isV2BetaModels = EntityEnum::fromSlug($engine)->isV2BetaSdEntity();
 
-	if ($engine == EntityEnum::STABLE_DIFFUSION_XL_1024_V_1_0->value){
-		 $stablediffusion_select_options['image_resolution'] = [
-			 '640x1536' => '640 x 1536',
-			'768x1344' => '768 x 1344',
-			'832x1216' => '832 x 1216',
-			'896x1152' => '896 x 1152',
-			'1024x1024' => '1024 x 1024',
-			'1152x896' => '1152 x 896',
-			'1216x832' => '1216 x 832',
-			'1344x768' => '1344 x 768',
-			'1536x640' => '1536 x 640',
+    if ($engine == EntityEnum::STABLE_DIFFUSION_XL_1024_V_1_0->value) {
+        $stablediffusion_select_options['image_resolution'] = [
+            '640x1536' => '640 x 1536',
+            '768x1344' => '768 x 1344',
+            '832x1216' => '832 x 1216',
+            '896x1152' => '896 x 1152',
+            '1024x1024' => '1024 x 1024',
+            '1152x896' => '1152 x 896',
+            '1216x832' => '1216 x 832',
+            '1344x768' => '1344 x 768',
+            '1536x640' => '1536 x 640',
         ];
-	} else if (!$isV2BetaModels) {
+    } elseif (!$isV2BetaModels) {
         $stablediffusion_select_options['image_resolution'] = [
             '896x512' => '896 x 512',
             '768x512' => '768 x 512',
@@ -98,7 +98,6 @@
             '512x896' => '512 x 896',
         ];
     }
-
 
 @endphp
 

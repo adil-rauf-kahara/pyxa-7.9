@@ -100,7 +100,8 @@ class SocialLoginController extends Controller
             $user = User::where('email', $googleUser->getEmail())->first();
             $user->google_token = $googleUser->token;
             $user->google_refresh_token = $googleUser->refreshToken;
-            $user->avatar = $googleUser->getAvatar();
+            $userSocialAvatar = $googleUser->getAvatar() ?? ($user->avatar ?? 'assets/img/auth/default-avatar.png');
+            $user->avatar = $user->avatar === 'assets/img/auth/default-avatar.png' ? $userSocialAvatar : $user->avatar;
             $user->affiliate_code = $user->affiliate_code ?? Str::upper(Str::random(12));
             $user->save();
         } else {
@@ -116,6 +117,7 @@ class SocialLoginController extends Controller
                 'password'             => Hash::make(Str::random(12)),
                 'affiliate_code'       => Str::upper(Str::random(12)),
                 'email_verified_at'    => now(),
+                'email_confirmed'      => true,
             ]);
             $user->updateCredits(setting('freeCreditsUponRegistration', User::getFreshCredits()));
         }
@@ -231,7 +233,8 @@ class SocialLoginController extends Controller
             $user = User::where('email', $appleUser->getEmail())->first();
             $user->apple_token = $appleUser->token;
             $user->apple_refresh_token = $appleUser->refreshToken;
-            $user->avatar = $appleUser->getAvatar() ?? ($user->avatar ?? 'assets/img/auth/default-avatar.png');
+            $userSocialAvatar = $appleUser->getAvatar() ?? ($user->avatar ?? 'assets/img/auth/default-avatar.png');
+            $user->avatar = $user->avatar === 'assets/img/auth/default-avatar.png' ? $userSocialAvatar : $user->avatar;
             $user->affiliate_code = $user->affiliate_code ?? Str::upper(Str::random(12));
             $user->save();
         } else {
@@ -247,6 +250,7 @@ class SocialLoginController extends Controller
                 'password'            => Hash::make(Str::random(12)),
                 'affiliate_code'      => Str::upper(Str::random(12)),
                 'email_verified_at'   => now(),
+                'email_confirmed'     => true,
             ]);
             $user->updateCredits(setting('freeCreditsUponRegistration', User::getFreshCredits()));
         }

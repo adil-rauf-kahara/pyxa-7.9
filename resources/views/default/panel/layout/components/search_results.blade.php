@@ -43,7 +43,7 @@
             <li class="border-b px-3 py-2 transition-colors last:border-b-0 hover:bg-foreground/5">
                 <a
                     class="flex items-center gap-2 text-heading-foreground"
-                    href="{{ LaravelLocalization::localizeUrl(route($href, $item->slug)) }}"
+                    href="{{  (route($href, $item->slug)) }}"
                 >
                     <x-lqd-icon
                         size="lg"
@@ -75,7 +75,7 @@
             <li class="border-b px-3 py-2 transition-colors last:border-b-0 hover:bg-foreground/10">
                 <a
                     class="flex items-center gap-2 text-heading-foreground"
-                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.chat.chat', $item->slug)) }}"
+                    href="{{  (route('dashboard.user.openai.chat.chat', $item->slug)) }}"
                 >
                     <x-lqd-icon
                         size="lg"
@@ -105,7 +105,7 @@
             <li class="border-b px-3 py-2 transition-colors last:border-b-0 hover:bg-foreground/5">
                 <a
                     class="flex items-center gap-2 text-heading-foreground"
-                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.documents.single', $item->slug)) }}"
+                    href="{{  (route('dashboard.user.openai.documents.single', $item->slug)) }}"
                 >
                     <x-lqd-icon
                         size="lg"

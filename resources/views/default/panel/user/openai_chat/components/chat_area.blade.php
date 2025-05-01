@@ -1,6 +1,6 @@
-@foreach ($chat->messages as $message)
+@foreach ($chat?->messages ?? [] as $message)
     {{-- to prevent showing first 'Hi, ...' message on ai vision chat --}}
-    @if (isset($category) && ($category->slug == 'ai_vision' || $category->slug === 'ai_realtime_voice_chat') && count($chat->messages) === 1)
+    @if (isset($category) && ($category?->slug == 'ai_vision' || $category?->slug === 'ai_realtime_voice_chat') && count($chat?->messages) === 1)
         @continue
     @endif
 
@@ -12,14 +12,15 @@
                     $avatarUrl = '/' . Auth::user()->avatar;
                 }
             @endphp
-            <span
-                class="lqd-chat-avatar mt-0.5 inline-block size-6 shrink-0 rounded-full bg-cover bg-center"
-                style="background-image: url('{{ url(custom_theme_url($avatarUrl)) }}')"
-            >
-                <span class="sr-only">
-                    @lang('You'):
+            <div class="lqd-chat-sender flex items-center gap-2.5">
+                <span
+                    class="lqd-chat-avatar mt-0.5 inline-block size-6 shrink-0 rounded-full bg-cover bg-center"
+                    style="background-image: url('{{ url(custom_theme_url($avatarUrl)) }}')"
+                ></span>
+                <span class="lqd-chat-sender-name sr-only">
+                    @lang('You')
                 </span>
-            </span>
+            </div>
             <div
                 class="chat-content-container group relative max-w-[calc(100%-64px)] rounded-[2em] bg-secondary text-secondary-foreground dark:bg-zinc-700 dark:text-primary-foreground">
                 <div class="chat-content px-5 py-3.5">
@@ -28,7 +29,7 @@
                 <div
                     class="lqd-clipboard-copy-wrap group/copy-wrap pointer-events-auto invisible absolute -start-5 bottom-0 opacity-0 transition-all group-hover:!visible group-hover:!opacity-100">
                     <button
-                        class="lqd-clipboard-copy inline-flex h-10 w-10 items-center justify-center rounded-full border-none bg-white p-0 text-black !shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
+                        class="lqd-clipboard-copy inline-flex size-10 items-center justify-center rounded-full border-none bg-white p-0 text-black shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
                         data-copy-options='{ "content": ".chat-content", "contentIn": "<.chat-content-container" }'
                         title="{{ __('Copy to clipboard') }}"
                     >
@@ -80,14 +81,15 @@
 
     <div class="lqd-chat-ai-bubble mb-2.5 flex max-w-full content-start gap-2 last:mb-0">
         @if ($message->output != null)
-            <span
-                class="lqd-chat-avatar mt-0.5 inline-block size-6 shrink-0 rounded-full bg-cover bg-center"
-                style="background-image: url('{{ !empty($chat->category->image) ? custom_theme_url($chat->category->image, true) : url(custom_theme_url('/assets/img/auth/default-avatar.png')) }}')"
-            >
-                <span class="sr-only">
-                    @lang('AI Assistant'):
+            <div class="lqd-chat-sender flex items-center gap-2.5">
+                <span
+                    class="lqd-chat-avatar mt-0.5 inline-block size-6 shrink-0 rounded-full bg-cover bg-center"
+                    style="background-image: url('{{ !empty($chat->category?->image) ? custom_theme_url($chat->category?->image, true) : url(custom_theme_url('/assets/img/auth/default-avatar.png')) }}')"
+                ></span>
+                <span class="lqd-chat-sender-name sr-only">
+                    @lang('AI Assistant')
                 </span>
-            </span>
+            </div>
             <div class="chat-content-container group relative max-w-[calc(100%-64px)] rounded-[2em] bg-clay text-heading-foreground dark:bg-white/[2%]">
                 @php
                     $output = $message->output;
@@ -98,7 +100,7 @@
                 <div
                     class="lqd-clipboard-copy-wrap group/copy-wrap pointer-events-auto invisible absolute -end-5 bottom-0 opacity-0 transition-all group-hover:!visible group-hover:!opacity-100">
                     <button
-                        class="lqd-clipboard-copy inline-flex h-10 w-10 items-center justify-center rounded-full border-none bg-white p-0 text-black !shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
+                        class="lqd-clipboard-copy inline-flex size-10 items-center justify-center rounded-full border-none bg-white p-0 text-black shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
                         data-copy-options='{ "content": ".chat-content", "contentIn": "<.chat-content-container" }'
                         title="{{ __('Copy to clipboard') }}"
                     >
@@ -126,8 +128,7 @@
         </div>
     @endif
 @endforeach
-
-@if (count($chat->messages) == 0)
+@if ($chat?->category?->slug !== 'ai_realtime_voice_chat' && count($chat?->messages ?? []) === 0)
     <div class="mb-2.5 flex content-end">
         <div class="w-full-none rounded-[2em] bg-secondary text-heading-foreground dark:bg-white/[2%]">
             <div class="chat-content px-6 py-3">

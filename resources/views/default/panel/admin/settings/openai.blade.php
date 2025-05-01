@@ -87,7 +87,33 @@
                     </div>
                 </div>
             @endif
-			@includeIf('openai-realtime-chat::setting')
+				<div class="col-md-12">
+					<div class="mb-3">
+						<x-card
+							class="w-full"
+							size="sm"
+						>
+							<x-forms.input
+								id="openai_file_search"
+								type="checkbox"
+								switcher
+								type="checkbox"
+								:checked="setting('openai_file_search', 0) == 1"
+								label="{{ __('Enable OpenAI File Search API for (AI File Chat)') }}"
+							>
+								<x-badge
+									class="ms-2 text-2xs"
+									variant="secondary"
+								>
+									@lang('New')
+								</x-badge>
+							</x-forms.input>
+						</x-card>
+					</div>
+				</div>
+
+
+				@includeIf('openai-realtime-chat::setting')
 
 
             <div class="col-md-12">

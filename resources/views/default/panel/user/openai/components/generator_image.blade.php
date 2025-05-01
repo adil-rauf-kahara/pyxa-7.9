@@ -2,8 +2,8 @@
     $items_per_page = 5;
     $total_items = $userOpenai->total();
     $prompt_filters = [
-        'all' => 'All',
-        'favorite' => 'Favorite',
+        'all' => __('All'),
+        'favorite' => __('Favorite'),
     ];
 
     $ai_tools = [
@@ -67,6 +67,9 @@
         activeGenerator: '{{ setting('dalle_hidden', 0) == 1 ? 'stable_diffusion' : 'openai' }}',
         changeActiveGenerator(tab) {
             if (tab === this.activeGenerator) return;
+    
+            this.$dispatch('active-generator-changed', tab);
+    
             if (!document.startViewTransition) {
                 return this.activeGenerator = tab;
             }
@@ -99,7 +102,7 @@
                     tag="button"
                     type="button"
                     variant="ghost"
-                    x-data
+                    x-data="{}"
                     ::class="{ 'active': activeGenerator === 'openai' }"
                     x-bind:data-active="activeGenerator === 'openai'"
                     @click="changeActiveGenerator('openai')"
@@ -114,7 +117,7 @@
                     tag="button"
                     type="button"
                     variant="ghost"
-                    x-data
+                    x-data="{}"
                     ::class="{ 'active': activeGenerator === 'stable_diffusion' }"
                     x-bind:data-active="activeGenerator === 'stable_diffusion'"
                     @click="changeActiveGenerator('stable_diffusion')"
@@ -123,16 +126,16 @@
                 </x-button>
             @endif
 
-			<!--@if(\App\Helpers\Classes\ApiHelper::setPiAPIKey())-->
-			<!--		@includeIf('midjourney::midjourney-tab')-->
-			<!--@endif-->
+            @if (\App\Helpers\Classes\ApiHelper::setPiAPIKey())
+                @includeIf('midjourney::midjourney-tab')
+            @endif
 
             @if (\App\Helpers\Classes\ApiHelper::setFalAIKey())
                 @includeFirst(['flux-pro::flux-pro-tab', 'panel.user.openai.includes.flux-pro-tab', 'vendor.empty'])
                 @includeFirst(['ideogram::ideogram-tab', 'panel.user.openai.includes.ideogram-tab', 'vendor.empty'])
             @endif
         </div>
-        <div class="md:min-w-96 max-sm:-order-1 max-sm:mb-4 max-sm:w-full">
+        <div class="max-sm:-order-1 max-sm:mb-4 max-sm:w-full md:min-w-96">
             <x-credit-list
                 class:legend-image-box="bg-primary/20 dark:bg-secondary"
                 class:progressbar-image="bg-primary/20 dark:bg-secondary"
@@ -143,7 +146,7 @@
     @if (setting('dalle_hidden', 0) !== 1)
         <div
             class="lqd-image-generator-tabs-content lqd-image-generator-dalle"
-            x-data
+            x-data="{}"
             :class="{ 'hidden': activeGenerator !== 'openai' }"
         >
             <form
@@ -160,7 +163,7 @@
                     <button
                         class="lqd-image-generator-random-prompt-trigger cursor-pointer text-green-600 hover:underline"
                         type="button"
-                        x-data
+                        x-data="{}"
                         @click="prompt = generateRandomPrompt()"
                     >
                         {{ __('Generate example prompt') }}
@@ -168,7 +171,7 @@
 
                     @if (setting('user_ai_image_prompt_library') === null || setting('user_ai_image_prompt_library'))
                         <button
-                            class="lqd-generator-templates-trigger size-10 flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full text-heading-foreground transition-all max-md:h-auto max-md:w-auto max-md:bg-transparent md:hover:bg-heading-background md:hover:text-heading-foreground"
+                            class="lqd-generator-templates-trigger flex size-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full text-heading-foreground transition-all max-md:h-auto max-md:w-auto max-md:bg-transparent md:hover:bg-heading-background md:hover:text-heading-foreground"
                             type="button"
                             @click.prevent="togglePromptLibraryShow()"
                         >
@@ -185,11 +188,11 @@
                     @foreach (json_decode($openai->questions, false, 512, JSON_THROW_ON_ERROR) ?? [] as $question)
                         @if ($question->type === 'textarea')
                             <x-forms.input
-                                class="lqd-image-generator-prompt max-md:min-h-32 h-14 resize-none overflow-hidden rounded-full bg-background px-6 py-4 text-heading-foreground shadow-sm placeholder:text-foreground/50 max-md:rounded-md"
+                                class="lqd-image-generator-prompt h-14 resize-none overflow-hidden rounded-full bg-background px-6 py-4 text-heading-foreground shadow-sm placeholder:text-foreground/50 max-md:min-h-32 max-md:rounded-md"
                                 id="{{ $question->name }}"
                                 type="textarea"
                                 name="{{ $question->name }}"
-                                x-data
+                                x-data="{}"
                                 ::value="prompt"
                                 ::placeholder="generateRandomPrompt()"
                             />
@@ -215,13 +218,13 @@
                     @click="advancedSettingsShow = !advancedSettingsShow"
                 >
                     {{ __('Advanced Settings') }}
-                    <span class="size-9 inline-flex items-center justify-center rounded-full bg-background shadow-sm">
+                    <span class="inline-flex size-9 items-center justify-center rounded-full bg-background shadow-sm">
                         <x-tabler-plus
                             class="size-4"
                             ::class="{ 'hidden': advancedSettingsShow }"
                         />
                         <x-tabler-minus
-                            class="size-4 hidden"
+                            class="hidden size-4"
                             ::class="{ 'hidden': !advancedSettingsShow }"
                         />
                     </span>
@@ -229,7 +232,7 @@
 
                 <div
                     class="hidden w-full flex-wrap justify-between gap-3"
-                    x-data
+                    x-data="{}"
                     x-show="advancedSettingsShow"
                     :class="{ 'hidden': !advancedSettingsShow, 'flex': advancedSettingsShow }"
                 >
@@ -310,14 +313,14 @@
                 <button
                     class="lqd-image-generator-random-prompt-trigger cursor-pointer text-green-600 hover:underline"
                     type="button"
-                    x-data
+                    x-data="{}"
                     @click="prompt = generateRandomPrompt()"
                 >
                     {{ __('Generate example prompt') }}
                 </button>
                 @if (setting('user_ai_image_prompt_library') == null || setting('user_ai_image_prompt_library'))
                     <button
-                        class="lqd-generator-templates-trigger size-10 flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full text-heading-foreground transition-all max-md:h-auto max-md:w-auto max-md:bg-transparent md:hover:bg-heading-background md:hover:text-heading-foreground"
+                        class="lqd-generator-templates-trigger flex size-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full text-heading-foreground transition-all max-md:h-auto max-md:w-auto max-md:bg-transparent md:hover:bg-heading-background md:hover:text-heading-foreground"
                         type="button"
                         @click.prevent="togglePromptLibraryShow()"
                     >
@@ -338,12 +341,12 @@
                     @foreach (json_decode($openai->questions, false) ?? [] as $question)
                         @if ($question->type === 'textarea')
                             <x-forms.input
-                                class="max-md:min-h-32 h-14 resize-none overflow-hidden rounded-full bg-background px-6 py-4 text-heading-foreground shadow-sm placeholder:text-foreground/50 max-md:rounded-md"
+                                class="h-14 resize-none overflow-hidden rounded-full bg-background px-6 py-4 text-heading-foreground shadow-sm placeholder:text-foreground/50 max-md:min-h-32 max-md:rounded-md"
                                 id="txt2img_description"
                                 name="txt2img_description"
                                 container-class="w-full"
                                 type="textarea"
-                                x-data
+                                x-data="{}"
                                 ::value="prompt"
                                 ::placeholder="generateRandomPrompt()"
                             />
@@ -367,12 +370,12 @@
                 :class="{ 'hidden': activeTool !== 'image-to-image', 'flex': activeTool === 'image-to-image' }"
             >
                 <x-forms.input
-                    class="max-md:min-h-32 h-14 resize-none overflow-hidden rounded-full bg-background px-6 py-4 text-heading-foreground shadow-sm placeholder:text-foreground/50 max-md:rounded-md"
+                    class="h-14 resize-none overflow-hidden rounded-full bg-background px-6 py-4 text-heading-foreground shadow-sm placeholder:text-foreground/50 max-md:min-h-32 max-md:rounded-md"
                     id="img2img_description"
                     container-class="w-full"
                     name="img2img_description"
                     type="textarea"
-                    x-data
+                    x-data="{}"
                     ::value="prompt"
                     ::placeholder="generateRandomPrompt()"
                 />
@@ -388,12 +391,12 @@
                     ondragover="dragOverHandler(event);"
                 >
                     <label
-                        class="lqd-filepicker-label min-h-64 flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-foreground/10 bg-background text-center transition-colors hover:bg-background/80"
+                        class="lqd-filepicker-label flex min-h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-foreground/10 bg-background text-center transition-colors hover:bg-background/80"
                         for="img2img_src"
                     >
                         <div class="flex flex-col items-center justify-center py-6">
                             <x-tabler-cloud-upload
-                                class="size-11 mb-4"
+                                class="mb-4 size-11"
                                 stroke-width="1.5"
                             />
 
@@ -443,12 +446,12 @@
                     ondragover="dragOverHandler(event);"
                 >
                     <label
-                        class="lqd-filepicker-label min-h-64 flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-foreground/10 bg-background text-center transition-colors hover:bg-background/80"
+                        class="lqd-filepicker-label flex min-h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-foreground/10 bg-background text-center transition-colors hover:bg-background/80"
                         for="upscale_src"
                     >
                         <div class="flex flex-col items-center justify-center py-6">
                             <x-tabler-cloud-upload
-                                class="size-11 mb-4"
+                                class="mb-4 size-11"
                                 stroke-width="1.5"
                             />
 
@@ -488,12 +491,12 @@
                 :class="{ 'hidden': activeTool !== 'multi-prompt', 'flex': activeTool === 'multi-prompt' }"
             >
                 <x-forms.input
-                    class="multi_prompts_description max-md:min-h-32 h-14 resize-none overflow-hidden rounded-full bg-background px-6 py-4 text-heading-foreground shadow-sm placeholder:text-foreground/50 max-md:rounded-md"
+                    class="multi_prompts_description h-14 resize-none overflow-hidden rounded-full bg-background px-6 py-4 text-heading-foreground shadow-sm placeholder:text-foreground/50 max-md:min-h-32 max-md:rounded-md"
                     id="multi_prompts_description"
                     name="multi_prompts_description"
                     container-class="w-full"
                     type="textarea"
-                    x-data
+                    x-data="{}"
                     ::value="prompt"
                     ::placeholder="generateRandomPrompt()"
                 />
@@ -535,13 +538,13 @@
                     @click="advancedSettingsShow = !advancedSettingsShow"
                 >
                     {{ __('Advanced Settings') }}
-                    <span class="size-9 inline-flex items-center justify-center rounded-full bg-background shadow-sm">
+                    <span class="inline-flex size-9 items-center justify-center rounded-full bg-background shadow-sm">
                         <x-tabler-plus
                             class="size-4"
                             ::class="{ 'hidden': advancedSettingsShow }"
                         />
                         <x-tabler-minus
-                            class="size-4 hidden"
+                            class="hidden size-4"
                             ::class="{ 'hidden': !advancedSettingsShow }"
                         />
                     </span>
@@ -549,7 +552,7 @@
 
                 <div
                     class="hidden w-full flex-col justify-between gap-4"
-                    x-data
+                    x-data="{}"
                     x-show="advancedSettingsShow"
                     :class="{ 'hidden': !advancedSettingsShow, 'flex': advancedSettingsShow }"
                 >
@@ -559,9 +562,9 @@
         </form>
     </div>
 
-	@if (\App\Helpers\Classes\ApiHelper::setPiAPIKey())
-		@includeIf('midjourney::midjourney-tab-body')
-	@endif
+    @if (\App\Helpers\Classes\ApiHelper::setPiAPIKey())
+        @includeIf('midjourney::midjourney-tab-body')
+    @endif
 
     @if (\App\Helpers\Classes\ApiHelper::setFalAIKey())
         @includeFirst(['flux-pro::flux-pro-tab-body', 'panel.user.openai.includes.flux-pro-tab-body', 'vendor.empty'])
@@ -615,7 +618,7 @@
                 >
                     <div class="flex items-center gap-4">
                         <div
-                            class="lqd-img-gen-tool-icon size-11 inline-flex shrink-0 items-center justify-center rounded-lg transition-all"
+                            class="lqd-img-gen-tool-icon inline-flex size-11 shrink-0 items-center justify-center rounded-lg transition-all"
                             style="background-color: {{ $tool['color'] }}"
                         >
                             {!! $tool['icon'] !!}
@@ -735,7 +738,7 @@
 
     @if ($userOpenai->count() > 0)
         <div
-            class="lqd-load-more-trigger min-h-px group w-full py-8 text-center font-medium text-heading-foreground"
+            class="lqd-load-more-trigger group min-h-px w-full py-8 text-center font-medium text-heading-foreground"
             data-all-loaded="false"
         >
             <span class="lqd-load-more-trigger-loading flex items-center justify-center gap-2 text-center leading-tight group-[&[data-all-loaded=true]]:hidden">
@@ -759,7 +762,7 @@
     <div
         class="lqd-modal-img group/modal invisible fixed start-0 top-0 z-[999] flex h-screen w-screen flex-col items-center border p-3 opacity-0 [&.is-active]:visible [&.is-active]:opacity-100"
         id="modal_image"
-        x-data
+        x-data="{}"
         :class="{ 'is-active': modalShow }"
     >
         <div
@@ -772,7 +775,7 @@
                 <div
                     class="lqd-modal-img-content relative flex h-full translate-y-2 scale-[0.985] flex-wrap justify-between overflow-y-auto rounded-xl bg-background p-5 opacity-0 shadow-2xl transition-all group-[&.is-active]/modal:translate-y-0 group-[&.is-active]/modal:scale-100 group-[&.is-active]/modal:opacity-100 xl:min-h-[570px]">
                     <a
-                        class="size-9 absolute end-2 top-3 z-10 flex items-center justify-center rounded-full border bg-background text-inherit shadow-sm transition-all hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+                        class="absolute end-2 top-3 z-10 flex size-9 items-center justify-center rounded-full border bg-background text-inherit shadow-sm transition-all hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
                         @click.prevent="modalShow = false"
                         href="#"
                     >
@@ -786,7 +789,7 @@
                             :alt="activeItem?.input"
                         />
                         <a
-                            class="size-9 absolute bottom-7 end-7 inline-flex items-center justify-center rounded-full bg-background text-inherit shadow-sm transition-all hover:scale-105"
+                            class="absolute bottom-7 end-7 inline-flex size-9 items-center justify-center rounded-full bg-background text-inherit shadow-sm transition-all hover:scale-105"
                             href="#"
                             :href="activeItem?.output"
                             download
@@ -877,14 +880,14 @@
 
                 <!-- Prev/Next buttons -->
                 <a
-                    class="size-9 absolute -start-1 top-1/2 z-10 inline-flex -translate-y-1/2 items-center justify-center rounded-full bg-background text-inherit shadow-md transition-all hover:scale-110 hover:bg-primary hover:text-primary-foreground"
+                    class="absolute -start-1 top-1/2 z-10 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-background text-inherit shadow-md transition-all hover:scale-110 hover:bg-primary hover:text-primary-foreground"
                     href="#"
                     @click.prevent="prevItem()"
                 >
                     <x-tabler-chevron-left class="size-5" />
                 </a>
                 <a
-                    class="size-9 absolute -end-1 top-1/2 z-10 inline-flex -translate-y-1/2 items-center justify-center rounded-full bg-background text-inherit shadow-md transition-all hover:scale-110 hover:bg-primary hover:text-primary-foreground"
+                    class="absolute -end-1 top-1/2 z-10 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-background text-inherit shadow-md transition-all hover:scale-110 hover:bg-primary hover:text-primary-foreground"
                     href="#"
                     @click.prevent="nextItem()"
                 >

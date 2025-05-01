@@ -236,7 +236,8 @@ function wrapWords(node, options = {}) {
 			if (
 				node.nodeName === 'PRE' ||
 				node.nodeName === 'CODE' ||
-				node.nodeName === 'A'
+				node.nodeName === 'A' ||
+				node.classList?.contains('katex')
 			) {
 				if (options.className) {
 					node.classList.add(...options.className.split(' '));
@@ -261,7 +262,7 @@ function wrapWords(node, options = {}) {
 					if (wordIndex <= lastFinishedAnimatedWordIndex) {
 						span.classList.add('animated');
 					}
-					if (words[0] === '[DONE]') {
+					if (words[0].startsWith('[DONE]')) {
 						span.classList.add('done-signal');
 					}
 					node.parentNode.replaceChild(span, node);
@@ -282,7 +283,7 @@ function wrapWords(node, options = {}) {
 						if (wordIndex <= lastFinishedAnimatedWordIndex) {
 							span.classList.add('animated');
 						}
-						if (word === '[DONE]') {
+						if (word.startsWith('[DONE]')) {
 							span.classList.add('done-signal');
 						}
 						fragment.appendChild(span);
@@ -380,7 +381,11 @@ function formatString(string, options = {}) {
 			match => match.replace(/\n\n/g, '\n'),
 		)
 		.replace('[START_REASONING]', '>')
-		.replace('[END_REASONING]', '\n');
+		.replace('[END_REASONING]', '\n')
+		.replaceAll('\\(', '$')
+		.replaceAll('\\)', '$')
+		.replaceAll('\\[', '$$')
+		.replaceAll('\\]', '$$');
 
 	const renderer = window.markdownit({
 		breaks: true,
@@ -401,7 +406,11 @@ function formatString(string, options = {}) {
 		},
 	});
 
-	renderer.use(function (md) {
+	if ( 'katex' in window && 'markdownItKatex' in window ) {
+		renderer.use(markdownItKatex);
+	}
+
+	renderer.use(function(md) {
 		md.core.ruler.after('inline', 'convert_elements', function (state) {
 			state.tokens.forEach(function (blockToken) {
 				if (blockToken.type !== 'inline') return;
@@ -497,40 +506,52 @@ function switchGenerateButtonsStatus(generating) {
 	stopBtn.disabled = !generating;
 }
 
-const handleConversationsAreaScroll = _.throttle(
-	word => {
-		if (!word) return;
+let conversationAreaAutoScrolling = false;
+const handleConversationsAreaScroll = _.throttle(() => {
+	const conversationArea = document.querySelector('.conversation-area');
+	const aiBubbleHeight = lastAiChatBubble.offsetHeight;
+	const aiBubbleOffsetTop = lastAiChatBubble.offsetTop;
+	const word = [ ...lastAiChatBubble.querySelectorAll('.animated-word:not(.done-signal).animated') ].at(-1);
 
-		const conversationArea = document.querySelector('.conversation-area');
-		const wordOffsetTop = word.offsetTop;
-		const aiBubbleHeight = lastAiChatBubble.offsetHeight;
-		const aiBubbleOffsetTop = lastAiChatBubble.offsetTop;
-		const wordRect = word.getBoundingClientRect();
-		const conversationRect = conversationArea.getBoundingClientRect();
-		const wordTop = wordRect.top - conversationRect.top;
-		const wordHeight = wordRect.height;
-		const conversationHeight = conversationRect.height;
+	if (!word) return;
 
-		lastAiChatBubble.style.setProperty( '--animating-word-y', `${wordOffsetTop}px`, );
+	const wordOffsetTop = word.offsetTop;
+	const wordRect = word.getBoundingClientRect();
+	const conversationRect = conversationArea.getBoundingClientRect();
+	const wordTop = wordRect.top - conversationRect.top;
+	const wordHeight = wordRect.height;
+	const conversationHeight = conversationRect.height;
 
-		if (
-			( conversationAreaScrollDir === 'down' || ( conversationAreaScrollDir === 'up' && conversationAreaScrollDelta < 3 ) ) &&
+	lastAiChatBubble.style.setProperty( '--animating-word-y', `${wordOffsetTop}px`, );
+
+	if (
+		( conversationAreaScrollDir === 'down' || ( conversationAreaScrollDir === 'up' && conversationAreaScrollDelta < 3 ) ) &&
         ( conversationAreaScrollLocked || ( wordTop < ( conversationHeight * 4/5 )))
-		) {
-			let scrollPosition;
-			if (word.nodeName === 'PRE') {
-				scrollPosition = aiBubbleOffsetTop + wordOffsetTop + wordHeight;
-			} else {
-				scrollPosition = aiBubbleOffsetTop + wordOffsetTop - (conversationArea.clientHeight / 2) + (wordHeight / 2);
-			}
-
-			conversationArea.scroll({
-				top: scrollPosition,
-				behavior: 'smooth',
-			});
+	) {
+		let scrollPosition;
+		if (word.nodeName === 'PRE') {
+			scrollPosition = aiBubbleOffsetTop + wordOffsetTop + wordHeight;
+		} else {
+			scrollPosition = aiBubbleOffsetTop + wordOffsetTop - (conversationArea.clientHeight / 2) + (wordHeight / 2);
 		}
-	}, 175, { leading: false },
-);
+
+		! conversationAreaAutoScrolling && $(conversationArea).stop().animate({
+			scrollTop: scrollPosition,
+		}, {
+			start: () => {
+				conversationAreaAutoScrolling = true;
+			},
+			complete: () => {
+				conversationAreaAutoScrolling = false;
+			}
+		});
+
+		// conversationArea.scroll({
+		// 	top: scrollPosition,
+		// 	behavior: 'smooth',
+		// });
+	}
+}, 175, { leading: false });
 
 function onAiResponse() {
 	const aiBubbleChatContent =
@@ -542,8 +563,8 @@ function onAiResponse() {
 
 	const responseString = getAiResponseString(false);
 	const animationKeyframes = [
-		{ opacity: 0, transform: 'translateX(3px)', filter: 'blur(2px)' },
-		{ opacity: 1, transform: 'translateX(0)', filter: 'blur(0)' },
+		{ opacity: 0, transform: 'translateX(3px)' },
+		{ opacity: 1, transform: 'translateX(0)' },
 	];
 
 	const formattedResponse = formatString(responseString, {
@@ -571,7 +592,7 @@ function onAiResponse() {
 
 		if ( dataIndex <= lastFinishedAnimatedWordIndex ){
 			word.classList.add('animated');
-			handleConversationsAreaScroll(word);
+			handleConversationsAreaScroll();
 			return;
 		}
 
@@ -587,7 +608,7 @@ function onAiResponse() {
 
 			if ( !isDoneSignal ) {
 				lastFinishedAnimatedWordIndex = Math.max(lastFinishedAnimatedWordIndex, dataIndex);
-				handleConversationsAreaScroll(word);
+				handleConversationsAreaScroll();
 			}
 
 			if (!aiResponseStreaming && isDoneSignal) {
@@ -966,6 +987,7 @@ async function saveResponseAsync(
 	pdfName,
 	pdfPath,
 	outputImage = '',
+	model = '',
 ) {
 	var formData = new FormData();
 
@@ -980,6 +1002,7 @@ async function saveResponseAsync(
 	formData.append('pdfName', pdfName);
 	formData.append('pdfPath', pdfPath);
 	formData.append('outputImage', outputImage);
+	formData.append('model', model);
 
 	await jQuery.ajax({
 		url: '/dashboard/user/openai/chat/low/chat_save',
@@ -1001,7 +1024,11 @@ DO NOT FORGET TO ADD THE CHANGES TO BOTH FUNCTION makeDocumentReadyAgain and the
 
 */
 function makeDocumentReadyAgain() {
+	const chatsWrapper = document.querySelector('.chats-wrap');
+	const chatBubbles = chatsWrapper?.querySelectorAll('.lqd-chat-ai-bubble, .lqd-chat-user-bubble');
+
 	_.defer(() => {
+		setChatsCssVars();
 		updateChatButtons();
 		conversationAreaScrollHandler();
 	});
@@ -1019,6 +1046,11 @@ function makeDocumentReadyAgain() {
 
 		handlePromptHistoryNavigate();
 	});
+
+	if ( chatBubbles ) {
+		chatsWrapper.classList.toggle('conversation-not-started', chatBubbles.length <= 1 );
+		chatsWrapper.classList.toggle('conversation-started', chatBubbles.length > 1 );
+	}
 }
 
 function handlePromptHistory(prompt) {
@@ -1145,29 +1177,26 @@ function updateChatButtons() {
 			promptInputValue.length === 0 ||
 			promptInputValue.replace(/\s/g, '') === ''
 		) {
-			return toastr.error(
-				magicai_localize?.please_fill_message ||
-					'Please fill the message field',
-			);
+			return toastr.error( magicai_localize?.please_fill_message || 'Please fill the message field', );
 		}
 
+		const chatsWrapper = document.querySelector('.chats-wrap');
 		const chatsContainer = $('.chats-container');
-		const userBubbleTemplate = document
-			.querySelector('#chat_user_bubble')
-			.content.cloneNode(true);
-		const aiBubbleTemplate = document
-			.querySelector('#chat_ai_bubble')
-			.content.cloneNode(true);
+		const userBubbleTemplate = document.querySelector('#chat_user_bubble').content.cloneNode(true);
+		const aiBubbleTemplate = document.querySelector('#chat_ai_bubble').content.cloneNode(true);
 
 		if (category.slug != 'ai_chat_image') {
 			aiBubbleTemplate.querySelector('.lqd-typing-loader')?.remove();
 		} else {
-			aiBubbleTemplate
-				.querySelector('.chat-content-container')
-				?.classList?.add('flex', 'items-center');
+			aiBubbleTemplate.querySelector('.chat-content-container')?.classList?.add('flex', 'items-center');
 			aiBubbleTemplate.querySelector('.lqd-typing')?.remove();
 			aiBubbleTemplate.querySelector('button')?.remove();
 		}
+
+		chatsWrapper.classList.remove('conversation-not-started');
+		chatsWrapper.classList.add('conversation-started');
+
+		Alpine.store('realtimeChatStatus')?.setConversationStarted(true);
 
 		if (generateBtn.classList.contains('submitting')) return;
 
@@ -1184,8 +1213,7 @@ function updateChatButtons() {
 		aiResponseStreaming = true;
 		conversationAreaScrollDir = 'down';
 
-		userBubbleTemplate.querySelector('.chat-content').innerHTML =
-			promptInputValue;
+		userBubbleTemplate.querySelector('.chat-content').innerHTML = promptInputValue;
 
 		handlePromptHistory(promptInputValue);
 
@@ -1195,13 +1223,10 @@ function updateChatButtons() {
 		chatsContainer.append(userBubbleTemplate);
 
 		for (let i = 0; i < prompt_images.length; i++) {
-			const chatImageBubbleTemplate = document
-				.querySelector('#chat_user_image_bubble')
-				.content.cloneNode(true);
+			const chatImageBubbleTemplate = document.querySelector('#chat_user_image_bubble').content.cloneNode(true);
 
 			chatImageBubbleTemplate.querySelector('a').href = prompt_images[i];
-			chatImageBubbleTemplate.querySelector('.img-content').src =
-				prompt_images[i];
+			chatImageBubbleTemplate.querySelector('.img-content').src = prompt_images[i];
 
 			chatsContainer.append(chatImageBubbleTemplate);
 		}
@@ -1213,8 +1238,7 @@ function updateChatButtons() {
 
 		const signal = controller.signal;
 		const aiBubbleWrapper = aiBubbleTemplate.firstElementChild;
-		const aiBubbleChatContent =
-			aiBubbleWrapper.querySelector('.chat-content');
+		const aiBubbleChatContent = aiBubbleWrapper.querySelector('.chat-content');
 		let responseText = '';
 
 		lastAiChatBubble = aiBubbleWrapper;
@@ -1251,13 +1275,10 @@ function updateChatButtons() {
 				contentType: false,
 			});
 
-			const chatImageBubbleTemplate = document
-				.querySelector('#chat_bot_image_bubble')
-				.content.cloneNode(true);
+			const chatImageBubbleTemplate = document.querySelector('#chat_bot_image_bubble').content.cloneNode(true);
 
 			chatImageBubbleTemplate.querySelector('a').href = response.path;
-			chatImageBubbleTemplate.querySelector('.img-content').src =
-				response.path;
+			chatImageBubbleTemplate.querySelector('.img-content').src = response.path;
 
 			chatsContainer.append(chatImageBubbleTemplate);
 
@@ -1311,8 +1332,7 @@ function updateChatButtons() {
 			let text = chunk.shift();
 
 			if (text) {
-				streamed_text =
-					streamed_text + text.replace(/<br\s*\/?>/g, '\n');
+				streamed_text = streamed_text + text.replace(/<br\s*\/?>/g, '\n');
 			}
 		}, 20);
 
@@ -1330,10 +1350,7 @@ function updateChatButtons() {
 			formData.append('realtime', realtime?.checked ? 1 : 0);
 			formData.append('chat_brand_voice', chat_brand_voice?.value || '');
 			formData.append('brand_voice_prod', brand_voice_prod?.value || '');
-			formData.append(
-				'chatbot_front_model',
-				chatbot_front_model?.value || '',
-			);
+			formData.append( 'chatbot_front_model', chatbot_front_model?.value || '' );
 			formData.append('assistant', assistant.value || '');
 
 			fetchEventSource('/dashboard/user/generator/generate-stream', {
@@ -1600,7 +1617,13 @@ function updateChatButtons() {
 			pdfPath = '';
 
 			if (prompt_images.length == 0) {
-				implementChatBackend('chatbot');
+				const proChat = document.querySelector('#chatType')?.value;
+				if (proChat === 'undefined' || proChat !== 'chatPro') {
+					implementChatBackend('chatbot');
+				} else {
+					implementChatBackend('chatPro');
+				}
+
 			} else {
 				let temp = [ ...prompt_images ];
 
@@ -1654,16 +1677,10 @@ function updateChatButtons() {
 				} else {
 					switch (error.status) {
 						case 429:
-							aiBubbleWrapper.querySelector(
-								'.chat-content',
-							).innerHTML =
-								'Api Connection Error. You hit the rate limites of openai requests. Please check your Openai API Key.';
+							aiBubbleWrapper.querySelector( '.chat-content' ).innerHTML = 'Api Connection Error. You hit the rate limites of openai requests. Please check your Openai API Key.';
 							break;
 						default:
-							aiBubbleWrapper.querySelector(
-								'.chat-content',
-							).innerHTML =
-								'Api Connection Error. Please contact system administrator via Support Ticket. Error is: API Connection failed due to API keys.';
+							aiBubbleWrapper.querySelector( '.chat-content' ).innerHTML = 'Api Connection Error. Please contact system administrator via Support Ticket. Error is: API Connection failed due to API keys.';
 					}
 				}
 
@@ -1708,8 +1725,7 @@ function escapeHtml(html) {
 	return div.innerHTML;
 }
 
-function openChatAreaContainer(chat_id) {
-	'use strict';
+function openChatAreaContainer(chat_id, website_url = null) {
 
 	chatid = chat_id;
 	$(`#chat_${chat_id}`).addClass('active').siblings().removeClass('active');
@@ -1717,6 +1733,10 @@ function openChatAreaContainer(chat_id) {
 	var formData = new FormData();
 
 	formData.append('chat_id', chat_id);
+
+	if (website_url != null && website_url != '') {
+		formData.append('website_url', website_url);
+	}
 
 	let openChatAreaContainerUrl = $('#openChatAreaContainerUrl').val();
 
@@ -1779,17 +1799,18 @@ function openChatAreaContainer(chat_id) {
 }
 
 function startNewChat(category_id, local, website_url = null) {
-	var formData = new FormData();
+	const formData = new FormData();
+	const chatsWrapper = document.querySelector('.chats-wrap');
 	formData.append('category_id', category_id);
 
 	// let website_url = $("#website_url")?.val();
 	let createChatUrl = $('#createChatUrl')?.val();
 
-	if (website_url != null) {
+	if (website_url != null && website_url != '') {
 		formData.append('website_url', website_url);
 	}
 
-	let link = '/' + local + '/dashboard/user/openai/chat/start-new-chat';
+	let link = '/dashboard/user/openai/chat/start-new-chat';
 
 	if (createChatUrl) {
 		link = createChatUrl;
@@ -1805,6 +1826,9 @@ function startNewChat(category_id, local, website_url = null) {
 			removePromptHistoryHandler();
 
 			chatid = data.chat.id;
+
+			chatsWrapper.classList.remove('conversation-started');
+			chatsWrapper.classList.add('conversation-not-started');
 
 			$('#load_chat_area_container > .lqd-card-body').html(data.html);
 			$('#chat_sidebar_container').html(data.html2);
@@ -2263,6 +2287,43 @@ $(document).ready(function () {
 		},
 	);
 
+	$('#chat_sidebar_container').on(
+		'click',
+		'.chat-item-pin',
+		ev => {
+			const button = ev.currentTarget;
+			const parent = button.closest('.chat-list-item');
+			const chatId = parent.getAttribute('id');
+			const isPinned = parent.classList.contains('pin-mode');
+
+			function togglePinMode() {
+				parent.classList.toggle('pin-mode');
+				const pinIcon = button.querySelector('.tabler-pin');
+				const pinnedIcon = button.querySelector('.tabler-pinned');
+				if (pinIcon && pinnedIcon) {
+					pinIcon.classList.toggle('hidden');
+					pinnedIcon.classList.toggle('hidden');
+				}
+			}
+			togglePinMode();
+
+			$.ajax({
+				type: 'post',
+				url: '/dashboard/user/openai/chat/pin-conversation',
+				data: JSON.stringify({ pinned: !isPinned, chat_id: chatId }),
+				contentType: 'application/json',
+				success: function (data) {
+					toastr.success(isPinned ? magicai_localize.conversation_unpinned : magicai_localize.conversation_pinned);
+				},
+				error: (xhr, status, error) => {
+					console.error('Error updating pin status:', error);
+					togglePinMode();
+					toastr.error( magicai_localize.conversation_pin_error );
+				},
+			});
+		},
+	);
+
 	$('#chat_search_word').on('keyup', function () {
 		return searchChatFunction();
 	});
@@ -2272,6 +2333,7 @@ $(document).ready(function () {
 		el.style.height = '5px';
 		el.style.height = el.scrollHeight + 'px';
 		const recordTrigger = $('.lqd-chat-record-trigger');
+		const chatsWrapper = $('.chats-wrap');
 
 		// check if value is not empty and then hide .lqd-chat-record-trigger and .lqd-chat-record-stop-trigger elements
 		if (
@@ -2284,8 +2346,10 @@ $(document).ready(function () {
 			)
 		) {
 			recordTrigger.hide();
+			chatsWrapper.addClass('prompt-filled');
 		} else {
 			recordTrigger.show();
+			chatsWrapper.removeClass('prompt-filled');
 		}
 	});
 

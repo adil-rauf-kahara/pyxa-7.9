@@ -18,6 +18,7 @@ class PlanService
     {
         $this->plans = Cache::rememberForever(self::ACTIVE_PLANS_CACHE_KEY, static function () {
             return Plan::where('active', true)
+                ->where('hidden', false)
                 ->orderBy('price')
                 ->get();
         });

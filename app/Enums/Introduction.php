@@ -30,6 +30,7 @@ enum Introduction: string implements Contracts\WithStringBackedEnum
     case AI_REWRITER = 'ai_rewriter';
     case AI_CHAT_IMAGE = 'ai_chat_image';
     case AI_CHAT = 'ai_chat_all';
+    case AI_CHAT_PRO = 'ai_chat_pro';
     case AI_YOUTUBE = 'ai_youtube';
     case AI_RSS = 'ai_rss';
     case AI_SPEECH_TO_TEXT = 'ai_speech_to_text';
@@ -42,6 +43,7 @@ enum Introduction: string implements Contracts\WithStringBackedEnum
     case AI_AVATAR = 'ai_avatar';
     case AI_AVATAR_PRO = 'ai_persona';
     case AI_FALL_VIDEO = 'ai_video_pro';
+    case AI_REPLICA = 'ai_replica';
     case AI_MUSIC = 'ai_music';
     case AI_PRODUCT_SHOT = 'ai_product_shot';
     case USER_API_KEYS = 'user_api_keys';
@@ -118,6 +120,7 @@ enum Introduction: string implements Contracts\WithStringBackedEnum
             self::BRAND_VOICE  	                  => __('Brand Voice'),
             self::TEAM_MENU  	                    => __('Team'),
             self::AI_FALL_VIDEO                   => __('Fall Video'),
+            self::AI_REPLICA  		                  => __('AI Replica'),
             self::AI_MUSIC  	  	                  => __('AI Music'),
             self::AI_PRODUCT_SHOT  	              => __('AI Product Photography'),
             self::USER_API_KEYS  	                => __('API Keys'),

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Plan\FrequencyEnum;
 use App\Enums\Roles;
+use App\Helpers\Classes\Helper;
 use App\Models\Chatbot\Chatbot;
 use App\Models\Concerns\User\HasCredit;
 use App\Models\Integration\UserIntegration;
@@ -32,30 +33,28 @@ class User extends Authenticatable
     use HasRoles;
     use Notifiable;
 
-    // protected $fillable = [
-    //     'coingate_subscriber_id',
-    //     'team_id',
-    //     'team_manager_id',
-    //     'name',
-    //     'surname',
-    //     'email',
-    //     'country',
-    //     'type',
-    //     'password',
-    //     'affiliate_id',
-    //     'affiliate_code',
-    //     'email_confirmation_code',
-    //     'email_confirmed',
-    //     'password_reset_code',
-    //     'anthropic_api_keys',
-    //     'api_keys',
-    //     'defi_setting',
-    //     'affiliate_status',
-    //     'entity_credits',
-    // ];
-    
-    
-     protected $guarded = []; 
+    protected $fillable = [
+        'coingate_subscriber_id',
+        'team_id',
+        'team_manager_id',
+        'name',
+        'surname',
+        'email',
+        'country',
+        'otp',
+        'type',
+        'password',
+        'affiliate_id',
+        'affiliate_code',
+        'email_confirmation_code',
+        'email_confirmed',
+        'password_reset_code',
+        'anthropic_api_keys',
+        'api_keys',
+        'defi_setting',
+        'affiliate_status',
+        'entity_credits',
+    ];
 
     protected $hidden = [
         'password',
@@ -70,6 +69,24 @@ class User extends Authenticatable
         'type'              => Roles::class,
         'entity_credits'    => 'array',
     ];
+
+    public function teamId()
+    {
+        return $this->team_id;
+    }
+
+    public function checkPermission(string $key): bool
+    {
+        if ($this->type === Roles::SUPER_ADMIN) {
+            return true;
+        }
+
+        if (Helper::adminPermissions($key) && $this->type === Roles::ADMIN) {
+            return true;
+        }
+
+        return false;
+    }
 
     public function isConfirmed(): bool
     {

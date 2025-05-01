@@ -114,7 +114,11 @@
 		}
 	}
 
-	@import './components/outline-glow.scss';
+	@import './components/outline-glow';
+	@import './components/shape-cutout';
+	@import './components/curtain';
+	@import './components/split-text';
+	@import './components/tab';
 }
 
 @layer utilities {
@@ -183,4 +187,4 @@
 	}
 }
 
-@import '../scss/single-page/single-page.scss';
+@import '../scss/single-page/single-page';

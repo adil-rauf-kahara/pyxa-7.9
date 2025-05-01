@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\EmailConfirmation;
 use App\Events\UsersActivityEvent;
+use App\Helpers\Classes\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Mail\OtpEmail;
@@ -33,14 +34,14 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request)
+    public function store(LoginRequest $request): \Illuminate\Http\JsonResponse
     {
-
         $settings = Setting::getCache();
+        $email = $request->email;
+        $user = User::where('email', $email)->first();
 
         if ($settings->recaptcha_login && ($settings->recaptcha_sitekey || $settings->recaptcha_secretkey)) {
-            $client = new Client;
-            $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
+            $response = (new Client)->post('https://www.google.com/recaptcha/api/siteverify', [
                 'form_params' => [
                     'secret'   => config('services.recaptcha.secret'),
                     'response' => $request->input('g-recaptcha-response'),
@@ -48,98 +49,62 @@ class AuthenticatedSessionController extends Controller
             ])->getBody()->getContents();
 
             if (! json_decode($response, true)['success']) {
+                return response()->json(['status' => 'error', 'message' => __('Invalid Recaptcha.')], 401);
+            }
+        }
+
+        if (! $settings->login_without_confirmation) {
+            if (! $user) {
+                return response()->json(['errors' => [trans('auth.failed')]], 401);
+            }
+
+            if (! $user->email_confirmed && ! $user->isAdmin()) {
+                EmailConfirmation::forUser($user)->send();
+
                 return response()->json([
-                    'status'  => 'error',
-                    'message' => __('Invalid Recaptcha.'),
+                    'errors' => [__('We have sent you an email for account confirmation. Please confirm your account to continue. Please check spam folder. If not received, try login again after 1 hour.')],
+                    'type'   => 'confirmation',
                 ], 401);
             }
         }
 
-        if ((bool) $settings->login_without_confirmation == false) {
-            $user = User::where('email', $request->email)->first();
-            if (! $user) {
-                $data = [
-                    'errors' => [trans('auth.failed')],
-                ];
-
-                return response()->json($data, 401);
-            }
-            if ($user && ! $user->email_confirmed && ! $user->isAdmin()) {
-                EmailConfirmation::forUser($user)->send();
-                $data = [
-                    'errors' => [__('We have sent you an email for account confirmation. Please confirm your account to continue. Please also check your spam folder. If you did not receive the email, you can try login again and you will receive new confirmation email after 1 hour.')],
-                    'type'   => 'confirmation',
-                ];
-
-                return response()->json($data, 401);
-            }
-
-        }
-
         if ($settings->login_with_otp) {
-            $user = User::where('email', $request->email)->first();
             if (! $user) {
-                $data = [
-                    'errors' => [trans('auth.failed')],
-                ];
-
-                return response()->json($data, 401);
+                return response()->json(['errors' => [trans('auth.failed')]], 401);
             }
 
             $otp = mt_rand(1000, 9999);
-            $user->otp = $otp;
-            $user->save();
+            $user->update(['otp' => $otp]); // One DB write instead of save()
 
             try {
                 Mail::to($user->email)->send(new OtpEmail($user, $settings, $otp));
             } catch (Exception) {
-                $data = [
-                    'errors' => [__('Email could not be sent.')],
-                    'type'   => 'error',
-                ];
-
-                return response()->json($data, 401);
+                return response()->json(['errors' => [__('Email could not be sent.')], 'type' => 'error'], 401);
             }
 
-            return response()->json([
-                'link' => '/verify-otp',
-            ]);
-
+            return response()->json(['link' => '/verify-otp']);
         }
 
         $request->authenticate();
-
         $request->session()->regenerate();
 
         if (Auth::check()) {
             $user = Auth::user();
-            if (Google2FA::isActivated()) {
-                $user_id = Auth::id();
 
+            if (Google2FA::isActivated()) {
+                session(['user_id' => $user->id]);
                 Auth::logout();
 
-                session()->put('user_id', $user_id);
-                session()->save();
-
-                return response()->json([
-                    'link' => '2fa/login',
-                ]);
+                return response()->json(['link' => '2fa/login']);
             }
 
-            $user = Auth::user();
-            $ip = $request->ip();
-            $connection = $request->header('User-Agent');
-            event(new UsersActivityEvent($user->email, $user->type, $ip, $connection));
-        }
-
-        if ($plan = $request->get('plan')) {
-            return response()->json([
-                'link' => '/dashboard/user/payment?plan=' . $plan,
-            ]);
+            if (Helper::appIsNotDemo()) {
+                event(new UsersActivityEvent($user->email, $user->type, $request->ip(), $request->header('User-Agent')));
+            }
         }
 
         return response()->json([
-            'link' => '/dashboard/user',
+            'link' => $request->get('plan') ? '/dashboard/user/payment?plan=' . $request->get('plan') : '/dashboard/user',
         ]);
     }
 

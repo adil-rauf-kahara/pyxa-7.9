@@ -179,7 +179,7 @@
                                 class="size-9"
                                 variant="ghost-shadow"
                                 size="none"
-                                href="{{ LaravelLocalization::localizeUrl(route('dashboard.admin.coupons.used', $entry->id)) }}"
+                                href="{{  (route('dashboard.admin.coupons.used', $entry->id)) }}"
                                 title="{{ __('View') }}"
                             >
                                 <x-tabler-eye class="size-4" />
@@ -283,7 +283,7 @@
                                     variant="ghost-shadow"
                                     hover-variant="danger"
                                     size="none"
-                                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.admin.coupons.delete', $entry->id)) }}"
+                                    href="{{  (route('dashboard.admin.coupons.delete', $entry->id)) }}"
                                     onclick="confirm('{{ __('Are you sure? This is permanent.') }}')"
                                     title="{{ __('Delete') }}"
                                 >

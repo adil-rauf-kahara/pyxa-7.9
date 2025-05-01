@@ -10,6 +10,7 @@ use App\Models\OpenaiGeneratorChatCategory;
 use App\Models\Plan;
 use App\Models\Setting;
 use App\Models\SettingTwo;
+use App\Models\Usage;
 use App\Models\User;
 use App\Models\UserOpenai;
 use App\Models\UserOpenaiChat;
@@ -653,7 +654,7 @@ class AIChatController extends Controller
                 $message->save();
 
                 $driver->input($responsedText)->calculateCredit()->decreaseCredit();
-
+                Usage::getSingle()->updateWordCounts($driver->calculate());
                 $chat->total_credits += $total_used_tokens;
                 $chat->save();
                 echo 'data: [DONE]';

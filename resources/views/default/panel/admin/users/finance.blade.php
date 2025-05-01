@@ -16,7 +16,7 @@
             type="text"
             readonly
             disabled
-            value="{{ $user->fullName() }}"
+            value="{{ $user?->fullName() }}"
         >
     </div>
     <div class="mb-3">
@@ -132,7 +132,7 @@
 
     <form
         method="POST"
-        action="{{ LaravelLocalization::localizeUrl(route('dashboard.user.payment.assignTokenByAdmin')) }}"
+        action="{{  (route('dashboard.user.payment.assignTokenByAdmin')) }}"
     >
         @csrf
         <div class="mb-10 mt-4 flex items-center !gap-3 rounded-xl bg-[rgba(157,107,221,0.1)] !p-4 !py-3 text-[17px] font-semibold">
@@ -218,7 +218,7 @@
                 <form
                     id="deleteSubscriptionForm"
                     method="POST"
-                    action="{{ LaravelLocalization::localizeUrl(route('dashboard.user.payment.cancelActiveSubscriptionByAdmin', ['id' => $user->id])) }}"
+                    action="{{  (route('dashboard.user.payment.cancelActiveSubscriptionByAdmin', ['id' => $user->id])) }}"
                 >
                     @csrf
                     <div class="modal-body">
@@ -253,7 +253,7 @@
             <div class="modal-content">
                 <form
                     method="POST"
-                    action="{{ LaravelLocalization::localizeUrl(route('dashboard.user.payment.assignPlanByAdmin')) }}"
+                    action="{{  (route('dashboard.user.payment.assignPlanByAdmin')) }}"
                 >
                     @csrf
                     <div class="modal-body">

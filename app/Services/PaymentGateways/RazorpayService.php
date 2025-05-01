@@ -11,20 +11,23 @@ use App\Models\User;
 use App\Models\UserOrder;
 use App\Services\Contracts\BaseGatewayService;
 use App\Services\PaymentGateways\Contracts\CreditUpdater;
+use App\Services\PaymentGateways\Contracts\ProductInterface;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Laravel\Cashier\Subscription as Subscriptions;
 use Razorpay\Api\Api;
 
-class RazorpayService implements BaseGatewayService
+class RazorpayService implements BaseGatewayService, ProductInterface
 {
     use CreditUpdater;
 
@@ -35,24 +38,22 @@ class RazorpayService implements BaseGatewayService
     protected static $GATEWAY_NAME = 'Razorpay';
 
     // payment functions
-    public static function saveAllProducts()
+    public static function saveAllProducts(): ?RedirectResponse
     {
-
         try {
             $gateway = self::geteway();
 
-            if ($gateway == null) {
-                return back()->with(['message' => __('Please enable coingate'), 'type' => 'error']);
+            if (! $gateway) {
+                return back()->with(['message' => __('Please enable Razorpay'), 'type' => 'error']);
             }
 
-            $plans = Plan::query()
+            Plan::query()
+                ->where('currency', 'INR')
+                ->where('type', '!=', 'prepaid')
                 ->where('active', 1)
-                ->get();
+                ->each(fn ($plan) => self::saveProduct($plan));
 
-            foreach ($plans as $plan) {
-                self::saveProduct($plan);
-            }
-
+            return null;
         } catch (Exception $ex) {
             Log::error(self::$GATEWAY_CODE . '-> saveAllProducts(): ' . $ex->getMessage());
 
@@ -62,59 +63,30 @@ class RazorpayService implements BaseGatewayService
 
     public static function saveProduct($plan): bool|\Illuminate\Http\RedirectResponse
     {
-
-        if ($plan->type == 'prepaid') {
-            return true;
-        }
-
-        if ($plan->currency !== 'INR') {
-            $plan->update(['currency' => 'INR']);
-        }
-
-        $gateway = self::geteway();
-
-        if ($gateway == null) {
-            return back()->with(['message' => __('Please enable coingate'), 'type' => 'error']);
-        }
-
-        $api = self::client();
-
         try {
+            $gateway = self::geteway();
+            if (! $gateway) {
+                return back()->with(['message' => __('Please enable Razorpay'), 'type' => 'error']);
+            }
+
+            $api = self::client();
+
             DB::beginTransaction();
 
-            $data = $api->plan->create([
-                'period'   => $plan->frequency,
-                'interval' => 1,
-                'item'     => [
-                    'name'        => $plan->name,
-                    'description' => $plan->name,
-                    'amount'      => (int) $plan->price * 100,
-                    'currency'    => 'INR',
-                ],
-                'notes' => [],
-            ]);
+            $data = $api->plan->create(
+                self::planPayload($plan)
+            );
 
-            $gateProduct = GatewayProducts::query()
-                ->firstOrCreate([
-                    'plan_id'       => $plan->id,
-                    'gateway_code'  => self::$GATEWAY_CODE,
-                    'gateway_title' => self::$GATEWAY_NAME,
-                ]);
-
-            $gateProduct->update([
-                'plan_name'  => $plan->name,
-                'product_id' => $data['id'],
-                'price_id'   => $data['item']['id'],
-                'payload'    => $data->toArray(),
-            ]);
+            GatewayProducts::updateOrCreate(
+                ['plan_id' => $plan->id, 'gateway_code' => self::$GATEWAY_CODE],
+                ['plan_name' => $plan->name, 'product_id' => $data['id'], 'price_id' => $data['item']['id'], 'payload' => $data->toArray()]
+            );
 
             DB::commit();
 
             return true;
-
         } catch (Exception $ex) {
             DB::rollBack();
-
             Log::error(self::$GATEWAY_CODE . "-> saveProduct():\n" . $ex->getMessage());
 
             return back()->with(['message' => $ex->getMessage(), 'type' => 'error']);
@@ -125,11 +97,11 @@ class RazorpayService implements BaseGatewayService
     {
         $gateway = self::geteway();
 
-        $apiKey = $gateway->getAttribute('mode') == 'sandbox'
+        $apiKey = $gateway->getAttribute('mode') === 'sandbox'
             ? $gateway->getAttribute('sandbox_client_id')
             : $gateway->getAttribute('live_client_id');
 
-        $secret = $gateway->getAttribute('mode') == 'sandbox'
+        $secret = $gateway->getAttribute('mode') === 'sandbox'
             ? $gateway->getAttribute('sandbox_client_secret')
             : $gateway->getAttribute('live_client_secret');
 
@@ -190,7 +162,7 @@ class RazorpayService implements BaseGatewayService
         ];
     }
 
-    public static function subscribe($plan)
+    public static function subscribe($plan): View
     {
         $order_id = 'ORDER-' . strtoupper(Str::random(13));
 
@@ -267,6 +239,7 @@ class RazorpayService implements BaseGatewayService
                 ]);
 
             \App\Models\Usage::getSingle()->updateSalesCount($plan->price);
+
             $short_link = $data['short_url'];
 
             return redirect($short_link);
@@ -289,7 +262,7 @@ class RazorpayService implements BaseGatewayService
 
         $gateway = self::geteway();
 
-        if ($gateway == null) {
+        if ($gateway === null) {
             return back()->with(['message' => __('Please enable coingate'), 'type' => 'error']);
         }
 
@@ -324,10 +297,11 @@ class RazorpayService implements BaseGatewayService
                 ],
                 'notify'          => ['sms' => false, 'email' => true],
                 'reminder_enable' => true,
-                'callback_url'    => Helper::setting('site_url') . '/webhooks/coingate',
+                'callback_url'    => Helper::setting('site_url') . '/webhooks/razorpay',
                 'callback_method' => 'get',
             ]);
 
+            // 9876543XXX
             $order->update([
                 'order_id' => $paymentLink['id'], // 'id' => 'pl_1J2f3g4h5I6j7k8l9',
                 'payload'  => $paymentLink->toArray(),
@@ -378,7 +352,7 @@ class RazorpayService implements BaseGatewayService
         if ($data) {
             $status = data_get($data, 'status');
 
-            if ($status == 'cancelled') {
+            if ($status === 'cancelled') {
                 $activeSub->stripe_status = $status;
                 $activeSub->ends_at = Carbon::now();
                 $activeSub->save();
@@ -406,7 +380,7 @@ class RazorpayService implements BaseGatewayService
             $subscription = Subscriptions::where('id', $subscription)->first();
         }
 
-        if ($subscription == null) {
+        if ($subscription === null) {
             return back()->with(['message' => __('Subscription not found'), 'type' => 'error']);
         }
 
@@ -426,7 +400,7 @@ class RazorpayService implements BaseGatewayService
         }
     }
 
-    public static function checkIfTrial()
+    public static function checkIfTrial(): bool
     {
         return true;
     }
@@ -481,7 +455,7 @@ class RazorpayService implements BaseGatewayService
 
                 $status = data_get($request, 'status');
 
-                if ((string) $status == 'active') {
+                if ((string) $status === 'active') {
                     return true;
                 } else {
                     if ($subscription->getAttribute('created_at') < Carbon::now()->subHours(2)) {
@@ -547,19 +521,19 @@ class RazorpayService implements BaseGatewayService
     {
         $data = $request->all();
 
+        $event = data_get($data, 'event');
+
         $entity = data_get($data, 'payload.subscription.entity');
 
-        if ($entity) {
+        if ($entity && ($event === 'subscription.activated' || $event === 'subscription.updated')) {
             $subscription = Subscriptions::query()
                 ->where('stripe_id', data_get($entity, 'id'))
                 ->first();
 
             if ($subscription) {
-                $subscription->update([
-                    'stripe_status' => data_get($entity, 'status'),
-                ]);
+                $subscription->update(['stripe_status' => data_get($entity, 'status')]);
 
-                if (data_get($entity, 'status') == 'active') {
+                if (data_get($entity, 'status') === 'active') {
 
                     /**
                      * @var User $user
@@ -572,15 +546,54 @@ class RazorpayService implements BaseGatewayService
                     $plan = Plan::query()->where('id', $subscription->getAttribute('plan_id'))->first();
 
                     self::creditIncreaseSubscribePlan($user, $plan);
-
                 }
             }
+        }
+
+        $razorpay_payment_link_id = data_get($data, 'razorpay_payment_link_id');
+        $razorpay_payment_link_status = data_get($data, 'razorpay_payment_link_status');
+        $razorpay_payment_link_reference_id = data_get($data, 'razorpay_payment_link_reference_id');
+
+        if ($razorpay_payment_link_id && $razorpay_payment_link_status && $razorpay_payment_link_reference_id) {
+
+            $order = UserOrder::query()
+                ->where('order_id', $razorpay_payment_link_id)
+                ->where('type', 'token-pack')
+                ->where('status', 'WAITING')
+                ->first();
+
+            $api = self::client();
+
+            $data = $api->paymentLink->fetch($order->order_id);
+
+            $status = $razorpay_payment_link_status;
+
+            if ($status === 'paid') {
+
+                /**
+                 * @var User $user
+                 */
+                $user = User::query()->where('id', $order->getAttribute('user_id'))->first();
+
+                /**
+                 * @var Plan $plan
+                 */
+                $plan = Plan::query()->where('id', $order->getAttribute('plan_id'))->first();
+
+                $order->update(['status' => 'PAID']);
+
+                self::creditIncreaseSubscribePlan($user, $plan);
+
+                return redirect('dashboard/user')->with(['message' => __('Payment successful'), 'type' => 'success']);
+            }
+
+            return redirect('dashboard/user')->with(['message' => __('Payment unsuccessful'), 'type' => 'error']);
         }
 
         return response()->json(['success' => true]);
     }
 
-    public static function checkPayments()
+    public static function checkPayments(): void
     {
         $date = now()->subHours(2);
 
@@ -606,8 +619,7 @@ class RazorpayService implements BaseGatewayService
             $last = Arr::last($payments);
 
             try {
-
-                if ($order->type == 'token-pack') {
+                if ($order->type === 'token-pack') {
 
                     $api = self::client();
 
@@ -615,14 +627,12 @@ class RazorpayService implements BaseGatewayService
 
                     $status = data_get($data, 'status');
 
-                    if ($status == 'paid') {
+                    if ($status === 'paid') {
 
                         $order->update(['status' => 'PAID']);
 
                         self::creditIncreaseSubscribePlan($user, $plan);
-
                     }
-
                 } else {
                     $request = self::client()->subscription->fetch($order->order_id);
 
@@ -636,17 +646,28 @@ class RazorpayService implements BaseGatewayService
                         $subscription->stripe_status = $status;
                         $subscription->save();
 
-                        if ($status == 'active') {
+                        if ($status === 'active') {
                             self::creditIncreaseSubscribePlan($user, $plan);
-
                         }
-
                     }
                 }
-
             } catch (Exception $th) {
-
             }
         }
+    }
+
+    public static function planPayload(Plan $plan): array
+    {
+        return [
+            'period'   => $plan->getAttribute('frequency'),
+            'interval' => 1,
+            'item'     => [
+                'name'        => $plan->getAttribute('name'),
+                'description' => $plan->getAttribute('name'),
+                'amount'      => (int) $plan->getAttribute('price') * 100,
+                'currency'    => 'INR',
+            ],
+            'notes' => [],
+        ];
     }
 }

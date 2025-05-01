@@ -25,7 +25,7 @@
     <x-button
             class="text-inherit hover:text-foreground"
             variant="link"
-            href="{{ LaravelLocalization::localizeUrl(route('dashboard.admin.themes.index')) }}"
+            href="{{  (route('dashboard.admin.themes.index')) }}"
     >
         <x-tabler-chevron-left
                 class="size-4"

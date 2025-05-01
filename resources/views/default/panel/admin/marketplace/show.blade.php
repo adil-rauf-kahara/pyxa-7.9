@@ -21,6 +21,19 @@
 
 @extends('panel.layout.app', ['disable_tblr' => true])
 @section('title', __('Marketplace'))
+@section('titlebar_pretitle')
+	<x-button
+		class="text-inherit hover:text-foreground"
+		variant="link"
+		href="{{ route('dashboard.admin.marketplace.index') }}"
+	>
+		<x-tabler-chevron-left
+			class="size-4"
+			stroke-width="1.5"
+		/>
+		{{ __('Back to Marketplace') }}
+	</x-button>
+@endsection
 @section('titlebar_actions')
 	<div class="flex flex-wrap gap-2">
 		<x-button
@@ -261,14 +274,44 @@
 										</x-button>
 									@else
 										@if($item['is_buy'])
-											<x-button
-												target="_blank"
-												class="w-full"
-												size="lg"
-												href="{{ $item['routes']['payment'] }}"
-											>
-												{{ __('Buy Now') }}
-											</x-button>
+
+
+
+
+											@if($item['slug'] === 'chatbot-agent')
+
+												@if(\App\Helpers\Classes\MarketplaceHelper::isRegistered('chatbot'))
+													<x-button
+														target="_blank"
+														class="w-full"
+														size="lg"
+														href="{{ $item['routes']['payment'] }}"
+													>
+														{{ __('Buy Now') }}
+													</x-button>
+												@else
+
+													<x-button
+														class="w-full"
+														size="lg"
+														href="#"
+														onclick="return toastr.info('External Chatbot is required for this extension.')"
+													>
+														{{ __('Buy Now') }}
+													</x-button>
+												@endif
+
+											@else
+												<x-button
+													target="_blank"
+													class="w-full"
+													size="lg"
+													href="{{ $item['routes']['payment'] }}"
+												>
+													{{ __('Buy Now') }}
+												</x-button>
+											@endif
+
 										@else
 											<span
 												class="lqd-tooltip-container group relative inline-flex cursor-default before:absolute before:-start-1.5 before:-top-1.5 before:h-7 before:w-7">
@@ -327,15 +370,46 @@
 
 							@endif
 							@if((! $item['licensed']) && $item['price'] && $item['is_buy'])
-								<x-button
-									data-toogle="cart"
-									data-url="{{ route('dashboard.admin.marketplace.cart.add-delete', $item['id']) }}"
-									class="relative ms-2"
-									variant="ghost-shadow"
-									href="#">
-									<x-tabler-shopping-cart id="{{ $item['id'].'-icon' }}"
-															class="size-7 text-{{ in_array($item['id'], $cartExists) ? 'green' : 'gray' }}-500"/>
-								</x-button>
+									@if($item['slug'] === 'chatbot-agent')
+
+										@if(\App\Helpers\Classes\MarketplaceHelper::isRegistered('chatbot'))
+
+											<x-button
+												data-toogle="cart"
+												data-url="{{ route('dashboard.admin.marketplace.cart.add-delete', $item['id']) }}"
+												class="relative ms-2"
+												variant="ghost-shadow"
+												href="#">
+												<x-tabler-shopping-cart id="{{ $item['id'].'-icon' }}"
+																		class="size-7 text-{{ in_array($item['id'], $cartExists) ? 'green' : 'gray' }}-500"/>
+											</x-button>
+
+										@else
+
+											<x-button
+												onclick="return toastr.info('External Chatbot is required for this extension.')"
+												class="relative ms-2"
+												variant="ghost-shadow"
+												href="#">
+												<x-tabler-shopping-cart
+													id="{{ $item['id'].'-icon' }}"
+													class="size-7 text-{{ in_array($item['id'], $cartExists) ? 'green' : 'gray' }}-500"
+												/>
+											</x-button>
+
+										@endif
+									@else
+										<x-button
+											data-toogle="cart"
+											data-url="{{ route('dashboard.admin.marketplace.cart.add-delete', $item['id']) }}"
+											class="relative ms-2"
+											variant="ghost-shadow"
+											href="#">
+											<x-tabler-shopping-cart id="{{ $item['id'].'-icon' }}"
+																	class="size-7 text-{{ in_array($item['id'], $cartExists) ? 'green' : 'gray' }}-500"/>
+										</x-button>
+									@endif
+
 							@endif
 						</div>
 					@else

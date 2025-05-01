@@ -49,7 +49,6 @@ function LoginForm() {
 			toastr.success(magicai_localize.login_redirect);
 
 			window.location.href = data.link;
-
 			// Alpine.store('appLoadingIndicator').hide();
 		},
 		error: function (data) {

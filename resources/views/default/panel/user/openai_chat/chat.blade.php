@@ -1,17 +1,11 @@
 @php
-	$isOtherCategories = isset($category) && ($category->slug == 'ai_vision' || $category->slug == 'ai_pdf' || $category->slug == 'ai_chat_image');
+    $isOtherCategories = isset($category) && ($category->slug == 'ai_vision' || $category->slug == 'ai_pdf' || $category->slug == 'ai_chat_image');
     $disable_actions = $app_is_demo && $isOtherCategories;
 @endphp
 
 @extends('panel.layout.app', ['disable_tblr' => true])
-@section('title',
-    $category->slug == 'ai_vision'
-    ? __('Vision AI')
-    : ($category->slug == 'ai_pdf'
-    ? __('AI File Chat')
-    : ($category->slug == 'ai_chat_image'
-    ? __('Chat Image')
-    : __('AI Chat'))))
+@section('title', $category->slug == 'ai_vision' ? __('Vision AI') : ($category->slug == 'ai_pdf' ? __('AI File Chat') : ($category->slug == 'ai_chat_image' ? __('Chat Image') :
+    __('AI Chat'))))
 @section('titlebar_subtitle')
     @if ($category->slug == 'ai_vision')
         {{ __('Seamlessly upload any image you want to explore and get insightful conversations.') }}
@@ -22,9 +16,9 @@
     @endif
 @endsection
 @section('titlebar_actions')
-	@includeWhen(! $isOtherCategories, 'components.select-ai-model-list')
+    @includeWhen(!$isOtherCategories, 'components.select-ai-model-list')
 
-	<x-button href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.list')) }}">
+    <x-button href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.list')) }}">
         <x-tabler-plus class="size-4" />
         {{ __('New') }}
     </x-button>
@@ -388,11 +382,18 @@
         rel="stylesheet"
         href="{{ custom_theme_url('/assets/libs/prism/prism.css') }}"
     >
+    <link
+        rel="stylesheet"
+        href="{{ custom_theme_url('/assets/libs/katex/katex.min.css') }}"
+    >
 
     <script src="{{ custom_theme_url('/assets/libs/prism/prism.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/markdown-it.min.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/html2pdf/html2pdf.bundle.min.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/underscore/underscore-observe.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/turndown.js') }}"></script>
+    <script src="{{ custom_theme_url('/assets/libs/katex/katex.min.js') }}"></script>
+    <script src="{{ custom_theme_url('/assets/libs/vscode-markdown-it-katex/index.js') }}"></script>
+
     @include('panel.user.openai_chat.components.chat_js')
 @endpush

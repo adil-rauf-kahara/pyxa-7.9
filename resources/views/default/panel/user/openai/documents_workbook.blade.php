@@ -1,7 +1,10 @@
 @extends('panel.layout.app', ['disable_tblr' => true])
 @section('title', __('Workbook'))
 @section('titlebar_pretitle', __('Edit your generations.'))
-@section('titlebar_title', $workbook->title)
+@php
+    $title = $workbook->generator->type === 'image' ? str()->limit($workbook->input, 40) : $workbook->title;
+@endphp
+@section('titlebar_title', $title)
 @section('titlebar_actions')
     {{-- Edit with AI Editor --}}
     @if ($setting->feature_ai_advanced_editor && $workbook->generator->type !== 'voiceover' && $workbook->generator->type !== \App\Domains\Entity\Enums\EntityEnum::ISOLATOR->value)
@@ -24,7 +27,7 @@
             <x-slot:trigger>
                 {{ __('Share') }}
                 <span
-                    class="size-6 inline-grid shrink-0 place-items-center rounded-md bg-foreground/10 transition-all group-hover/dropdown:scale-105 group-hover/dropdown:bg-heading-foreground group-hover/dropdown:text-heading-background"
+                    class="inline-grid size-6 shrink-0 place-items-center rounded-md bg-foreground/10 transition-all group-hover/dropdown:scale-105 group-hover/dropdown:bg-heading-foreground group-hover/dropdown:text-heading-background"
                 >
                     <x-tabler-share class="size-4" />
                 </span>
@@ -116,6 +119,11 @@
     }
 @endphp
 @push('script')
+    <link
+        rel="stylesheet"
+        href="{{ custom_theme_url('/assets/libs/katex/katex.min.css') }}"
+    >
+
     <script>
         const lang_with_flags = @json($lang_with_flags);
     </script>
@@ -124,6 +132,8 @@
     <script src="{{ custom_theme_url('/assets/libs/ace/src-min-noconflict/ext-language_tools.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/markdown-it.min.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/turndown.js') }}"></script>
+    <script src="{{ custom_theme_url('/assets/libs/katex/katex.min.js') }}"></script>
+    <script src="{{ custom_theme_url('/assets/libs/vscode-markdown-it-katex/index.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/tinymce/tinymce.min.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/js/panel/tinymce-theme-handler.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/js/panel/workbook.js') }}"></script>

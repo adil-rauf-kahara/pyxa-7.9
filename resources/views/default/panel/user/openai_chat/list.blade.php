@@ -1,16 +1,28 @@
 @extends('panel.layout.app', ['layout_wide' => true, 'disable_tblr' => true])
 @section('title', __('AI Chat'))
+@section('titlebar_actions')
+	@php
+		$route = 'dashboard.user.chat-setting.chat-template.create';
+		$customChat = \Illuminate\Support\Facades\Route::has($route) && (setting('chat_setting_for_customer', 1) == 1);
+	@endphp
+	@if($customChat)
+		<x-button href="{{  (route($route)) }}">
+			<x-tabler-plus class="size-4" />
+			{{ __('New') }}
+		</x-button>
+	@endif
+@endsection
 @section('titlebar_after')
     <div class="flex flex-col gap-4 md:flex-row md:items-center">
         <span class="relative">
-            <x-tabler-search class="size-5 pointer-events-none absolute start-3 top-1/2 z-1 -translate-y-1/2" />
+            <x-tabler-search class="pointer-events-none absolute start-3 top-1/2 z-1 size-5 -translate-y-1/2" />
             <x-forms.input
                 class="rounded-full border-none bg-clay ps-10"
                 type="search"
                 placeholder="{{ __('Search') }}"
                 aria-label="{{ __('Search in website') }}"
                 size="sm"
-                x-data
+                x-data="{}"
                 @keyup="$store.chatsFilter.setSearchStr($el.value)"
             />
         </span>
@@ -26,7 +38,7 @@
                     type="button"
                     name="filter"
                     variant="ghost"
-                    x-data
+                    x-data="{}"
                     ::class="$store.chatsFilter.filter === 'all' && 'active'"
                     @click="$store.chatsFilter.changeFilter('all')"
                 >
@@ -40,7 +52,7 @@
                     type="button"
                     name="filter"
                     variant="ghost"
-                    x-data
+                    x-data="{}"
                     ::class="$store.chatsFilter.filter === 'favorite' && 'active'"
                     @click="$store.chatsFilter.changeFilter('favorite')"
                 >
@@ -56,7 +68,7 @@
                         type="button"
                         name="filter"
                         variant="ghost"
-                        x-data
+                        x-data="{}"
                         ::class="$store.generatorsFilter.filter === '{{ $category->name }}' && 'active'"
                         @click="$store.chatsFilter.changeFilter('{{ $category->name }}')"
                     >
@@ -80,9 +92,9 @@
         if (message === true) {
             toastr.warning("{{ __('Cannot access premium plan') }}");
         }
-		let stream_type = '{!! $settings_two->openai_default_stream_server !!}';
+        let stream_type = '{!! $settings_two->openai_default_stream_server !!}';
         @if (setting('default_ai_engine', 'openai') == 'anthropic')
-		    const stream_type = 'backend';
+            const stream_type = 'backend';
         @endif
     </script>
     <script src="{{ custom_theme_url('/assets/js/panel/openai_chat.js') }}"></script>

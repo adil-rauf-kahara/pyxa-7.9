@@ -41,19 +41,6 @@
                     />
                 </a>
             </figure>
-        @elseif($workbook->generator->type === 'video')
-            <figure>
-                <video 
-                    class="rounded-xl shadow-xl"
-                    controls
-                    preload="metadata"
-                    width="100%"
-                >
-                    <source src="{{ custom_theme_url($workbook->output) }}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </figure>
-        
         @elseif($workbook->generator->type === 'voiceover' || $workbook->generator->type === \App\Domains\Entity\Enums\EntityEnum::ISOLATOR->value)
             <div class="flex grow justify-end gap-2">
                 <div

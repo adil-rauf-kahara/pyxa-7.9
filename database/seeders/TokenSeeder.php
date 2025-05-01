@@ -37,19 +37,12 @@ class TokenSeeder extends Seeder
             ->where('key', $key)
             ->firstOrFail();
 
-        $defaultToken = 1.00;
-
-        if ($engine === EngineEnum::SYNTHESIA) {
-            $defaultToken = 20.00;
-        }
-
         $engineModel->tokens()->firstOrCreate(
             [
                 'entity_id' => $engineModel->id,
             ],
             [
                 'type'           => $type,
-                'cost_per_token' => $defaultToken,
             ]
         );
     }

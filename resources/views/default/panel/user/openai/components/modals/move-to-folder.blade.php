@@ -14,10 +14,13 @@
         label="{{ __('Select Folder:') }}"
         required
     >
-        @foreach (auth()->user()->folders as $folder)
-            <option value="{{ $folder->id }}">{{ $folder->name }}</option>
-        @endforeach
-    </x-forms.input>
+		@php
+			$folders = auth()->user()->folders()->get();
+		@endphp
+		@foreach ($folders as $folder)
+			<option value="{{ $folder->id }}">{{ $folder->name }}</option>
+		@endforeach
+	</x-forms.input>
     <div class="mt-4 border-t pt-3 text-end">
         <x-button
             @click.prevent="modalOpen = false"

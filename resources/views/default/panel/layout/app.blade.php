@@ -5,9 +5,19 @@
     $theme_google_fonts = Theme::getSetting('dashboard.googleFonts');
     $sidebarEnabledPages = Theme::getSetting('dashboard.sidebarEnabledPages') ?? [];
     $has_sidebar = in_array(Route::currentRouteName(), $sidebarEnabledPages, true) || (isset($has_sidebar) && $has_sidebar);
+    $body_classname = Theme::getSetting('dashboard.bodyClass', '');
+
+    if (isset($body_class)) {
+        $body_classname .= ' ' . $body_class;
+    }
 
     if (!empty($wide_layout_px)) {
         $wide_layout_px_class = $wide_layout_px;
+    }
+
+    if (Route::currentRouteName()) {
+        $route_name = str_replace(['dashboard.', '.index', '.'], ['', '', '-'], Route::currentRouteName());
+        $body_classname .= ' page-' . $route_name;
     }
 @endphp
 <!doctype html>
@@ -16,12 +26,15 @@
     lang="{{ LaravelLocalization::getCurrentLocale() }}"
     dir="{{ LaravelLocalization::getCurrentLocaleDirection() }}"
 >
+
 @include('panel.layout.partials.head')
 
 <body
     data-theme="{{ setting('dash_theme') }}"
     @class([
-        'group/body bg-background font-body text-xs text-foreground antialiased transition-bg',
+        @twMerge(
+            'group/body bg-background font-body text-xs text-foreground antialiased transition-bg',
+            $body_classname),
         'has-sidebar' => $has_sidebar,
         'is-admin-page' =>
             Auth::check() &&
@@ -29,18 +42,24 @@
                 Route::is('dashboard.blog*') ||
                 Route::is('dashboard.page*')),
         'is-auth-page' => Route::is('login', 'register', 'forgot_password'),
+        'hide-navbar' => isset($disable_navbar),
+        'hide-footer' => isset($disable_footer),
+        'hide-header' => isset($disable_header),
+        'hide-titlebar' => isset($disable_titlebar),
     ])
 >
 
-    @includeFirst(['onboarding-pro::banner', 'vendor.empty'])
+    @if ($app_is_not_demo)
+        @includeFirst(['onboarding-pro::banner', 'vendor.empty'])
+    @endif
 
     @includeIf('panel.layout.after-body-open')
+
+    @stack('after-body-open')
 
     @include('panel.layout.partials.mode-script')
 
     @include('panel.layout.partials.loading')
-
-    @includeWhen($app_is_not_demo, 'default.panel.layout.partials.top-notice-bar')
 
     <div class="lqd-page relative flex min-h-full flex-col">
 
@@ -50,7 +69,6 @@
                     @include('panel.layout.navbar')
                 @endif
             @endauth
-
             <div class="lqd-page-content-wrap flex grow flex-col overflow-hidden">
                 @if ($good_for_now)
                     @auth
@@ -61,7 +79,9 @@
                             @include('panel.layout.titlebar', ['layout_wide', isset($layout_wide) ? $layout_wide : ''])
                         @endif
                     @endauth
-                    @yield('before_content_container')
+
+                    @yield('before-content-container')
+
                     <div @class([
                         'lqd-page-content-container',
                         'h-full',
@@ -74,8 +94,9 @@
 
                         @yield('content')
 
-                        @includeFirst(['onboarding-pro::survey', 'vendor.empty'])
-
+                        @if ($app_is_not_demo)
+                            @includeFirst(['onboarding-pro::survey', 'vendor.empty'])
+                        @endif
                     </div>
                 @elseif(Auth::check() && !$good_for_now && Route::currentRouteName() != 'dashboard.admin.settings.general')
                     <div @class([
@@ -97,7 +118,9 @@
                             @include('panel.layout.titlebar', ['layout_wide', isset($layout_wide) ? $layout_wide : ''])
                         @endif
                     @endauth
-                    @yield('before_content_container')
+
+                    @yield('before-content-container')
+
                     <div @class([
                         'lqd-page-content-container',
                         'container' => !isset($layout_wide) || empty($layout_wide),
@@ -135,7 +158,7 @@
 
     @if (!isset($disableChatbot))
         @includeWhen(in_array($settings_two->chatbot_status, ['dashboard', 'both']) &&
-                !activeRoute('dashboard.user.openai.chat.chat', 'dashboard.user.openai.webchat.workbook') &&
+                !activeRoute('dashboard.user.openai.chat.chat', 'dashboard.user.openai.webchat.workbook', 'dashboard.user.advanced-image.index') &&
                 !(route('dashboard.user.openai.generator.workbook', 'ai_vision') == url()->current()) &&
                 !(route('dashboard.user.openai.generator.workbook', 'ai_chat_image') == url()->current()) &&
                 !(route('dashboard.user.openai.generator.workbook', 'ai_pdf') == url()->current()),
@@ -184,24 +207,23 @@
         {!! $setting->dashboard_code_before_body !!}
     @endif
 
-    @auth()
-        @if (auth()->user()->isAdmin())
-            <script src="{{ custom_theme_url('/assets/js/panel/update-check.js') }}"></script>
-        @endif
-    @endauth
-
-    <script src="{{ custom_theme_url('/assets/libs/introjs/intro.min.js') }}"></script>
     <script src="{{ custom_theme_url('assets/js/chatbot.js') }}"></script>
 
     @includeIf('panel.layout.before-body-close')
 
-    @includeIf('seo-tool::particles.generate-seo-script')
+    @if ($app_is_not_demo)
+        @auth()
+            @if (auth()->user()->isAdmin())
+                <script src="{{ custom_theme_url('/assets/js/panel/update-check.js') }}"></script>
+            @endif
+        @endauth
+        <script src="{{ custom_theme_url('/assets/libs/introjs/intro.min.js') }}"></script>
+        @includeIf('seo-tool::particles.generate-seo-script')
+        @include('panel.layout.includes.lazy-intercom')
+        @include('panel.layout.includes.subscription-status')
+    @endif
 
     @livewireScriptConfig()
-
-    @include('panel.layout.includes.lazy-intercom')
-
-    @include('panel.layout.includes.subscription-status')
 
     <template id="typing-template">
         <div class="lqd-typing relative inline-flex items-center gap-3 rounded-full bg-secondary !px-3 !py-2 text-xs font-medium leading-none text-secondary-foreground">
@@ -249,6 +271,11 @@
             </button>
         </div>
     </template>
+
+    @if ($app_is_demo)
+        <x-demo-switcher themes-type="Dashboard" />
+    @endif
+
 </body>
 
 </html>

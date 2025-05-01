@@ -1,9 +1,7 @@
 @php
     $page = isset($page) ? $page : 'dashboard';
 
-    $chatbot = App\Models\Chatbot\Chatbot::query()
-        ->where('id', $settings_two->chatbot_template)
-        ->first();
+    $chatbot = App\Models\Chatbot\Chatbot::query()->where('id', $settings_two->chatbot_template)->first();
 
     if (!$chatbot) {
         return;
@@ -50,10 +48,13 @@
     }
 @endphp
 
-<div class="lqd-chatbot {{ $trigger_class }} fixed z-50" data-name="{{\App\Enums\Introduction::DASHBOARD_CHATBOT_ICON}}">
+<div
+    class="lqd-chatbot {{ $trigger_class }} fixed z-50"
+    data-name="{{ \App\Enums\Introduction::DASHBOARD_CHATBOT_ICON }}"
+>
     {{-- trigger --}}
     <button
-        class="lqd-chatbot-trigger size-14 group relative cursor-pointer overflow-hidden rounded-full border-none bg-white p-0 text-black shadow-lg dark:!bg-[#1a1d23] dark:!text-white"
+        class="lqd-chatbot-trigger group relative size-14 cursor-pointer overflow-hidden rounded-full border-none bg-white p-0 text-black shadow-lg dark:!bg-[#1a1d23] dark:!text-white"
         id="chatbot-trigger"
         data-chatbot="{{ $chatbot_history != null ? $chatbot_history->user_openai_chat_id : null }}"
         type="button"
@@ -82,7 +83,7 @@
             </div>
             <div class="ms-auto">
                 <button
-                    class="size-7 inline-flex items-center justify-center border-none bg-transparent p-0 text-white transition-all hover:scale-110 hover:!opacity-70"
+                    class="inline-flex size-7 items-center justify-center border-none bg-transparent p-0 text-white transition-all hover:scale-110 hover:!opacity-70"
                     id="chatbot-close"
                 >
                     <x-tabler-x class="size-7" />
@@ -117,14 +118,14 @@
                 >
 
                 <textarea
-                    class="min-h-10 m-0 w-full resize-none flex-col rounded-[26px] border-none bg-transparent p-0 !px-3 !py-3 text-inherit outline-none placeholder:text-inherit focus:border-none focus:ring-0 max-sm:max-h-[120px] max-sm:min-h-[45px] max-sm:pe-2 max-sm:ps-0 max-sm:text-[16px]"
+                    class="m-0 min-h-10 w-full resize-none flex-col rounded-[26px] border-none bg-transparent p-0 !px-3 !py-3 text-inherit outline-none placeholder:text-inherit focus:border-none focus:ring-0 max-sm:max-h-[120px] max-sm:min-h-[45px] max-sm:pe-2 max-sm:ps-0 max-sm:text-[16px]"
                     id="chatbot_prompt"
                     placeholder="{{ __('Your message') }}"
                     name="chatbot_prompt"
                     rows="1"
                 ></textarea>
                 <button
-                    class="min-h-10 inline-flex shrink-0 items-center justify-center rounded-full border-none bg-transparent p-0 font-medium text-inherit"
+                    class="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border-none bg-transparent p-0 font-medium text-inherit"
                     id="send_chatbot_message_button"
                     type="submit"
                 >
@@ -149,7 +150,7 @@
             <div
                 class="lqd-clipboard-copy-wrap group/copy-wrap pointer-events-auto invisible absolute -start-5 bottom-0 opacity-0 transition-all group-hover:!visible group-hover:!opacity-100">
                 <button
-                    class="lqd-clipboard-copy inline-flex h-10 w-10 items-center justify-center rounded-full border-none bg-white p-0 text-black !shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
+                    class="lqd-clipboard-copy inline-flex size-10 items-center justify-center rounded-full border-none bg-white p-0 text-black shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
                     data-copy-options='{ "content": ".chat-content", "contentIn": "<.chat-content-container" }'
                     title="{{ __('Copy to clipboard') }}"
                 >
@@ -185,7 +186,7 @@
                 <div
                     class="lqd-clipboard-copy-wrap group/copy-wrap pointer-events-auto invisible absolute -end-5 bottom-0 opacity-0 transition-all group-hover:!visible group-hover:!opacity-100">
                     <button
-                        class="lqd-clipboard-copy inline-flex h-10 w-10 items-center justify-center rounded-full border-none bg-white p-0 text-black !shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
+                        class="lqd-clipboard-copy inline-flex size-10 items-center justify-center rounded-full border-none bg-white p-0 text-black shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
                         data-copy-options='{ "content": ".chat-content", "contentIn": "<.chat-content-container" }'
                         title="{{ __('Copy to clipboard') }}"
                     >

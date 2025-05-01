@@ -17,6 +17,7 @@ use App\Models\PdfData;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Models\SettingTwo;
+use App\Models\Usage;
 use App\Models\UserOpenai;
 use App\Models\UserOpenaiChat;
 use App\Models\UserOpenaiChatMessage;
@@ -71,7 +72,7 @@ class GeneratorController extends Controller
 
         // If the template type is chat, then we will build a chat streamed output or other ai template streamed output
         return match ($template_type) {
-            'chatbot', 'vision' => $this->buildChatStreamedOutput($request),
+            'chatbot', 'vision', 'chatPro' => $this->buildChatStreamedOutput($request),
             default => $this->buildOtherStreamedOutput($request),
         };
     }
@@ -97,7 +98,6 @@ class GeneratorController extends Controller
         $openRouter = null;
 
         $chatbot_front_model = $request->get('chatbot_front_model', null);
-        
 
         if (! empty($chatbot_front_model) && (int) setting('open_router_status') === 1 && EntityEnum::fromSlug($chatbot_front_model)->engine() === EngineEnum::OPEN_ROUTER) {
             $openRouter = $chatbot_front_model;
@@ -117,12 +117,9 @@ class GeneratorController extends Controller
             $chat_bot = setting('deepseek_default_model', EntityEnum::DEEPSEEK_CHAT->value);
         } elseif ($default_ai_engine === EngineEnum::X_AI->value) {
             $chat_bot = setting('xai_default_model', EntityEnum::GROK_2_1212->value);
-        }
-        else {
+        } else {
             $chat_bot = $this->settings?->openai_default_model ?: EntityEnum::GPT_4_O->value;
         }
-        
-       
 
         $chat_bot_model = PlanHelper::userPlanAiModel();
         if ($chat_bot_model && empty($chatbot_front_model)) {
@@ -171,7 +168,7 @@ class GeneratorController extends Controller
 
         // create the message here with default to fill it after stream
         $message = UserOpenaiChatMessage::create([
-            'user_id'             => $user->id,
+            'user_id'             => $user?->id,
             'user_openai_chat_id' => $chat->id,
             'input'               => $prompt,
             'response'            => null,
@@ -199,8 +196,10 @@ class GeneratorController extends Controller
             $history[] = ['role' => $systemRole, 'content' => 'You are a helpful assistant.'];
         }
 
+        $isFileSearch = setting('openai_file_search', 0) && $chat->openai_vector_id !== null;
+
         // if file attached, get the content of the file
-        if ($category->chatbot_id || PdfData::where('chat_id', $chat_id)->exists()) {
+        if (! $isFileSearch && ($category->chatbot_id || PdfData::where('chat_id', $chat_id)->exists())) {
             try {
                 $extra_prompt = (new VectorService)->getMostSimilarText($prompt, $chat_id, 2, $category->chatbot_id);
                 if ($extra_prompt) {
@@ -355,7 +354,17 @@ class GeneratorController extends Controller
             $contain_images = true;
         }
 
-        return $this->streamService->ChatStream($chat_bot, $history, $message, $chat_type, $contain_images, $default_ai_engine, $assistant, $openRouter);
+        return $this->streamService->ChatStream(
+            $chat_bot,
+            $history,
+            $message,
+            $chat_type,
+            $contain_images,
+            $default_ai_engine,
+            assistant: $assistant,
+            openRouter: $openRouter,
+            responsesApi: $isFileSearch
+        );
     }
 
     private function checkBrandVoice($chat_brand_voice, $brand_voice_prod, $history)
@@ -432,9 +441,6 @@ class GeneratorController extends Controller
         } else {
             $chatBot = ! $this->settings?->openai_default_model ? EntityEnum::GPT_3_5_TURBO->value : $this->settings?->openai_default_model;
         }
-        
-        
-        
 
         if ($chat_bot_model = PlanHelper::userPlanAiModel()) {
 
@@ -482,10 +488,23 @@ class GeneratorController extends Controller
      * @throws GuzzleException
      * @throws JsonException
      */
-    private function getRealtimePrompt($realtimePrompt): string
+    private function getRealtimePrompt($realtimePrompt): ?string
     {
         $driver = EntityFacade::driver(EntityEnum::SERPER);
-        $driver->redirectIfNoCreditBalance();
+
+        if (! $driver->hasCreditBalance()) {
+            echo PHP_EOL;
+            echo "event: data\n";
+            echo 'data: ' . __('You have no realtime search credits left. Please buy more credits to continue.');
+            echo "\n\n";
+            flush();
+            echo "event: stop\n";
+            echo 'data: [DONE]';
+            echo "\n\n";
+            flush();
+
+            return null;
+        }
 
         $client = new Client;
         $headers = [
@@ -507,6 +526,7 @@ class GeneratorController extends Controller
         }
 
         $driver->input($realtimePrompt)->calculateCredit()->decreaseCredit();
+        Usage::getSingle()->updateWordCounts($driver->calculate());
 
         return 'Prompt: ' . $realtimePrompt .
             '\n\nWeb search json results: '

@@ -9,7 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('menus', function (Blueprint $table) {
-            $table->boolean('custom_menu')->default(false);
+            if (! Schema::hasColumn('menus', 'custom_menu')) {
+                $table->boolean('custom_menu')->default(false);
+            }
         });
     }
 

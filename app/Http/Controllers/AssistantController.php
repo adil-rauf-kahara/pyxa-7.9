@@ -25,8 +25,8 @@ class AssistantController extends Controller
      */
     public function index(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
-        $assistants = $this->service->listAssistant();
-
+        $response = $this->service->listAssistant();
+        $assistants = $response['data'] ?? $response ?? [];
         $assistantsCollection = collect($assistants);
 
         $perPage = 10;

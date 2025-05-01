@@ -8,6 +8,7 @@ use App\Extensions\PhotoStudio\System\Services\PhotoStudioService;
 use App\Helpers\Classes\Helper;
 use App\Helpers\Classes\MarketplaceHelper;
 use App\Models\OpenAIGenerator;
+use App\Models\Usage;
 use App\Models\UserOpenai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -65,7 +66,7 @@ class AdvancedImageController extends Controller
             $data = [
                 'team_id'   => auth()->user()->team_id,
                 'title'     => str_replace('photo-studio/', '', $photo),
-                'slug'      => Str::random(7) . Str::slug(auth()->user()->fullName()) . '-workbook',
+                'slug'      => Str::random(7) . Str::slug(auth()->user()?->fullName()) . '-workbook',
                 'user_id'   => auth()->user()->id,
                 'openai_id' => $openai->id,
                 'input'     => $request->get('description') ?? 'Unknown',
@@ -80,6 +81,7 @@ class AdvancedImageController extends Controller
 
             UserOpenai::query()->create($data);
 
+            Usage::getSingle()->updateImageCounts($driver->calculate());
             $driver->decreaseCredit();
 
             return response()->json([

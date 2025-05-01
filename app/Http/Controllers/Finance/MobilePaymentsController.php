@@ -61,7 +61,7 @@ class MobilePaymentsController extends Controller
 
             $revenueCatEntitlementFound = false;
 
-            foreach ($gatewayProducts as $gatewayProduct) {
+            foreach ($gatewayProducts ?? [] as $gatewayProduct) {
                 if ($gatewayProduct->gateway_code == 'revenuecat') {
                     $revenueCatEntitlementFound = true;
                     $gatewayProduct->product_id = $request->revenuecat_package_id;
@@ -85,7 +85,7 @@ class MobilePaymentsController extends Controller
 
             $revenueCatProductFound = false;
 
-            foreach ($plan->revenuecat_products as $revenueCatProduct) {
+            foreach ($plan->revenuecat_products ?? [] as $revenueCatProduct) {
                 if ($revenueCatProduct != null) {
                     $revenueCatProductFound = true;
                     $revenueCatProduct->entitlement_id = $request->revenuecat_entitlement_id;

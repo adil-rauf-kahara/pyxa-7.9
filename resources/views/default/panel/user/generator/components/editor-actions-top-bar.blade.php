@@ -6,7 +6,7 @@
         <a
             class="text-heading flex grow basis-1/3 items-center gap-2 px-4 text-xs font-medium leading-tight lg:hidden"
             href="#"
-            x-data
+            x-data="{}"
             @click.prevent="mobileOptionsShow = !mobileOptionsShow"
         >
             <x-tabler-dots-circle-horizontal
@@ -24,7 +24,7 @@
 
         <a
             class="flex shrink-0 basis-1/3 items-center justify-center text-center"
-            href="{{ LaravelLocalization::localizeUrl(route('dashboard.index')) }}"
+            href="{{  (route('dashboard.index')) }}"
         >
             @if (isset($setting->logo_dashboard))
                 <img
@@ -67,7 +67,7 @@
 
     <div
         class="flex w-full justify-between max-lg:invisible max-lg:absolute max-lg:start-0 max-lg:top-full max-lg:flex-col max-lg:bg-background max-lg:shadow-lg max-lg:shadow-black/10 max-lg:[&.active]:visible"
-        x-data
+        x-data="{}"
         :class="{ 'active': mobileOptionsShow }"
     >
         <div class="lqd-generator-actions-top-bar-col-start flex w-[--sidebar-w] max-lg:w-full max-lg:flex-col">
@@ -93,7 +93,7 @@
                     value="@lang('Untitled Document')"
                 />
                 <span
-                    class="size-7 pointer-events-none absolute end-3 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-full border shadow-sm transition-opacity peer-focus:opacity-0"
+                    class="pointer-events-none absolute end-3 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-full border shadow-sm transition-opacity peer-focus:opacity-0"
                 >
                     <x-tabler-pencil class="size-4" />
                 </span>
@@ -107,7 +107,7 @@
             <div class="flex w-full items-center justify-center text-center">
                 <a
                     class="shrink-0"
-                    href="{{ LaravelLocalization::localizeUrl(route('dashboard.index')) }}"
+                    href="{{  (route('dashboard.index')) }}"
                 >
                     @if (isset($setting->logo_dashboard))
                         <img
@@ -147,7 +147,7 @@
             <div class="flex items-center gap-2 px-7 max-lg:justify-center max-lg:py-2">
                 <div class="flex gap-1 rtl:flex-row-reverse">
                     <button
-                        class="size-9 inline-flex items-center justify-center rounded-lg border-0 bg-transparent p-0 text-[13px] text-inherit transition-colors hover:!bg-black/5 dark:hover:!bg-white/5"
+                        class="inline-flex size-9 items-center justify-center rounded-lg border-0 bg-transparent p-0 text-[13px] text-inherit transition-colors hover:!bg-black/5 dark:hover:!bg-white/5"
                         id="workbook_undo"
                         title="{{ __('Undo') }}"
                     >
@@ -155,7 +155,7 @@
                         <span class="sr-only">{{ __('Undo') }}</span>
                     </button>
                     <button
-                        class="size-9 inline-flex items-center justify-center rounded-lg border-0 bg-transparent p-0 text-[13px] text-inherit transition-colors hover:!bg-black/5 dark:hover:!bg-white/5"
+                        class="inline-flex size-9 items-center justify-center rounded-lg border-0 bg-transparent p-0 text-[13px] text-inherit transition-colors hover:!bg-black/5 dark:hover:!bg-white/5"
                         id="workbook_redo"
                         title="{{ __('Redo') }}"
                     >
@@ -165,7 +165,7 @@
                 </div>
 
                 <button
-                    class="size-9 inline-flex items-center justify-center rounded-lg border-0 bg-transparent p-0 text-[13px] text-inherit transition-colors hover:!bg-black/5 dark:hover:!bg-white/5"
+                    class="inline-flex size-9 items-center justify-center rounded-lg border-0 bg-transparent p-0 text-[13px] text-inherit transition-colors hover:!bg-black/5 dark:hover:!bg-white/5"
                     id="workbook_copy"
                     title="{{ __('Copy to clipboard') }}"
                 >
@@ -174,7 +174,7 @@
                 </button>
 
                 <button
-                    class="size-9 inline-flex items-center justify-center rounded-lg border-0 bg-transparent p-0 text-[13px] text-inherit transition-colors hover:!bg-black/5 dark:hover:!bg-white/5"
+                    class="inline-flex size-9 items-center justify-center rounded-lg border-0 bg-transparent p-0 text-[13px] text-inherit transition-colors hover:!bg-black/5 dark:hover:!bg-white/5"
                     id="workbook_print"
                     title="{{ __('Print') }}"
                     onclick="return tinymce?.activeEditor?.execCommand('mcePrint');"
@@ -223,7 +223,7 @@
                 </x-dropdown.dropdown>
 
                 <button
-                    class="size-9 inline-flex items-center justify-center rounded-lg border-0 bg-transparent p-0 text-[13px] text-inherit transition-colors hover:!bg-black/5 dark:hover:!bg-white/5"
+                    class="inline-flex size-9 items-center justify-center rounded-lg border-0 bg-transparent p-0 text-[13px] text-inherit transition-colors hover:!bg-black/5 dark:hover:!bg-white/5"
                     title="{{ __('Add New Document') }}"
                     x-init
                     @click.prevent="toggleSideNavCollapse('expand')"

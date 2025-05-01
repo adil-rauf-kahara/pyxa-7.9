@@ -10,7 +10,7 @@ class PromptController extends Controller
 {
     public function getAll()
     {
-        $prompts = Prompt::where('user_id', auth()->user()->id)->get();
+        $prompts = Prompt::where('user_id', auth()->user()->id)->orWhere('show_for_all', true)->get();
         $favourites = Favourite::where('type', 'prompt')
             ->where('user_id', auth()->user()->id)
             ->get();
@@ -25,13 +25,16 @@ class PromptController extends Controller
             'prompt' => 'required',
         ]);
 
+        $showForAll = $req->has('show_for_all');
+
         $title = $req->title;
         $prompt = $req->prompt;
 
         $prompt_record = new Prompt([
-            'user_id' => auth()->user()->id,
-            'title'   => $title,
-            'prompt'  => $prompt,
+            'user_id'      => auth()->user()->id,
+            'title'        => $title,
+            'prompt'       => $prompt,
+            'show_for_all' => $showForAll,
         ]);
 
         $prompt_record->save();

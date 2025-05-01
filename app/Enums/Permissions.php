@@ -36,34 +36,36 @@ enum Permissions: string implements Contracts\WithStringBackedEnum
     case LICENCE = 'license';
     case UPDATE = 'update';
     case MENU_SETTINGS = 'menu_setting';
+    case VIP_CHAT_WIDGET = 'VIP_CHAT_WIDGET';
 
     public function label(): string
     {
         return match ($this) {
-            self::MARKETPLACE           => __('Marketplace'),
-            self::THEMES                => __('Themes'),
-            self::USER_MANAGEMENT       => __('User Management'),
-            self::ANNOUNCEMENTS         => __('Announcements'),
-            self::GOOGLE_ADSENSE        => __('Google Adsense'),
-            self::SUPPORT_REQUESTS      => __('Support Requests'),
-            self::TEMPLATES             => __('Templates'),
-            self::CHAT_SETTINGS         => __('Chat Settings'),
-            self::FRONTEND              => __('Frontend'),
-            self::FINANCE               => __('Finance'),
-            self::PAGES                 => __('Pages'),
-            self::BLOG                  => __('Blog'),
-            self::AFFILIATES_ADMIN      => __('Affiliates Admin'),
-            self::COUPONS_ADMIN         => __('Coupons Admin'),
-            self::EMAIL_TEMPLATES       => __('Email Templates'),
-            self::INTRODUCTIONS         => __('Introductions'),
-            self::MAILCHIMP_NEWSLETTER  => __('Mailchimp Newsletter'),
-            self::HUBSPOT               => __('Hubspot'),
-            self::API_INTEGRATION       => __('Api Integration'),
-            self::SETTINGS              => __('Settings'),
-            self::SITE_HEALTH           => __('Site Health'),
-            self::LICENCE               => __('Licence'),
-            self::UPDATE                => __('Update'),
-            self::MENU_SETTINGS         => __('Menu Settings'),
+            self::MARKETPLACE             => __('Marketplace'),
+            self::THEMES                  => __('Themes'),
+            self::USER_MANAGEMENT         => __('User Management'),
+            self::ANNOUNCEMENTS           => __('Announcements'),
+            self::GOOGLE_ADSENSE          => __('Google Adsense'),
+            self::SUPPORT_REQUESTS        => __('Support Requests'),
+            self::TEMPLATES               => __('Templates'),
+            self::CHAT_SETTINGS           => __('Chat Settings'),
+            self::FRONTEND                => __('Frontend'),
+            self::FINANCE                 => __('Finance'),
+            self::PAGES                   => __('Pages'),
+            self::BLOG                    => __('Blog'),
+            self::AFFILIATES_ADMIN        => __('Affiliates Admin'),
+            self::COUPONS_ADMIN           => __('Coupons Admin'),
+            self::EMAIL_TEMPLATES         => __('Email Templates'),
+            self::INTRODUCTIONS           => __('Introductions'),
+            self::MAILCHIMP_NEWSLETTER    => __('Mailchimp Newsletter'),
+            self::HUBSPOT                 => __('Hubspot'),
+            self::API_INTEGRATION         => __('Api Integration'),
+            self::SETTINGS                => __('Settings'),
+            self::SITE_HEALTH             => __('Site Health'),
+            self::LICENCE                 => __('Licence'),
+            self::UPDATE                  => __('Update'),
+            self::MENU_SETTINGS           => __('Menu Settings'),
+            self::VIP_CHAT_WIDGET         => __('VIP Chat Widget'),
         };
     }
 }

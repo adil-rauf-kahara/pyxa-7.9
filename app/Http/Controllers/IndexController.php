@@ -24,7 +24,7 @@ class IndexController extends Controller
 {
     public function __construct(private readonly PlanService $planService) {}
 
-    public function index()
+    public function __invoke()
     {
         $maintenance = cache()->get('maintenance');
 

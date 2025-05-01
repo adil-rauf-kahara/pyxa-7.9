@@ -21,13 +21,15 @@ class Usage extends Model
         'last_week_image_count',
     ];
 
+    /**
+     * @return mixed1
+     */
     public static function getSingle()
     {
         return static::firstOrCreate([]);
     }
 
-    // Define method to update word count
-    public function updateWordCounts($count)
+    public function updateWordCounts($count): void
     {
         $this->total_word_count += $count;
         $this->this_week_word_count += $count;
@@ -42,8 +44,7 @@ class Usage extends Model
         $this->save();
     }
 
-    // Define method to update image count
-    public function updateImageCounts($count)
+    public function updateImageCounts($count): void
     {
         $this->total_image_count += $count;
         $this->this_week_image_count += $count;
@@ -58,17 +59,14 @@ class Usage extends Model
         $this->save();
     }
 
-    // Define method to update user count
-    public function updateUserCount($count = 0)
+    public function updateUserCount($count = 0): void
     {
         $this->total_user_count += $count;
-        // Check if a week has passed since the last update
         if (Carbon::now()->diffInWeeks($this->updated_at) >= 1) {
-            // Move this week counts to last week counts
             $this->last_week_user_count = $this->this_week_user_count;
             $this->this_week_user_count = 0;
         }
-        $this->this_week_user_count += $count;
+        $this->this_week_user_count = max(0, $this->this_week_user_count + $count);
         $this->save();
     }
 
@@ -88,41 +86,31 @@ class Usage extends Model
         $this->save();
     }
 
-    // Override update method to update counts
-    public function update(array $attributes = [], array $options = [])
+    public function update(array $attributes = [], array $options = []): void
     {
         parent::update($attributes, $options);
-        // Update counts
         $this->updateCounts();
     }
 
-    // Method to update counts after create or update
-    protected function updateCounts()
+    protected function updateCounts(): void
     {
-        // Get the current week number
         $currentWeek = Carbon::now()->weekOfYear;
-
-        // Check if the last update week is different from the current week
-        if (! $this->updated_at || $this->updated_at->weekOfYear != $currentWeek) {
+        if (! $this->updated_at || $this->updated_at->weekOfYear !== $currentWeek) {
             // Move this week counts to last week counts
             $this->last_week_word_count = $this->this_week_word_count;
             $this->last_week_image_count = $this->this_week_image_count;
             $this->last_week_user_count = $this->this_week_user_count;
             $this->last_week_sales = $this->this_week_sales;
-
             // Reset this week counts
             $this->this_week_word_count = 0;
             $this->this_week_image_count = 0;
             $this->this_week_user_count = 0;
             $this->this_week_sales = 0;
         }
-
-        // Update the total counts
         $this->total_word_count = $this->last_week_word_count + $this->this_week_word_count;
         $this->total_image_count = $this->last_week_image_count + $this->this_week_image_count;
         $this->total_user_count = $this->last_week_user_count + $this->this_week_user_count;
         $this->total_sales = $this->last_week_sales + $this->this_week_sales;
-
         $this->save();
     }
 }

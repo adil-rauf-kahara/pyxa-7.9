@@ -13,6 +13,7 @@ use App\Models\ArticleWizard;
 use App\Models\OpenAIGenerator;
 use App\Models\Setting;
 use App\Models\SettingTwo;
+use App\Models\Usage;
 use App\Models\UserOpenai;
 use App\Services\Bedrock\BedrockRuntimeService;
 use Exception;
@@ -90,12 +91,11 @@ class AIArticleWizardController extends Controller
                         if (json_decode($record->image) != $extraImage['path']) {
                             if (($extraImage['storage'] ?? '') == self::STORAGE_S3) {
                                 Storage::disk(self::STORAGE_S3)->delete(basename($extraImage['path']));
-                            } 
-                            // else {
-                            //     if (file_exists(substr($extraImage['path'], 1))) {
-                            //         unlink(substr($extraImage['path'], 1));
-                            //     }
-                            // }
+                            } else {
+                                if (file_exists(substr($extraImage['path'], 1))) {
+                                    unlink(substr($extraImage['path'], 1));
+                                }
+                            }
                         }
                     }
                 }
@@ -219,6 +219,7 @@ class AIArticleWizardController extends Controller
 
             $responsedText = $completion['choices'][0]['message']['content'];
             $driver->input($responsedText)->calculateCredit()->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
 
             return response()->json(['result' => $responsedText])->header('Content-Type', 'application/json');
         } catch (Exception $e) {
@@ -251,6 +252,7 @@ class AIArticleWizardController extends Controller
             $driver->input($responsedText)
                 ->calculateCredit()
                 ->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
 
             return response()->json(['result' => $responsedText])->header('Content-Type', 'application/json');
         } catch (Exception $e) {
@@ -283,6 +285,7 @@ class AIArticleWizardController extends Controller
             $driver->input($responsedText)
                 ->calculateCredit()
                 ->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
 
             return response()->json(['result' => $responsedText, 'words' =>  EntityStats::word()->totalCredits(), 'images' =>  EntityStats::image()->totalCredits()])->header('Content-Type', 'application/json');
         } catch (Exception $e) {
@@ -448,6 +451,7 @@ class AIArticleWizardController extends Controller
                     break;
                 }
             }
+            Usage::getSingle()->updateImageCounts($driver->calculate());
             $driver->decreaseCredit();
         } else {
             return response()->json([
@@ -505,6 +509,7 @@ class AIArticleWizardController extends Controller
                     break;
                 }
             }
+            Usage::getSingle()->updateImageCounts($driver->calculate());
             $driver->decreaseCredit();
         } else {
             return response()->json([
@@ -578,6 +583,7 @@ class AIArticleWizardController extends Controller
 
                 $paths[] = $path;
             }
+            Usage::getSingle()->updateImageCounts($driver->calculate());
             $driver->decreaseCredit();
             Cache::lock($lockKey)->release();
         } catch (Exception $e) {
@@ -772,6 +778,7 @@ class AIArticleWizardController extends Controller
                 }
             }
         }
+        Usage::getSingle()->updateImageCounts($driver->calculate());
         $driver->decreaseCredit();
     }
 
@@ -824,6 +831,7 @@ class AIArticleWizardController extends Controller
                     break;
                 }
             }
+            Usage::getSingle()->updateImageCounts($driver->calculate());
             $driver->decreaseCredit();
         } else {
             response()->json([
@@ -904,6 +912,7 @@ class AIArticleWizardController extends Controller
                 $driver->input($responsedText)
                     ->calculateCredit()
                     ->decreaseCredit();
+                Usage::getSingle()->updateWordCounts($driver->calculate());
             }
 
             if ($decodedData->type == 'RESULT') {
@@ -915,7 +924,7 @@ class AIArticleWizardController extends Controller
 
                 $entry = new UserOpenai;
                 $entry->title = $wizard->title;
-                $entry->slug = str()->random(7) . str($user->fullName())->slug() . '-workbook';
+                $entry->slug = str()->random(7) . str($user?->fullName())->slug() . '-workbook';
                 $entry->user_id = Auth::id();
                 $entry->openai_id = $post->id;
                 $entry->input = "Write Article in $wizard-> language. Generate article about $wizard->title with must following outline $request->outline.  Please write only article.";
@@ -930,6 +939,7 @@ class AIArticleWizardController extends Controller
                     ->input($decodedData->result)
                     ->calculateCredit()
                     ->decreaseCredit();
+                Usage::getSingle()->updateWordCounts($driver->calculate());
                 $entry->save();
             }
 

@@ -2,20 +2,28 @@
 
 namespace App\Http\Controllers\Common;
 
+use App\Helpers\Classes\Localization;
 use App\Http\Controllers\Controller;
 use App\Models\SettingTwo;
 use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\File;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonException;
-use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class CommonController extends Controller
 {
+    public function regenerate()
+    {
+        Artisan::call('elseyyid:location:install');
+
+        return redirect()->route('elseyyid.translations.home')->with(config('elseyyid-location.message_flash_variable'), __('Language files regenerated!'));
+    }
+
     public function debug()
     {
         $currentDebugValue = env('APP_DEBUG', false);
@@ -33,19 +41,12 @@ class CommonController extends Controller
         return redirect()->back()->with('message', 'Debug mode updated successfully.');
     }
 
-    public function regenerate()
-    {
-        Artisan::call('elseyyid:location:install');
-
-        return redirect()->route('elseyyid.translations.home')->with(config('elseyyid-location.message_flash_variable'), __('Language files regenerated!'));
-    }
-
-    public function setLocale(Request $request)
+    public function setLocale(Request $request): RedirectResponse
     {
         $settings_two = \App\Models\SettingTwo::getCache();
         $settings_two->languages_default = $request->setLocale;
         $settings_two->save();
-        LaravelLocalization::setLocale($request->setLocale);
+        Localization::setLocale($request->setLocale);
 
         return redirect()->route('elseyyid.translations.home', [$request->setLocale])->with(config('elseyyid-location.message_flash_variable'), $request->setLocale);
     }
@@ -197,7 +198,7 @@ class CommonController extends Controller
         return response()->json(['path' => "$path"]);
     }
 
- public function rssFetch(Request $request)
+    public function rssFetch(Request $request)
     {
         $data = parseRSS($request->url);
 

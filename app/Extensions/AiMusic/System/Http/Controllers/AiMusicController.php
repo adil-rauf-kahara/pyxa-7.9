@@ -51,8 +51,6 @@ class AiMusicController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // dd($request->all());
-        
         $request->validate([
             'audio'   => 'nullable|file|mimes:mp3,wav,ogg|max:10240',
             'link'    => 'nullable|url',
@@ -71,7 +69,6 @@ class AiMusicController extends Controller
             ]);
         }
         $driver = Entity::driver(EntityEnum::fromSlug(Setting::getCache()?->ai_music_model))->inputVoiceCount(1)->calculateCredit();
-        // dd( $driver);
 
         try {
             $driver->redirectIfNoCreditBalance();
@@ -82,7 +79,6 @@ class AiMusicController extends Controller
         }
 
         $data = $this->service->generateSong($request);
-        // dd($data);
 
         if (isset($data['gen_status']) && $data['gen_status'] === 'success') {
             UserMusic::query()->create([

@@ -22,27 +22,61 @@ class FalAIService
 
     public const KLING_URL = 'https://queue.fal.run/fal-ai/kling-video/v1/standard/text-to-video';
 
+    public const KLING_IMAGE_URL = 'https://queue.fal.run/fal-ai/kling-video/v1.6/pro/image-to-video';
+
     public const LUMA_URL = 'https://queue.fal.run/fal-ai/luma-dream-machine';
 
     public const MINIMAX_URL = 'https://queue.fal.run/fal-ai/minimax-video';
 
     public const VEO_2_URL = 'https://queue.fal.run/fal-ai/veo2';
 
+    public static function ratio(): null|array|string
+    {
+        $ratio = request('image_ratio');
+
+        if (! is_string($ratio)) {
+            return null;
+        }
+
+        $explode = explode('x', $ratio);
+
+        if (! is_array($explode)) {
+            return null;
+        }
+
+        if ((isset($explode[0]) && is_numeric($explode[0])) && (isset($explode[1]) && is_numeric($explode[1]))) {
+            return [
+                'width'  => (int) $explode[0],
+                'height' => (int) $explode[1],
+            ];
+        }
+
+        return $ratio;
+    }
+
     public static function generate($prompt, ?EntityEnum $entity = EntityEnum::FLUX_PRO)
     {
+        $ratio = self::ratio();
+
         $entityValue = (setting('fal_ai_default_model') ?: $entity?->value);
 
         $entityValue = EntityEnum::fromSlug($entityValue)->value;
 
         $url = sprintf(self::GENERATE_ENDPOINT, $entityValue);
 
+        $request = [
+            'prompt' => $prompt,
+        ];
+
+        if ($ratio) {
+            $request = Arr::add($request, 'image_size', $ratio);
+        }
+
         $http = Http::withHeaders([
             'Content-Type'  => 'application/json',
             'Accept'        => 'application/json',
             'Authorization' => 'Key ' . ApiHelper::setFalAIKey(),
-        ])->post($url, [
-            'prompt' => $prompt,
-        ]);
+        ])->post($url, $request);
 
         if (($http->status() === 200) && $requestId = $http->json('request_id')) {
             return $requestId;
@@ -89,14 +123,31 @@ class FalAIService
 
     public static function ideogramGenerate(string $prompt)
     {
+        $ratio = self::ratio();
+
+        // landscape_16_9 //landscape_16_9 //square //portrait_16_9 //square
+
+        $request = [
+            'prompt'    => $prompt,
+        ];
+
+        if (is_string($ratio)) {
+            $ratios = [
+                'landscape_16_9' => '16:9',
+                'square'         => '1:1',
+                'portrait_16_9'  => '9:16',
+            ];
+
+            if (array_key_exists($ratio, $ratios)) {
+                $request = Arr::add($request, 'aspect_ratio', $ratios[$ratio]);
+            }
+        }
+
         $http = Http::withHeaders([
             'Content-Type'  => 'application/json',
             'Accept'        => 'application/json',
             'Authorization' => 'Key ' . ApiHelper::setFalAIKey(),
-        ])->post(self::IDEOGRAM_URL,
-            [
-                'prompt'    => $prompt,
-            ]);
+        ])->post(self::IDEOGRAM_URL, $request);
 
         if (($http->status() === 200) && $requestId = $http->json('request_id')) {
             return $requestId;
@@ -115,6 +166,25 @@ class FalAIService
             'Authorization' => 'Key ' . ApiHelper::setFalAIKey(),
         ])
             ->post(self::HAIPER_URL,
+                [
+                    'prompt'    => $prompt,
+                    'image_url' => $imageUrl,
+                ]);
+
+        return $response->json();
+    }
+
+    public static function klingImageGenerate(string $prompt, string $imageUrl)
+    {
+        set_time_limit(0);
+        ini_set('max_execution_time', 540);
+
+        $response = Http::withHeaders([
+            'Content-Type'  => 'application/json',
+            'Accept'        => 'application/json',
+            'Authorization' => 'Key ' . ApiHelper::setFalAIKey(),
+        ])
+            ->post(self::KLING_IMAGE_URL,
                 [
                     'prompt'    => $prompt,
                     'image_url' => $imageUrl,
@@ -168,9 +238,9 @@ class FalAIService
         return $response->json();
     }
 
-    public static function veo2Generate(string $prompt)
+    public static function veo2Generate(string $prompt): \GuzzleHttp\Promise\PromiseInterface|\Illuminate\Http\Client\Response
     {
-        $response = Http::withHeaders([
+        return Http::withHeaders([
             'Content-Type'  => 'application/json',
             'Accept'        => 'application/json',
             'Authorization' => 'Key ' . ApiHelper::setFalAIKey(),
@@ -179,8 +249,6 @@ class FalAIService
                 [
                     'prompt' => $prompt,
                 ]);
-
-        return $response->json();
     }
 
     public static function getStatus($url)

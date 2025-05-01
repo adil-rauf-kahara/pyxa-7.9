@@ -27,12 +27,15 @@
         $size = 'none';
     }
 
-    $size = isset($variations['size'][$size]) ? $variations['size'][$size] : $variations['size']['md'];
-
     if ($switcher) {
-        $input_checkbox_base_class .= ' lqd-input-switcher w-12 h-6 border-2 border-input-border rounded-full cursor-pointer appearance-none [background-size:1.3rem] bg-left bg-no-repeat transition-all
+        $input_checkbox_base_class .= ' lqd-input-switcher border-2 border-input-border rounded-full cursor-pointer appearance-none [background-size:1.3rem] bg-left bg-no-repeat transition-all
 			checked:bg-right checked:bg-heading-foreground checked:border-heading-foreground
 			dark:checked:bg-label dark:checked:border-label';
+
+        $variations['size'] = [
+            'sm' => 'lqd-input-sm w-[34px] h-[18px]',
+            'md' => 'lqd-input-md w-12 h-6',
+        ];
     } elseif ($custom) {
         $input_checkbox_base_class = 'lqd-input peer rounded size-0 invisible absolute top-0 start-0';
     }
@@ -48,6 +51,8 @@
     if ($stepper) {
         $input_base_class .= ' lqd-input-stepper appearance-none text-center px-2';
     }
+
+    $size = isset($variations['size'][$size]) ? $variations['size'][$size] : $variations['size']['md'];
 @endphp
 
 <div
@@ -68,6 +73,8 @@
 		setValue(value) {
 			this.value = value;
 			this.$refs.input.setAttribute("value", this.value);
+			this.$refs.input.dispatchEvent(new Event("input"));
+			this.$refs.input.dispatchEvent(new Event("change"));
 		}
 	}' @endif
     @if ($type === 'select' && $addNew) x-data="{ 'newOptions': [] }" @endif
@@ -82,11 +89,12 @@
             @if ($type === 'checkbox' || $type === 'radio')
                 <input
                     id="{{ $id }}"
-                    {{ $attributes->withoutTwMergeClasses()->twMerge($input_checkbox_base_class, $attributes->get('class')) }}
+                    {{ $attributes->withoutTwMergeClasses()->twMerge($input_checkbox_base_class, $size, $attributes->get('class')) }}
                     name="{{ $name }}"
                     type={{ $type }}
                     @if ($value) value={{ $value }} @endif
                     {{ $attributes }}
+                    @if ($attributes->has('x-model')) x-model="{{ $attributes->get('x-model') }}" @endif
                 >
                 @if ($custom)
                     <span {{ $attributes->withoutTwMergeClasses()->twMergeFor('custom-wrap', $input_checkbox_custom_wrapper_base_class) }}></span>
@@ -130,8 +138,10 @@
             type={{ $type }}
             placeholder="{{ $placeholder }}"
             {{ $attributes }}
-            @if ($stepper) :value="(value).toString().includes('.') ? parseFloat(value).toFixed(2) : value"
-				x-ref="input" @endif
+            @if ($stepper) :value="(value).toString().includes('.') ? parseFloat(value).toFixed(2) : value" x-ref="input" @endif
+            @if ($attributes->has('x-ref') && filled($attributes->get('x-ref'))) x-ref="{{ $attributes->get('x-ref') }}" @endif
+            @if ($attributes->has('x-trap') && filled($attributes->get('x-trap'))) x-trap="{{ $attributes->get('x-trap') }}" @endif
+            @if ($attributes->has('x-model')) x-model="{{ $attributes->get('x-model') }}" @endif
         />
 
         {{ $slot }}
@@ -146,6 +156,7 @@
             value="{{ $value }}"
             placeholder="{{ $placeholder }}"
             {{ $attributes }}
+            @if ($attributes->has('x-model')) x-model="{{ $attributes->get('x-model') }}" @endif
         >
             {{ $slot }}
             @if ($addNew)
@@ -182,7 +193,7 @@
                 </x-slot:trigger>
 
                 <x-slot:modal
-                    x-data
+                    x-data="{}"
                 >
                     <x-forms.input
                         id="new_{{ $id }}"
@@ -221,6 +232,7 @@
             value="{{ $value }}"
             placeholder="{{ $placeholder }}"
             {{ $attributes }}
+            @if ($attributes->has('x-model')) x-model="{{ $attributes->get('x-model') }}" @endif
         >{{ $slot }}</textarea>
     @endif
 
@@ -241,6 +253,7 @@
                     @input="colorVal = $event.target.value"
                     x-ref="colorInput"
                     {{ $attributes }}
+                    @if ($attributes->has('x-model')) x-model="{{ $attributes->get('x-model') }}" @endif
                 />
             </div>
             <input

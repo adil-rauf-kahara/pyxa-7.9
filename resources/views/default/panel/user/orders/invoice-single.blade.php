@@ -83,7 +83,7 @@
 
 	<div class="section">
 		<h3>Client Details</h3>
-		<p>{{ $invoice->user->fullName() }}</p>
+		<p>{{ $invoice->user?->fullName() }}</p>
 		<p>{{ $invoice->user->email }}</p>
 		<p>{{ $invoice->user->phone }}</p>
 		<p>{{ $invoice->user->address }}</p>

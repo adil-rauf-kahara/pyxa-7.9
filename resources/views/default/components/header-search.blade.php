@@ -8,12 +8,10 @@
     ])
     @if (!$inContent) x-init :class="{ 'lqd-is-active': !$store.mobileNav.searchCollapse }" @endif
 >
-    <div @class([
-        'relative w-full max-lg:bg-white max-lg:p-3 max-lg:dark:bg-zinc-800' => !$inContent,
-    ])>
+    <div class="{{ @twMerge([!$inContent ? 'relative w-full max-lg:bg-white max-lg:p-3 max-lg:dark:bg-zinc-800' : ''], $attributes->get('class:input-wrap')) }}">
         @if (!$inContent)
             <x-tabler-search
-                class="lqd-header-search-icon pointer-events-none absolute start-3 top-1/2 z-10 w-5 -translate-y-1/2 opacity-75 max-lg:start-6"
+                class="{{ @twMerge('lqd-header-search-icon pointer-events-none absolute start-3 top-1/2 z-10 w-5 -translate-y-1/2 opacity-75 max-lg:start-6', $attributes->get('class:icon')) }}"
                 stroke-width="1.5"
             />
         @endif
@@ -34,10 +32,11 @@
                     'rounded-full border-clay bg-clay transition-colors',
                     $attributes->get('class:input')),
             ])
-            container-class="peer"
-            type="search"
+            :container-class="@twMerge('peer', $attributes->get('class:input-container'))"
+            type="text"
             onkeydown="return event.key != 'Enter';"
-            placeholder="{{ __('Search for templates and documents...') }}"
+            placeholder="{{ __('Search for documents, templates, tools and more') }}"
+            :x-ref="$attributes->has('x-ref') ? $attributes->get('x-ref') : null"
         />
         {{-- blade-formatter-disable --}}
         @if ($inContent)
@@ -47,12 +46,12 @@
 
         @if (!$inContent)
             <kbd
-                class="peer-focus-within:scale-70 pointer-events-none absolute end-3 top-1/2 z-10 inline-block -translate-y-1/2 rounded-full bg-background px-2 py-1 text-3xs leading-none opacity-0 transition-all group-[.is-searching]:invisible group-[.is-searching]:opacity-0 peer-focus-within:invisible peer-focus-within:opacity-0 max-lg:hidden">
+                class="{{ @twMerge('peer-focus-within:scale-70 pointer-events-none absolute end-3 top-1/2 z-10 inline-block -translate-y-1/2 rounded-full bg-background px-2 py-1 text-3xs leading-none opacity-0 transition-all group-[.is-searching]:invisible group-[.is-searching]:opacity-0 peer-focus-within:invisible peer-focus-within:opacity-0 max-lg:hidden', $attributes->get('class:kbd')) }}">
                 <span class="search-shortcut-key"></span> + K
             </kbd>
         @endif
 
-        <span class="absolute end-12 top-1/2 -translate-y-1/2">
+        <span class="{{ @twMerge('absolute end-12 top-1/2 -translate-y-1/2', $attributes->get('class:loader')) }}">
             <x-tabler-loader-2
                 class="hidden animate-spin group-[.is-searching]:block"
                 stroke-width="1.5"
@@ -62,14 +61,14 @@
 
         @if (!$inContent)
             <span
-                class="pointer-events-none absolute end-3 top-1/2 -translate-x-2 -translate-y-1/2 opacity-0 transition-all group-[.done-searching]:hidden group-[.is-searching]:hidden peer-focus-within:translate-x-0 peer-focus-within:opacity-100 rtl:-scale-x-100"
+                class="{{ @twMerge('pointer-events-none absolute end-3 top-1/2 -translate-x-2 -translate-y-1/2 opacity-0 transition-all group-[.done-searching]:hidden group-[.is-searching]:hidden peer-focus-within:translate-x-0 peer-focus-within:opacity-100 rtl:-scale-x-100', $attributes->get('class:arrow')) }}"
             >
                 <x-tabler-chevron-right class="size-5" />
             </span>
         @endif
 
         <div
-            class="navbar-search-results absolute start-0 top-[calc(100%+17px)] z-50 hidden max-h-96 w-full overflow-y-auto overscroll-contain rounded-md bg-background shadow-[0_10px_70px_rgba(0,0,0,0.1)] group-[.done-searching]:block dark:bg-background max-lg:bottom-full max-lg:end-0 max-lg:start-0 max-lg:top-auto max-lg:w-auto"
+            class="{{ @twMerge('navbar-search-results absolute start-0 top-[calc(100%+17px)] z-50 hidden max-h-96 w-full overflow-y-auto overscroll-contain rounded-md bg-background shadow-[0_10px_70px_rgba(0,0,0,0.1)] group-[.done-searching]:block dark:bg-background max-lg:bottom-full max-lg:end-0 max-lg:start-0 max-lg:top-auto max-lg:w-auto', $attributes->get('class:results')) }}"
             id="search_results"
         >
             <h3 class="m-0 border-b px-3 py-3 text-base font-medium">

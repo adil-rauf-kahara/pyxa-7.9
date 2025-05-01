@@ -10,21 +10,22 @@
             'id' => $notification->id,
         ];
     }
+    $trigger_class = @twMerge('size-6 max-lg:size-10 max-lg:border max-lg:dark:bg-white/[3%]', $attributes->get('class:trigger'));
 @endphp
 
 <div
-    class="notifications-wrap group hidden md:flex"
+    {{ $attributes->withoutTwMergeClasses()->twMerge('notifications-wrap group hidden md:flex') }}
     x-data="notifications({{ json_encode($notifications) }})"
     x-init="$store.notifications.setNotifications(notifications)"
     :class="{ 'has-unread': $store.notifications.hasUnread() }"
 >
     <x-dropdown.dropdown
-        class="notifications-dropdown"
+        {{ $attributes->twMergeFor('dropdown', 'notifications-dropdown') }}
         anchor="end"
         offsetY="26px"
     >
         <x-slot:trigger
-            class="size-6 max-lg:size-10 max-lg:border max-lg:dark:bg-white/[3%]"
+            :class="$trigger_class"
             size="none"
         >
             <x-tabler-bell
@@ -32,7 +33,7 @@
                 stroke-width="1.5"
             />
             <span
-                class="notifications-ping-wrap size-2 absolute -end-0.5 -top-1 hidden rounded bg-red-500 group-[&.has-unread]:inline-block"
+                class="notifications-ping-wrap absolute -end-0.5 -top-1 hidden size-2 rounded bg-red-500 group-[&.has-unread]:inline-block"
                 title="{{ __('This Notification Is Unread') }}"
             >
                 <div class="notifications-ping absolute inset-0 inline-block rounded-full bg-inherit ![animation-iteration-count:10] group-[&.has-unread]:animate-ping"></div>
@@ -66,12 +67,12 @@
                             <h5 class="relative mb-1">
                                 <span x-text="notification.title"></span>
                                 <span
-                                    class="notifications-ping-wrap size-2 ms-2 inline-block rounded-full bg-red-500 align-super group-[&.is-read]/item:hidden"
+                                    class="notifications-ping-wrap ms-2 inline-block size-2 rounded-full bg-red-500 align-super group-[&.is-read]/item:hidden"
                                     title="{{ __('Unread Notification') }}"
                                 ></span>
                             </h5>
                             <p
-                                class="opacity-55 mb-0 w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-2xs"
+                                class="mb-0 w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-2xs opacity-55"
                                 x-text="notification.message"
                             ></p>
                             <a

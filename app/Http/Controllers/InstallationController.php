@@ -192,16 +192,17 @@ class InstallationController extends Controller
         }
     }
 
-    public function updateManual()
+    public function updateManual(Request $request)
     {
-        $version = '7.91';
+        $version = '8.30';
 
         Artisan::call('migrate', [
             '--force' => true,
         ]);
 
+        $check = $request->pass ?? true;
         // Run the installation
-        InstallationHelper::runInstallation();
+        InstallationHelper::runInstallation($check);
 
         File::put(base_path() . '/version.txt', $version);
 
@@ -210,6 +211,11 @@ class InstallationController extends Controller
         $settings->save();
 
         return "<p>magicAI Updated to the version: $version. Please don't forget to clear your browser cache. You can close this window.";
+    }
+
+    public function updateManual2(): string
+    {
+        return $this->updateManual(false);
     }
 
     public function installTheme($slug)
@@ -305,7 +311,7 @@ class InstallationController extends Controller
         }
     }
 
-    public function menuClearCach()
+    public function menuClearCache()
     {
         app(MenuService::class)->regenerate();
 

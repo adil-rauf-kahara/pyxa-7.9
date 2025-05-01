@@ -148,7 +148,7 @@
                             'bg-black/10 text-black border-black hover:border-black hover:bg-black hover:text-white' =>
                                 !isset($page) || (isset($page) && !$page->titlebar_status),
                         ])
-                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.index')) }}"
+                        href="{{ route('dashboard.index') }}"
                     >
                         {!! __('Dashboard') !!}
                     </a>
@@ -162,7 +162,7 @@
                         'text-black border-black hover:border-black hover:bg-black hover:text-white' =>
                             !isset($page) || (isset($page) && !$page->titlebar_status),
                     ])
-                    href="{{ LaravelLocalization::localizeUrl(route('login')) }}"
+                    href="{{ route('login') }}"
                 >
                     {!! __($fSetting->sign_in) !!}
                 </a>
@@ -174,7 +174,7 @@
                         'bg-black/10 text-black border-black hover:border-black hover:bg-black hover:text-white' =>
                             !isset($page) || (isset($page) && !$page->titlebar_status),
                     ])
-                    href="{{ LaravelLocalization::localizeUrl(route('register')) }}"
+                    href="{{ route('register') }}"
                 >
                     {!! __($fSetting->join_hub) !!}
                 </a>

@@ -7,6 +7,7 @@ use App\Helpers\Classes\Helper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Artisan;
 
 class MarketPlaceController extends Controller
 {
@@ -62,6 +63,8 @@ class MarketPlaceController extends Controller
     {
         $items = $this->extensionRepository->extensions();
 
+        $banners = $this->extensionRepository->banners();
+
         $subscription = $this->extensionRepository->subscription()->json();
 
         $cart = data_get($this->extensionRepository->cart(), 'data', []);
@@ -70,7 +73,7 @@ class MarketPlaceController extends Controller
 
         $paymentStatus = request('payment_status');
 
-        return view('panel.admin.marketplace.index', compact('items', 'subscription', 'cart', 'cartExists', 'paymentStatus'));
+        return view('panel.admin.marketplace.index', compact('items', 'banners', 'subscription', 'cart', 'cartExists', 'paymentStatus'));
     }
 
     public function extension($slug)

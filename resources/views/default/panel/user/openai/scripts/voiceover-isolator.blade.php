@@ -193,23 +193,23 @@
 
 
 	const elevenLabsVoices = [
-			@if ($elevenlabServiceVoice !== [])
+		@if ($elevenlabServiceVoice !== [])
 			@foreach ($elevenlabServiceVoice as $voice)
-		{
-			"voice_id": "{{ $voice['voice_id'] }}",
-			"name": "{{ $voice['name'] }}",
-			"preview_url": "{{ $voice['preview_url'] }}",
-		},
+				{
+					"voice_id": "{{ $voice['voice_id'] }}",
+					"name": "{{ $voice['name'] }}",
+					"preview_url": "{{ $voice['preview_url'] }}",
+				},
 			@endforeach
-			@endif
+		@endif
 
-			@if ($elevenlabs)
+		@if ($elevenlabs)
 			@foreach ($elevenlabs as $voice)
-		{
-			"voice_id": "{{ $voice->voice_id }}",
-			"name": "{{ $voice->name }}",
-		},
-		@endforeach
+				{
+					"voice_id": "{{ $voice->voice_id }}",
+					"name": "{{ $voice->name }}",
+				},
+			@endforeach
 		@endif
 	];
 

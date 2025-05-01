@@ -11,9 +11,11 @@ use App\Domains\Engine\Drivers\ClipDropEngineDriver;
 use App\Domains\Engine\Drivers\DeepSeekAIEngineDriver;
 use App\Domains\Engine\Drivers\ElevenlabsEngineDriver;
 use App\Domains\Engine\Drivers\FallAIEngineDriver;
+use App\Domains\Engine\Drivers\FreepikEngineDriver;
 use App\Domains\Engine\Drivers\GeminiEngineDriver;
 use App\Domains\Engine\Drivers\GoogleEngineDriver;
 use App\Domains\Engine\Drivers\HeygenEngineDriver;
+use App\Domains\Engine\Drivers\NovitaEngineDriver;
 use App\Domains\Engine\Drivers\OpenAIEngineDriver;
 use App\Domains\Engine\Drivers\OpenRouterEngineDriver;
 use App\Domains\Engine\Drivers\PebblelyEngineDriver;
@@ -76,6 +78,11 @@ enum EngineEnum: string implements Contracts\WithStringBackedEnum
     case PERPLEXITY = 'perplexity';
 
     case CLIPDROP = 'clipdrop';
+
+    case NOVITA = 'novita';
+
+    case FREEPIK = 'freepik';
+
     case PLAGIARISM_CHECK = 'plagiarism_check';
 
     case SYNTHESIA = 'synthesia';
@@ -109,6 +116,8 @@ enum EngineEnum: string implements Contracts\WithStringBackedEnum
             self::SERPER                 => __('Serper'),
             self::PERPLEXITY             => __('Perplexity'),
             self::CLIPDROP               => __('Clipdrop'),
+            self::NOVITA                 => __('Novita'),
+            self::FREEPIK                => __('Freepik'),
             self::PLAGIARISM_CHECK       => __('Plagiarism Check'),
             self::SYNTHESIA              => __('Synthesia'),
             self::HEYGEN                 => __('Heygen'),
@@ -140,6 +149,8 @@ enum EngineEnum: string implements Contracts\WithStringBackedEnum
             self::SERPER           => SerperEngineDriver::class,
             self::PERPLEXITY       => PerplexityEngineDriver::class,
             self::CLIPDROP         => ClipDropEngineDriver::class,
+            self::NOVITA           => NovitaEngineDriver::class,
+            self::FREEPIK          => FreepikEngineDriver::class,
             self::PLAGIARISM_CHECK => PlagiarismCheckEngineDriver::class,
             self::SYNTHESIA        => SynthesiaEngineDriver::class,
             self::HEYGEN           => HeygenEngineDriver::class,
@@ -199,6 +210,9 @@ enum EngineEnum: string implements Contracts\WithStringBackedEnum
                 ...(EntityEnum::fromSlug($setting?->openai_default_model ?? EntityEnum::GPT_4_O->slug()) !== EntityEnum::GPT_4_O
                     ? [EntityEnum::GPT_4_O]
                     : []),
+                EntityEnum::GPT_4_O_REALTIME_PREVIEW,
+                EntityEnum::GPT_4_O_SEARCH_PREVIEW,
+                EntityEnum::GPT_4_O_MINI_SEARCH_PREVIEW,
             ],
             self::STABLE_DIFFUSION => [
                 EntityEnum::fromSlug($settingTwo?->stable_diffusion_default_model ?? $settingTwo?->stablediffusion_default_model ?? EntityEnum::STABLE_DIFFUSION_XL_1024_V_1_0->slug()),
@@ -214,8 +228,8 @@ enum EngineEnum: string implements Contracts\WithStringBackedEnum
                 EntityEnum::fromSlug(setting('fal_ai_default_model', EntityEnum::FLUX_PRO->slug())),
                 EntityEnum::VEO_2,
                 EntityEnum::KLING,
+                EntityEnum::KLING_IMAGE,
                 EntityEnum::LUMA_DREAM_MACHINE,
-                EntityEnum::HAIPER,
                 EntityEnum::MINIMAX,
                 EntityEnum::IDEOGRAM,
                 EntityEnum::VIDEO_UPSCALER,
@@ -227,22 +241,23 @@ enum EngineEnum: string implements Contracts\WithStringBackedEnum
                 EntityEnum::GROK_2_1212,
                 EntityEnum::GROK_2_VISION_1212,
             ],
-            self::AI_ML_MINIMAX    => [EntityEnum::MUSIC_01],
-            self::UNSPLASH         => [EntityEnum::UNSPLASH],
-            self::PEXELS           => [EntityEnum::PEXELS],
-            self::PIXABAY          => [EntityEnum::PIXABAY],
-            self::GOOGLE           => [EntityEnum::GOOGLE],
-            self::AZURE            => [EntityEnum::AZURE],
-            self::Speechify        => [EntityEnum::Speechify],
-            self::SERPER           => [EntityEnum::SERPER],
-            self::PERPLEXITY       => [EntityEnum::PERPLEXITY],
-            self::CLIPDROP         => [EntityEnum::CLIPDROP],
-            self::PLAGIARISM_CHECK => [EntityEnum::PLAGIARISMCHECK],
-            self::SYNTHESIA        => [EntityEnum::SYNTHESIA],
-            self::HEYGEN           => [EntityEnum::HEYGEN],
-            self::PEBBLELY         => [EntityEnum::PEBBLELY],
-
-            default                => throw new Exception('No default model found for engine ' . $this->value),
+            self::AI_ML_MINIMAX     => [EntityEnum::MUSIC_01],
+            self::UNSPLASH          => [EntityEnum::UNSPLASH],
+            self::PEXELS            => [EntityEnum::PEXELS],
+            self::PIXABAY           => [EntityEnum::PIXABAY],
+            self::GOOGLE            => [EntityEnum::GOOGLE],
+            self::AZURE             => [EntityEnum::AZURE],
+            self::Speechify         => [EntityEnum::Speechify],
+            self::SERPER            => [EntityEnum::SERPER],
+            self::PERPLEXITY        => [EntityEnum::PERPLEXITY],
+            self::CLIPDROP          => [EntityEnum::CLIPDROP],
+            self::NOVITA            => [EntityEnum::NOVITA],
+            self::FREEPIK           => [EntityEnum::FREEPIK],
+            self::PLAGIARISM_CHECK  => [EntityEnum::PLAGIARISMCHECK],
+            self::SYNTHESIA         => [EntityEnum::SYNTHESIA],
+            self::HEYGEN            => [EntityEnum::HEYGEN],
+            self::PEBBLELY          => [EntityEnum::PEBBLELY],
+            default                 => throw new Exception('No default model found for engine ' . $this->value),
         };
     }
 

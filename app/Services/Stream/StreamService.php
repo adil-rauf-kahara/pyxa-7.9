@@ -5,17 +5,21 @@ namespace App\Services\Stream;
 use App\Domains\Engine\Enums\EngineEnum;
 use App\Domains\Engine\Services\AnthropicService;
 use App\Domains\Engine\Services\GeminiService;
+use App\Domains\Entity\BaseDriver;
 use App\Domains\Entity\Enums\EntityEnum;
 use App\Domains\Entity\Facades\Entity;
 use App\Enums\BedrockEngine;
 use App\Extensions\OpenRouter\System\Services\RouterAiService;
 use App\Helpers\Classes\ApiHelper;
 use App\Helpers\Classes\Helper;
+use App\Helpers\Classes\MarketplaceHelper;
 use App\Models\Setting;
 use App\Models\SettingTwo;
+use App\Models\Usage;
 use App\Models\UserOpenai;
 use App\Models\UserOpenaiChat;
 use App\Models\UserOpenaiChatMessage;
+use App\Services\Ai\OpenAI\FileSearchService;
 use App\Services\Assistant\AssistantService;
 use App\Services\Bedrock\BedrockRuntimeService;
 use Exception;
@@ -34,6 +38,8 @@ use Throwable;
 
 class StreamService
 {
+    public bool $guest = false;
+
     public function __construct(
         Setting $setting,
         SettingTwo $settingTwo,
@@ -42,7 +48,6 @@ class StreamService
             EngineEnum::ANTHROPIC->value => ApiHelper::setAnthropicKey($setting),
             EngineEnum::GEMINI->value    => ApiHelper::setGeminiKey($setting),
             EngineEnum::X_AI->value 	    => ApiHelper::setXAiKey($setting),
-            // EngineEnum::PERPLEXITY->value 	    => ApiHelper::setPerplexityKey($setting),
             default                      => ApiHelper::setOpenAiKey($setting),
         };
     }
@@ -51,8 +56,16 @@ class StreamService
      * @throws Exception
      * @throws GuzzleException
      */
-    public function ChatStream(string $chat_bot, $history, $main_message, $chat_type, $contain_images, $ai_engine = null, $assistant = null, $openRouter = null): ?StreamedResponse
+    public function ChatStream(string $chat_bot, $history, $main_message, $chat_type, $contain_images, $ai_engine = null, $assistant = null, $openRouter = null, $responsesApi = false): ?StreamedResponse
     {
+        if ($chat_type === 'chatPro' && MarketplaceHelper::isRegistered('ai-chat-pro') && ! auth()->check()) {
+            $this->guest = true;
+        }
+
+        if ($responsesApi) {
+            return $this->responsesApiStream($chat_bot, $history, $main_message, $chat_type, $contain_images);
+        }
+
         if (! $ai_engine) {
             $ai_engine = setting('default_ai_engine', EngineEnum::OPEN_AI->value);
         }
@@ -65,14 +78,23 @@ class StreamService
             return $this->openRouterChatStream($chat_bot, $history, $main_message, $contain_images, $openRouter);
         }
 
-        return match ($ai_engine ?? EngineEnum::OPEN_AI->value) {
+        return match ($ai_engine) {
             EngineEnum::OPEN_AI->value   => $this->openaiChatStream($chat_bot, $history, $main_message, $chat_type, $contain_images),
             EngineEnum::ANTHROPIC->value => $this->anthropicChatStream($chat_bot, $history, $main_message, $chat_type, $contain_images),
             EngineEnum::GEMINI->value    => $this->geminiChatStream($chat_bot, $history, $main_message, $chat_type, $contain_images),
             EngineEnum::DEEP_SEEK->value => $this->deepseekChatStream($chat_bot, $history, $main_message, $contain_images),
             EngineEnum::X_AI->value      => $this->xAiChatStream($chat_bot, $history, $main_message, $chat_type, $contain_images),
-            default                      => $this->openaiChatStream($chat_bot, $history, $main_message, $chat_type, $contain_images),
+            default                      => throw new Exception('Invalid AI Engine'),
         };
+    }
+
+    private function createDriver(EntityEnum $model): ?BaseDriver
+    {
+        if ($this->guest) {
+            return Entity::driverForGuest($model);
+        }
+
+        return Entity::driver($model);
     }
 
     private function openRouterChatStream($chat_bot, $history, $main_message, $contain_images, $openRouter)
@@ -82,9 +104,9 @@ class StreamService
         $responsedText = '';
 
         if ($contain_images) {
-            $driver = Entity::driver(EntityEnum::GPT_4_O);
+            $driver = $this->createDriver(EntityEnum::GPT_4_O);
         } else {
-            $driver = Entity::driver(EntityEnum::fromSlug($openRouter));
+            $driver = $this->createDriver(EntityEnum::fromSlug($openRouter));
         }
 
         return response()->stream(function () use ($openRouter, $driver, $chat_bot, $history, &$total_used_tokens, &$output, &$responsedText, $main_message, $contain_images) {
@@ -195,6 +217,7 @@ class StreamService
             $chat->save();
 
             $driver->input($responsedText)->calculateCredit()->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
         }, 200, [
             'Cache-Control'     => 'no-cache',
             'X-Accel-Buffering' => 'no',
@@ -205,26 +228,27 @@ class StreamService
     public function fixMessageHistory(array $history): array
     {
         $fixedHistory = [];
-        $currentMessage = null;
+        $firstMessage = null;
         foreach ($history as $message) {
-            if ($currentMessage === null) {
-                $currentMessage = $message;
+            if ($firstMessage === null) {
+                $firstMessage = $message;
             } else {
-                // Check if the role is the same as the last processed message
-                if ($currentMessage['role'] === $message['role']) {
-                    // Merge content
-                    $currentMessage['content'] .= ' ' . $message['content'];
+                if ($firstMessage['role'] === $message['role']) {
+                    if (is_array($message['content'])) {
+                        $firstMessage['content'] = $message['content'];
+                    } else {
+                        $firstMessage['content'] .= ' ' . $message['content'];
+                    }
                 } else {
                     // Add the current message to the fixed history
-                    $fixedHistory[] = $currentMessage;
+                    $fixedHistory[] = $firstMessage;
                     // Start a new message
-                    $currentMessage = $message;
+                    $firstMessage = $message;
                 }
             }
         }
-        // Add the last message
-        if ($currentMessage !== null) {
-            $fixedHistory[] = $currentMessage;
+        if ($firstMessage !== null) {
+            $fixedHistory[] = $firstMessage;
         }
 
         return $fixedHistory;
@@ -241,9 +265,9 @@ class StreamService
         $responsedText = '';
 
         if ($contain_images) {
-            $driver = Entity::driver(EntityEnum::GPT_4_O);
+            $driver = $this->createDriver(EntityEnum::GPT_4_O);
         } else {
-            $driver = Entity::driver(EntityEnum::fromSlug($chat_bot));
+            $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
         }
 
         return response()->stream(
@@ -437,6 +461,8 @@ class StreamService
                 $chat->save();
 
                 $driver->input($responsedText)->calculateCredit()->decreaseCredit();
+                Usage::getSingle()->updateWordCounts($driver->calculate());
+
             },
             200,
             [
@@ -463,7 +489,7 @@ class StreamService
 
         $history[] = ['role' => 'user', 'content' => $prompt];
 
-        $driver = Entity::driver(EntityEnum::fromSlug($chat_bot));
+        $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
 
         return response()->stream(function () use (&$total_used_tokens, &$output, &$responsedText, $driver, $message_id, $title, $openai_id, $prompt, $history, $chat_bot) {
 
@@ -477,7 +503,7 @@ class StreamService
                     'input'     => $prompt,
                     'hash'      => str()->random(256),
                     'team_id'   => $user->team_id,
-                    'slug'      => str()->random(7) . str($user->fullName())->slug() . '-workbook',
+                    'slug'      => str()->random(7) . str($user?->fullName())->slug() . '-workbook',
                     'openai_id' => $openai_id ?? 1,
                 ]);
 
@@ -599,7 +625,7 @@ class StreamService
             flush();
 
             $entry->update([
-                'title'    => $title ?: __('New Workbook'),
+                'title'    => $title ?: null,
                 'credits'  => $total_used_tokens,
                 'words'    => $total_used_tokens,
                 'response' => $responsedText,
@@ -609,6 +635,8 @@ class StreamService
             $driver->input($responsedText)
                 ->calculateCredit()
                 ->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
+
         }, 200, [
             'Cache-Control'     => 'no-cache',
             'X-Accel-Buffering' => 'no',
@@ -625,27 +653,11 @@ class StreamService
     {
         $chat = UserOpenaiChat::query()->where('id', $main_message->user_openai_chat_id)->first();
         $threadId = $chat?->thread_id;
+        $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
 
-        echo "event: message\n";
-        echo 'data: ' . $main_message->id . "\n\n";
-
-        $driver = Entity::driver(EntityEnum::fromSlug($chat_bot));
-        if (! $driver->hasCreditBalance()) {
-            echo PHP_EOL;
-            echo "event: data\n";
-            echo 'data: ' . __('You have no credits left. Please buy more credits to continue.');
-            echo "\n\n";
-            flush();
-            echo "event: stop\n";
-            echo 'data: [DONE]';
-            echo "\n\n";
-            flush();
-
-            return null;
-        }
         $assistantService = new AssistantService;
 
-        $assistantService->createMessage($threadId, $history);
+        $tmp = $assistantService->createMessage($threadId, $history);
 
         return $assistantService->createRun($chat_bot, $assistant, $threadId, $main_message, $driver);
     }
@@ -679,7 +691,7 @@ class StreamService
         $total_used_tokens = 0;
         $output = '';
         $responsedText = '';
-        $driver = Entity::driver(EntityEnum::fromSlug($open_router_model));
+        $driver = $this->createDriver(EntityEnum::fromSlug($open_router_model));
 
         return response()->stream(function () use ($driver, &$total_used_tokens, &$output, &$responsedText, $message_id, $title, $openai_id, $prompt, $open_router_model) {
             $user = Auth::user();
@@ -753,7 +765,9 @@ class StreamService
             flush();
 
             $driver->input($responsedText)->calculateCredit()->decreaseCredit();
-            $entry->title = $title ?: __('New Workbook');
+            Usage::getSingle()->updateWordCounts($driver->calculate());
+
+            $entry->title = $title ?: null;
             $entry->credits = $total_used_tokens;
             $entry->words = $total_used_tokens;
             $entry->response = $responsedText;
@@ -768,19 +782,17 @@ class StreamService
 
     public function reduceTokensWhenIntterruptStream(Request $request, $type): void
     {
-        // dd($request->all());
-        
         $model = Helper::setting('openai_default_model') ?: EntityEnum::GPT_3_5_TURBO_16K->value;
         $streamed_text = $request->get('streamed_text');
         $message_id = $request->get('streamed_message_id');
         if ($streamed_text) {
             $total_used_tokens = countWords($streamed_text);
-            Entity::driver(EntityEnum::fromSlug($model))->input($streamed_text)->calculateCredit()->decreaseCredit();
+            $this->createDriver(EntityEnum::fromSlug($model))->input($streamed_text)->calculateCredit()->decreaseCredit();
             if (! empty($message_id)) {
                 if ($type === 'writer') {
                     $entry = UserOpenai::find($message_id);
                     if ($entry) {
-                        $entry->title = __('New Workbook');
+                        $entry->title = null;
                         $entry->credits = $total_used_tokens;
                         $entry->words = $total_used_tokens;
                         $entry->response = $streamed_text;
@@ -818,9 +830,9 @@ class StreamService
         $responsedText = '';
 
         if ($contain_images) {
-            $driver = Entity::driver(EntityEnum::GPT_4_O);
+            $driver = $this->createDriver(EntityEnum::GPT_4_O);
         } else {
-            $driver = Entity::driver(EntityEnum::fromSlug($chat_bot));
+            $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
         }
 
         return response()->stream(static function () use ($driver, $history, &$total_used_tokens, &$output, &$responsedText, $main_message, $contain_images) {
@@ -915,14 +927,14 @@ class StreamService
             $chat->save();
 
             $driver->input($responsedText)->calculateCredit()->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
+
         }, 200, [
             'Cache-Control'     => 'no-cache',
             'X-Accel-Buffering' => 'no',
             'Content-Type'      => 'text/event-stream',
         ]);
     }
-    
-   
 
     private function xAiOtherStream(Request $request, $chat_bot): ?StreamedResponse
     {
@@ -942,7 +954,7 @@ class StreamService
         $output = '';
         $responsedText = '';
         $user = Auth::user();
-        $driver = Entity::driver(EntityEnum::fromSlug($chat_bot));
+        $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
 
         return response()->stream(static function () use ($user, $driver, $history, &$total_used_tokens, &$output, &$responsedText, $message_id, $title, $openai_id, $prompt) {
             $entry = UserOpenai::find($message_id);
@@ -952,7 +964,7 @@ class StreamService
                 $entry->input = $prompt;
                 $entry->hash = str()->random(256);
                 $entry->team_id = $user->team_id;
-                $entry->slug = str()->random(7) . str($user->fullName())->slug() . '-workbook';
+                $entry->slug = str()->random(7) . str($user?->fullName())->slug() . '-workbook';
                 $entry->openai_id = $openai_id ?? 1;
             }
 
@@ -1022,7 +1034,7 @@ class StreamService
             echo "\n\n";
             flush();
 
-            $entry->title = $title ?: __('New Workbook');
+            $entry->title = $title ?: null;
             $entry->credits = $total_used_tokens;
             $entry->words = $total_used_tokens;
             $entry->response = $responsedText;
@@ -1033,6 +1045,7 @@ class StreamService
                 ->input($responsedText)
                 ->calculateCredit()
                 ->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
         }, 200, [
             'Cache-Control'     => 'no-cache',
             'X-Accel-Buffering' => 'no',
@@ -1052,9 +1065,9 @@ class StreamService
         $responsedText = '';
 
         if ($contain_images) {
-            $driver = Entity::driver(EntityEnum::GPT_4_O);
+            $driver = $this->createDriver(EntityEnum::GPT_4_O);
         } else {
-            $driver = Entity::driver(EntityEnum::fromSlug($chat_bot));
+            $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
         }
 
         return response()->stream(static function () use ($driver, $history, &$total_used_tokens, &$output, &$responsedText, $main_message, $contain_images) {
@@ -1081,11 +1094,15 @@ class StreamService
             $options = [
                 'model'             => $model,
                 'messages'          => $history,
-                'temperature'       => 1.0,
-                'frequency_penalty' => 0,
-                'presence_penalty'  => 0,
                 'stream'            => true,
             ];
+
+            if (! in_array($model, [EntityEnum::GPT_4_O_MINI_SEARCH_PREVIEW->value, EntityEnum::GPT_4_O_SEARCH_PREVIEW->value], true)) {
+                $options['temperature'] = 1.0;
+                $options['frequency_penalty'] = 0;
+                $options['presence_penalty'] = 0;
+            }
+
             if ($contain_images) {
                 $options['max_tokens'] = 2000;
                 $options['model'] = EntityEnum::GPT_4_O;
@@ -1122,6 +1139,113 @@ class StreamService
             $chat->save();
 
             $driver->input($responsedText)->calculateCredit()->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
+        }, 200, [
+            'Cache-Control'     => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+            'Content-Type'      => 'text/event-stream',
+        ]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function responsesApiStream(string $chat_bot, $history, $main_message, $chat_type, $contain_images): ?StreamedResponse
+    {
+        $total_used_tokens = 0;
+        $output = '';
+        $responsedText = '';
+
+        if ($contain_images) {
+            $driver = $this->createDriver(EntityEnum::GPT_4_O);
+        } else {
+            $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
+        }
+
+        return response()->stream(static function () use ($driver, $history, &$total_used_tokens, &$output, &$responsedText, $main_message, $contain_images) {
+            $chat_id = $main_message->user_openai_chat_id;
+            $chat = UserOpenaiChat::whereId($chat_id)->first();
+
+            echo "event: message\n";
+            echo 'data: ' . $main_message->id . "\n\n";
+            if (! $driver->hasCreditBalance()) {
+                echo PHP_EOL;
+                echo "event: data\n";
+                echo 'data: ' . __('You have no credits left. Please buy more credits to continue.');
+                echo "\n\n";
+                flush();
+                echo "event: stop\n";
+                echo 'data: [DONE]';
+                echo "\n\n";
+                flush();
+
+                return null;
+            }
+
+            $model = $driver->enum()->value;
+            $options = [
+                'model'             => $model,
+                'messages'          => $history,
+                'stream'            => true,
+            ];
+
+            if (! in_array($model, [EntityEnum::GPT_4_O_MINI_SEARCH_PREVIEW->value, EntityEnum::GPT_4_O_SEARCH_PREVIEW->value], true)) {
+                $options['temperature'] = 1.0;
+                $options['frequency_penalty'] = 0;
+                $options['presence_penalty'] = 0;
+            }
+
+            if ($contain_images) {
+                $options['max_tokens'] = 2000;
+                $options['model'] = EntityEnum::GPT_4_O;
+
+                $stream = OpenAI::chat()->createStreamed($options);
+                foreach ($stream as $response) {
+                    if (isset($response->choices[0]->delta->content)) {
+                        $text = $response->choices[0]->delta->content;
+                        $messageFix = str_replace(["\r\n", "\r", "\n"], '<br/>', $text);
+                        $output .= $messageFix;
+                        $responsedText .= $text;
+                        $total_used_tokens += countWords($text);
+                        if (connection_aborted()) {
+                            break;
+                        }
+                        echo PHP_EOL;
+                        echo "event: data\n";
+                        echo 'data: ' . $messageFix;
+                        echo "\n\n";
+                        flush();
+                    }
+                }
+            } else {
+                $fileSearchService = new FileSearchService;
+                $messageFix = str_replace(["\r\n", "\r", "\n"], '<br/>', $fileSearchService->searchInFile($options, $chat) ?? '');
+                $responsedText = $output = $messageFix;
+
+                echo PHP_EOL;
+                echo "event: data\n";
+                echo 'data: ' . $responsedText;
+                echo "\n\n";
+                flush();
+
+                $total_used_tokens = countWords($responsedText);
+            }
+
+            echo "event: stop\n";
+            echo 'data: [DONE]';
+            echo "\n\n";
+            flush();
+
+            $main_message->response = $responsedText;
+            $main_message->output = $output;
+            $main_message->credits = $total_used_tokens;
+            $main_message->words = $total_used_tokens;
+            $main_message->save();
+            $chat->total_credits += $total_used_tokens;
+            $chat->save();
+
+            $driver->input($responsedText)->calculateCredit()->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
         }, 200, [
             'Cache-Control'     => 'no-cache',
             'X-Accel-Buffering' => 'no',
@@ -1141,7 +1265,7 @@ class StreamService
         $output = '';
         $responsedText = '';
         $user = Auth::user();
-        $driver = Entity::driver(EntityEnum::fromSlug($chat_bot));
+        $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
 
         return response()->stream(static function () use ($user, $driver, $history, &$total_used_tokens, &$output, &$responsedText, $message_id, $title, $openai_id, $prompt) {
             $entry = UserOpenai::find($message_id);
@@ -1151,7 +1275,7 @@ class StreamService
                 $entry->input = $prompt;
                 $entry->hash = str()->random(256);
                 $entry->team_id = $user->team_id;
-                $entry->slug = str()->random(7) . str($user->fullName())->slug() . '-workbook';
+                $entry->slug = str()->random(7) . str($user?->fullName())->slug() . '-workbook';
                 $entry->openai_id = $openai_id ?? 1;
             }
 
@@ -1203,7 +1327,7 @@ class StreamService
             echo "\n\n";
             flush();
 
-            $entry->title = $title ?: __('New Workbook');
+            $entry->title = $title ?: null;
             $entry->credits = $total_used_tokens;
             $entry->words = $total_used_tokens;
             $entry->response = $responsedText;
@@ -1214,6 +1338,7 @@ class StreamService
                 ->input($responsedText)
                 ->calculateCredit()
                 ->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
         }, 200, [
             'Cache-Control'     => 'no-cache',
             'X-Accel-Buffering' => 'no',
@@ -1228,7 +1353,7 @@ class StreamService
         $output = '';
         $responsedText = '';
         $client = app(AnthropicService::class);
-        $driver = Entity::driver(EntityEnum::fromSlug($chat_bot));
+        $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
 
         return response()->stream(static function () use ($driver, $client, $history, &$total_used_tokens, &$output, &$responsedText, $main_message, $contain_images) {
 
@@ -1271,7 +1396,7 @@ class StreamService
                         ],
                     ]);
                     $responseBody = $bedrockService->invokeClaude($main_message->input);
-                    $driver = Entity::driver(EntityEnum::CLAUDE_2_1);
+                    $driver = $this->createDriver(EntityEnum::CLAUDE_2_1);
                     if (! $driver->hasCreditBalance()) {
                         echo PHP_EOL;
                         echo "event: data\n";
@@ -1327,7 +1452,7 @@ class StreamService
                 }
             } else {
                 ApiHelper::setOpenAiKey();
-                $driver = Entity::driver(EntityEnum::GPT_4_O);
+                $driver = $this->createDriver(EntityEnum::GPT_4_O);
                 $stream = OpenAI::chat()->createStreamed([
                     'model'             => $driver->enum()->value,
                     'messages'          => $history,
@@ -1370,6 +1495,8 @@ class StreamService
             $chat->save();
 
             $driver->input($responsedText)->calculateCredit()->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
+
         }, 200, [
             'Cache-Control'     => 'no-cache',
             'X-Accel-Buffering' => 'no',
@@ -1383,7 +1510,7 @@ class StreamService
         $message_id = $request->get('message_id');
         $openai_id = $request->get('openai_id');
         $title = $request->get('title');
-        $driver = Entity::driver(EntityEnum::fromSlug($chat_bot));
+        $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
         $history[] = ['role' => 'user', 'content' => $prompt];
         $total_used_tokens = 0;
         $output = '';
@@ -1437,7 +1564,7 @@ class StreamService
                         'secret' => config('filesystems.disks.s3.secret'),
                     ],
                 ]);
-                $driver = Entity::driver(EntityEnum::CLAUDE_2_1);
+                $driver = $this->createDriver(EntityEnum::CLAUDE_2_1);
                 if (! $driver->hasCreditBalance()) {
                     echo PHP_EOL;
                     echo "event: data\n";
@@ -1501,7 +1628,7 @@ class StreamService
 
             }
 
-            $entry->title = $title ?: __('New Workbook');
+            $entry->title = $title ?: null;
             $entry->credits = $total_used_tokens;
             $entry->words = $total_used_tokens;
             $entry->response = $responsedText;
@@ -1511,6 +1638,7 @@ class StreamService
                 ->input($responsedText)
                 ->calculateCredit()
                 ->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
         }, 200, [
             'Cache-Control'     => 'no-cache',
             'X-Accel-Buffering' => 'no',
@@ -1525,7 +1653,7 @@ class StreamService
         $output = '';
         $responsedText = '';
         $newhistory = convertHistoryToGemini($history);
-        $driver = Entity::driver(EntityEnum::fromSlug($chat_bot));
+        $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
 
         if ($contain_images) {
             // I will improve later
@@ -1549,7 +1677,7 @@ class StreamService
             echo 'data: ' . $main_message->id . "\n\n";
 
             if ($contain_images) {
-                $driver = Entity::driver(EntityEnum::GEMINI_1_5_FLASH);
+                $driver = $this->createDriver(EntityEnum::GEMINI_1_5_FLASH);
             }
 
             if (! $driver->hasCreditBalance()) {
@@ -1629,6 +1757,7 @@ class StreamService
                 ->input($responsedText)
                 ->calculateCredit()
                 ->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
         }, 200, [
             'Cache-Control'     => 'no-cache',
             'X-Accel-Buffering' => 'no',
@@ -1643,7 +1772,7 @@ class StreamService
 
     private function geminiOtherStream(Request $request, string $chat_bot): StreamedResponse
     {
-        $driver = Entity::driver(EntityEnum::fromSlug($chat_bot));
+        $driver = $this->createDriver(EntityEnum::fromSlug($chat_bot));
         $prompt = $request->get('prompt');
         $message_id = $request->get('message_id');
         $openai_id = $request->get('openai_id');
@@ -1671,7 +1800,7 @@ class StreamService
                 $entry->input = $prompt;
                 $entry->hash = str()->random(256);
                 $entry->team_id = $user->team_id;
-                $entry->slug = str()->random(7) . str($user->fullName())->slug() . '-workbook';
+                $entry->slug = str()->random(7) . str($user?->fullName())->slug() . '-workbook';
                 $entry->openai_id = $openai_id ?? 1;
             }
 
@@ -1727,7 +1856,7 @@ class StreamService
             echo "\n\n";
             flush();
 
-            $entry->title = $title ?: __('New Workbook');
+            $entry->title = $title ?: null;
             $entry->credits = $total_used_tokens;
             $entry->words = $total_used_tokens;
             $entry->response = $responsedText;
@@ -1737,6 +1866,7 @@ class StreamService
                 ->input($responsedText)
                 ->calculateCredit()
                 ->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
         }, 200, [
             'Cache-Control'     => 'no-cache',
             'X-Accel-Buffering' => 'no',

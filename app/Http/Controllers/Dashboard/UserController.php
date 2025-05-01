@@ -35,6 +35,7 @@ use App\Models\UserOpenai;
 use App\Models\UserOpenaiChat;
 use App\Models\UserOrder;
 use App\Models\Voice\ElevenlabVoice;
+use App\Services\Dashboard\UserDashboardService;
 use App\Services\ElevenlabsService;
 use App\Services\GatewaySelector;
 use App\Services\Orders\OrdersExportService;
@@ -53,6 +54,10 @@ use Throwable;
 
 class UserController extends Controller
 {
+    public function __construct(
+        public UserDashboardService $service,
+    ) {}
+
     public function checkStatus(Request $request)
     {
         $data = UserOpenai::query()
@@ -95,10 +100,17 @@ class UserController extends Controller
 
     public function index()
     {
+        $this->service->setCache();
+
+        $isNotDemo = Helper::appIsNotDemo();
         $ongoingPayments = null;
         // $ongoingPayments = self::prepareOngoingPaymentsWarning();
         // $user = Auth::user();
-        $tmp = PaymentProcessController::checkUnmatchingSubscriptions();
+        $team = null;
+        if ($isNotDemo) {
+            PaymentProcessController::checkUnmatchingSubscriptions();
+        }
+
         $team = $this->getTeam(Auth::user());
 
         return view('panel.user.dashboard', [
@@ -138,7 +150,7 @@ class UserController extends Controller
         return Team::query()->firstOrCreate([
             'user_id' => auth()->id(),
         ], [
-            'name'        => $user->fullName(),
+            'name'        => $user?->fullName(),
             'allow_seats' => $allow_seats ?: 0,
         ]);
     }
@@ -315,8 +327,6 @@ class UserController extends Controller
 
     public function openAIGenerator(Request $request, $slug)
     {
-        // dd("Here");
-        
         $openai = OpenAIGenerator::whereSlug($slug)->firstOrFail();
         if ($slug === 'ai_image_generator') {
             // FluxProQueueCheck::updateFluxProImages();
@@ -347,12 +357,15 @@ class UserController extends Controller
                 $elevenlabServiceVoice = json_decode($service->getVoices(), true);
             }
         }
-        
-        // dd($elevenlabServiceVoice);
+        $list = OpenAIGenerator::query()
+            ->where(function ($query) {
+                $query->where('user_id', Auth::id())
+                    ->orWhereNull('user_id');
+            })->where('active', true)->get(['id', 'title', 'slug', 'image']);
 
         return view(
             'panel.user.openai.generator',
-            compact('openai', 'userOpenai', 'elevenlabs', 'elevenlabServiceVoice')
+            compact('openai', 'list', 'userOpenai', 'elevenlabs', 'elevenlabServiceVoice')
         );
     }
 
@@ -419,7 +432,7 @@ class UserController extends Controller
                 return redirect()->back()->with(['message' => __('Needs a Premium access'), 'type' => 'error']);
             }
 
-            $list = UserOpenaiChat::where('user_id', Auth::id())->where('openai_chat_category_id', $category->id)->orderBy('updated_at', 'desc');
+            $list = UserOpenaiChat::where('user_id', Auth::id())->where('openai_chat_category_id', $category->id)->orderBy('is_pinned', 'desc')->orderBy('updated_at', 'desc');
             $list = $list->get();
             $chat = $list->first();
             $aiList = OpenaiGeneratorChatCategory::all();
@@ -469,8 +482,14 @@ class UserController extends Controller
 
         $view = 'panel.user.openai.generator_workbook';
         $models = Entity::planModels();
+        $list = OpenAIGenerator::query()
+            ->where(function ($query) {
+                $query->where('user_id', Auth::id())
+                    ->orWhereNull('user_id');
+            })->where('active', true)->get(['id', 'title', 'slug', 'image']);
 
         return view($view, compact(
+            'list',
             'openai',
             'apiSearch',
             'apiSearchId',
@@ -542,7 +561,7 @@ class UserController extends Controller
         $user->postal = $request->postal;
         $user->address = $request->address;
 
-        if ($request->old_password != null) {
+        if (! empty($request->old_password)) {
             $validated = $request->validateWithBag('updatePassword', [
                 'old_password' => ['required', 'current_password'],
                 'new_password' => ['required', Password::defaults(), 'confirmed'],
@@ -551,15 +570,28 @@ class UserController extends Controller
             $user->password = Hash::make($request->new_password);
         }
 
+        if (empty($request->old_password) && ! empty($request->new_password)) {
+            $isOneOfSocialTokensNotEmpty =
+                ! empty($user->google_token) || ! empty($user->github_token) || ! empty($user->facebook_token);
+
+            if ($isOneOfSocialTokensNotEmpty) {
+                $validated = $request->validateWithBag('updatePassword', [
+                    'new_password' => ['required', Password::defaults(), 'confirmed'],
+                ]);
+
+                $user->password = Hash::make($request->new_password);
+            }
+        }
+
         if ($request->hasFile('avatar')) {
             $path = 'upload/images/avatar/';
             $image = $request->file('avatar');
 
-            if ($image->getClientOriginalExtension() == 'svg') {
+            if ($image->getClientOriginalExtension() === 'svg') {
                 $image = self::sanitizeSVG($request->file('avatar'));
             }
 
-            $image_name = Str::random(4) . '-' . Str::slug($user->fullName()) . '-avatar.' . $image->getClientOriginalExtension();
+            $image_name = Str::random(4) . '-' . Str::slug($user?->fullName()) . '-avatar.' . $image->getClientOriginalExtension();
 
             // Image extension check
             $imageTypes = ['jpg', 'jpeg', 'png', 'svg', 'webp'];
@@ -573,7 +605,7 @@ class UserController extends Controller
 
             $image->move($path, $image_name);
 
-            $user->avatar = $path . $image_name;
+            $user->avatar = '/' . $path . $image_name;
         }
 
         CreateActivity::for($user, 'Updated', 'Profile Information');
@@ -1025,7 +1057,7 @@ class UserController extends Controller
             (
                 (int) Helper::setting('user_api_option') === 0
                 &&
-                ! auth()->user()->relationPlan?->getAttribute('user_api')
+                ! auth()->user()?->relationPlan?->getAttribute('user_api')
             ), 404);
 
         $user = Auth::user();

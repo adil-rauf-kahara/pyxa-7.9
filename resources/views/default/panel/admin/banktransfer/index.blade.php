@@ -92,7 +92,7 @@
                         </td>
                         <td class="text-foreground/60">
                             <span class="text-heading-foreground">
-                                {{ $order->user->fullName() }}
+                                {{ $order->user?->fullName() }}
                             </span>
                             <br>
                             {{ __($order->type) }} /

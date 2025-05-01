@@ -5,7 +5,7 @@
 @extends('panel.layout.settings', ['layout' => 'wide'])
 @section('title', __(\App\Domains\Engine\Enums\EngineEnum::ANTHROPIC->label().' Settings'))
 @section('titlebar_actions', '')
-@section('titlebar_subtitle', __('This API key is used for all AI-powered features and Content Writing'))
+@section('titlebar_subtitle', __('This API key is used for all AI-powered features, including AI Chat, Image Generation, and Content Writing'))
 
 @section('additional_css')
     <link

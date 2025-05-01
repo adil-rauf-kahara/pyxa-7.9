@@ -15,6 +15,7 @@ use App\Models\OpenAIGenerator;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Models\SettingTwo;
+use App\Models\Usage;
 use App\Models\User;
 use App\Models\UserOpenai;
 use App\Services\Bedrock\BedrockRuntimeService;
@@ -32,7 +33,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonException;
-use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use OpenAI;
 use OpenAI\Laravel\Facades\OpenAI as FacadesOpenAI;
 use RuntimeException;
@@ -75,6 +75,7 @@ class AIController extends Controller
      */
     public function buildOutput(Request $request)
     {
+        $prompt = '';
         $request->merge([
             'maximum_length' => $request->has('maximum_length') ? ($request->input('maximum_length') === 'undefined' ? null : $request->input('maximum_length')) : null,
         ]);
@@ -96,16 +97,14 @@ class AIController extends Controller
         $number_of_results = $request->number_of_results ?? 1;
         $maximum_length = $request->maximum_length ?? $this->settings->openai_max_input_length;
         $creativity = $request->creativity ?? $this->settings->openai_default_creativity;
-        
-        // dd($creativity);
 
         $language = $request->language;
 
         try {
             $language = explode('-', $language);
-            if (count($language) > 1 && LaravelLocalization::getSupportedLocales()[$language[0]]['name']) {
+            if (count($language) > 1 && config('localization.supportedLocales.' . $language[0] . '.name')) {
                 $ek = $language[1];
-                $language = LaravelLocalization::getSupportedLocales()[$language[0]]['name'];
+                $language = config('localization.supportedLocales.' . $language[0] . '.name');
                 $language .= " $ek";
             } else {
                 $language = $request->language;
@@ -132,7 +131,6 @@ class AIController extends Controller
 
         // POST TITLE GENERATOR
         if ($post_type === 'post_title_generator') {
-            // dd("Here");
             $your_description = $request->your_description;
             $prompt = "Post title about $your_description in language $language .Generate $number_of_results post titles. Tone $tone_of_voice.";
         }
@@ -400,11 +398,13 @@ class AIController extends Controller
 
         $post = OpenAIGenerator::where('slug', $post_type)->first();
 
-        if ($post->custom_template === 1) {
+        if ((int) $post->custom_template === 1) {
             $custom_template = OpenAIGenerator::find($request->openai_id);
             $prompt = $custom_template->prompt;
 
-            $prompt = $prompt . ' customer prompt: [' . $request->description . ']';
+            if (! empty($request->description)) {
+                $prompt .= ' customer prompt: [' . $request->description . ']';
+            }
 
             foreach (json_decode($custom_template->questions, false, 512, JSON_THROW_ON_ERROR) as $question) {
                 $question_name = '**' . $question->name . '**';
@@ -549,8 +549,6 @@ class AIController extends Controller
         $image_storage = $this->settings_two->ai_image_storage;
         $driver = Entity::driver();
         $driver->redirectIfNoCreditBalance();
-        
-        // dd($driver->enum()->value, $prompt);
 
         return response()->stream(function () use ($image_storage, $driver, $openAiMessage, $prompt, $creativity, $maximum_length, $number_of_results, $youtube_url, $rss_image) {
             try {
@@ -598,10 +596,11 @@ class AIController extends Controller
                 // save file on local storage or aws s3
                 Storage::disk('public')->put($nameOfImage, $contents);
                 $path = '/uploads/' . $nameOfImage;
-                $uploadedFile = new File(substr($path, 1));
 
                 if ($image_storage === self::STORAGE_S3) {
                     try {
+                        $uploadedFile = new File(substr($path, 1));
+
                         $aws_path = Storage::disk('s3')->put('', $uploadedFile);
                         unlink(substr($path, 1));
                         $path = Storage::disk('s3')->url($aws_path);
@@ -624,9 +623,10 @@ class AIController extends Controller
                 $nameOfImage = 'rss-' . Str::random(12) . '.jpg';
                 Storage::disk('public')->put($nameOfImage, $contents);
                 $path = '/uploads/' . $nameOfImage;
-                $uploadedFile = new File(substr($path, 1));
                 if ($image_storage === self::STORAGE_S3) {
                     try {
+                        $uploadedFile = new File(substr($path, 1));
+
                         $aws_path = Storage::disk('s3')->put('', $uploadedFile);
                         unlink(substr($path, 1));
                         $path = Storage::disk('s3')->url($aws_path);
@@ -693,6 +693,8 @@ class AIController extends Controller
             $openAiMessage->save();
 
             $driver->input($responsedText)->calculateCredit()->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
+
             echo 'data: [DONE]';
             echo "\n\n";
             flush();
@@ -709,8 +711,8 @@ class AIController extends Controller
         $prompt = $this->applyPromptRules($prompt);
         $entry = UserOpenai::create([
             'team_id'   => $user->team_id,
-            'title'     => request('title') ?: __('New Workbook'),
-            'slug'      => str()->random(7) . str($user->fullName())->slug() . '-workbook',
+            'title'     => request('title') ?: null,
+            'slug'      => str()->random(7) . str($user?->fullName())->slug() . '-workbook',
             'user_id'   => $user->id,
             'openai_id' => $post->id,
             'input'     => $prompt,
@@ -753,8 +755,8 @@ class AIController extends Controller
         }
         $entry = new UserOpenai([
             'team_id'     => $user->team_id,
-            'title'       => request('title') ?: __('New Workbook'),
-            'slug'        => Str::random(7) . Str::slug($user->fullName()) . '-workbook',
+            'title'       => request('title') ?: null,
+            'slug'        => Str::random(7) . Str::slug($user?->fullName()) . '-workbook',
             'user_id'     => Auth::id(),
             'openai_id'   => $post->id,
             'input'       => $prompt,
@@ -772,6 +774,8 @@ class AIController extends Controller
         $entry->save();
 
         $driver->input($entry->output)->calculateCredit()->decreaseCredit();
+        Usage::getSingle()->updateWordCounts($driver->calculate());
+
         $workbook = $entry;
         $html = view('panel.user.openai.documents_workbook_textarea', compact('workbook'))->render();
         $userOpenai = UserOpenai::where('user_id', Auth::id())->where('openai_id', $post->id)->orderBy('created_at', 'desc')->get();
@@ -790,6 +794,7 @@ class AIController extends Controller
         config(['openai.api_key' => $apiKey]);
         set_time_limit(120);
         $driver = Entity::driver();
+
         $chkLmt = Helper::checkImageDailyLimit();
         if ($chkLmt->getStatusCode() === 429) {
             return $chkLmt;
@@ -821,11 +826,14 @@ class AIController extends Controller
         $contents = base64_decode($image_url);
         // save file on local storage or aws s3
         Storage::disk('public')->put($nameOfImage, $contents);
+
         $path = '/uploads/' . $nameOfImage;
-        $uploadedFile = new File(substr($path, 1));
 
         if ($this->settings_two->ai_image_storage === self::STORAGE_S3) {
+
             try {
+                $uploadedFile = new File(substr($path, 1));
+
                 $aws_path = Storage::disk(self::STORAGE_S3)->put('', $uploadedFile);
                 unlink(substr($path, 1));
                 $path = Storage::disk(self::STORAGE_S3)->url($aws_path);
@@ -833,6 +841,7 @@ class AIController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'AWS Error - ' . $e->getMessage()]);
             }
         }
+        Usage::getSingle()->updateImageCounts($driver->calculate());
         $driver->decreaseCredit();
 
         return response()->json(['path' => $path]);
@@ -844,8 +853,6 @@ class AIController extends Controller
      */
     public function imageOutput($param, $post, $user): JsonResponse
     {
-        // dd($param, $post, $user);
-        
         $lockKey = 'generate_image_output_lock';
         if (! Cache::lock($lockKey, 10)->get()) { // Attempt to acquire lock
             return response()->json(['message' => 'Image generation in progress. Please try again later.'], 409);
@@ -860,9 +867,7 @@ class AIController extends Controller
         try {
             $engine = EngineEnum::fromSlug($engineCheck);
             $model = $this->getDefaultModel($engine);
-            // dd($model);
             $code = $this->getEngineCode($engine);
-            // dd( $code);
             $number_of_images = (int) $param['image_number_of_images'];
 
             if ($param['image_generator'] === 'ideogram') {
@@ -870,7 +875,6 @@ class AIController extends Controller
             }
 
             $driver = Entity::driver($model)->inputImageCount($number_of_images)->calculateCredit();
-            // dd($driver);
 
             $chkLmt = Helper::checkImageDailyLimit();
 
@@ -881,17 +885,12 @@ class AIController extends Controller
             $driver->redirectIfNoCreditBalance();
 
             $apiKey = $this->getOpenAiApiKey($user);
-            
-            // dd($apiKey );
 
             config(['openai.api_key' => $apiKey]);
 
             set_time_limit(120);
 
             $entries = [];
-            
-            // dd($engine, $model, $param);
-            
             for ($i = 0; $i < $number_of_images; $i++) {
                 $imageDetails = $this->processImageGeneration($engine, $model, $param);
                 $savePath = $this->saveImageOutputToStorage($imageDetails);
@@ -899,8 +898,8 @@ class AIController extends Controller
                 $entry->img_id = 'img-' . $entry->response . '-' . $entry->id;
                 $entries[] = $entry;
             }
-            
 
+            Usage::getSingle()->updateImageCounts($driver->calculate());
             $driver->decreaseCredit();
 
             Cache::lock($lockKey)->release();
@@ -922,7 +921,7 @@ class AIController extends Controller
      * @throws GuzzleException
      * @throws Exception
      */
-       public function videoOutput($param): JsonResponse
+    public function videoOutput($param): JsonResponse
     {
         set_time_limit(120);
         $imageToVideoModel = EntityEnum::IMAGE_TO_VIDEO;
@@ -934,9 +933,10 @@ class AIController extends Controller
 
         Storage::disk('public')->put($nameOfImage, $init_image);
         $path = '/uploads/' . $nameOfImage;
-        $uploadedFile = new File(substr($path, 1));
         if ($this->settings_two->ai_image_storage === self::STORAGE_S3) {
             try {
+                $uploadedFile = new File(substr($path, 1));
+
                 $aws_path = Storage::disk(self::STORAGE_S3)->put('', $uploadedFile);
                 unlink(substr($path, 1));
                 $path = Storage::disk(self::STORAGE_S3)->url($aws_path);
@@ -987,7 +987,9 @@ class AIController extends Controller
                 $errorMessage = $e->getResponse()->getBody()->getContents();
                 $errorData = json_decode($errorMessage, true, 512, JSON_THROW_ON_ERROR);
 
-                throw new RuntimeException($errorData['message']);
+                $error = $errorData['message'] ?? $errorMessage;
+
+                throw new RuntimeException($error);
             }
 
             throw new RuntimeException($e->getMessage());
@@ -1047,7 +1049,7 @@ class AIController extends Controller
                 $entry = UserOpenai::create([
                     'team_id'   => $user->team_id,
                     'title'     => __('New Video'),
-                    'slug'      => Str::random(7) . Str::slug($user->fullName()) . '-workbsook',
+                    'slug'      => Str::random(7) . Str::slug($user?->fullName()) . '-workbsook',
                     'user_id'   => Auth::id(),
                     'openai_id' => OpenAIGenerator::where('slug', 'ai_video')->first()->id,
                     'input'     => $request->url,
@@ -1082,7 +1084,7 @@ class AIController extends Controller
         $driver = Entity::driver(EntityEnum::WHISPER_1);
         $driver->redirectIfNoCreditBalance();
         $path = 'uploads/audio/';
-        $file_name = Str::random(4) . '-' . Str::slug($user->fullName()) . '-audio.' . $file->getClientOriginalExtension();
+        $file_name = Str::random(4) . '-' . Str::slug($user?->fullName()) . '-audio.' . $file->getClientOriginalExtension();
 
         // Audio Extension Control
         $audioTypes = ['mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'wav', 'webm'];
@@ -1107,8 +1109,8 @@ class AIController extends Controller
 
         UserOpenai::create([
             'team_id'   => $user->team_id,
-            'title'     => request('title') ?: __('New Workbook'),
-            'slug'      => Str::random(7) . Str::slug($user->fullName()) . '-speech-to-text-workbook',
+            'title'     => request('title') ?: null,
+            'slug'      => Str::random(7) . Str::slug($user?->fullName()) . '-speech-to-text-workbook',
             'user_id'   => $user->id,
             'openai_id' => $post->id,
             'input'     => $fullPath,
@@ -1120,6 +1122,8 @@ class AIController extends Controller
         ]);
 
         $driver->input($text)->calculateCredit()->decreaseCredit();
+        Usage::getSingle()->updateWordCounts($driver->calculate());
+
         $userOpenai = UserOpenai::where('user_id', Auth::id())->where('openai_id', $post->id)->orderBy('created_at', 'desc')->get();
         $openai = OpenAIGenerator::find($post->id);
         $html2 = view('panel.user.openai.components.generator_sidebar_table', compact('userOpenai', 'openai'))->render();
@@ -1134,7 +1138,6 @@ class AIController extends Controller
      */
     public function audioIsolator($file, $post, $user): JsonResponse
     {
-        // dd($file, $post, $user);
         $voiceTypes = ['ogg', 'mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'wav', 'webm'];
         if (! in_array(Str::lower($file->getClientOriginalExtension()), $voiceTypes)) {
             $data = [
@@ -1144,11 +1147,18 @@ class AIController extends Controller
             return response()->json($data, 419);
         }
 
-        set_time_limit(30000000);
+        set_time_limit(3000);
         $driver = Entity::driver(EntityEnum::ISOLATOR);
         $driver->redirectIfNoCreditBalance();
 
         $apiKey = $this->settings_two->elevenlabs_api_key;
+        if (empty($apiKey)) {
+            return response()->json([
+                'type'   => 'error',
+                'errors' => [__('Elevenlabs API key is required.')],
+            ], 401);
+        }
+
         $mp3File = $file->getRealPath();
         $mp3FileName = $file->getClientOriginalName();
         $client = new Client;
@@ -1163,13 +1173,14 @@ class AIController extends Controller
                     'filename' => $mp3FileName,
                 ],
             ],
-            'timeout' => 300000000,
+            'timeout' => 3000,
         ]);
         $resAudio = $response->getBody();
         $characterCost = $response->getHeader('character-cost');
         $characters = max($characterCost[0], 0);
 
         $driver->input($characters)->calculateCredit()->decreaseCredit();
+        Usage::getSingle()->updateWordCounts($driver->calculate());
 
         $audioName = $user->id . '-' . Str::random(20) . '.mp3';
         Storage::disk('public')->put($audioName, $resAudio);
@@ -1183,7 +1194,7 @@ class AIController extends Controller
             'input'     => $audioName,
             'title'     => request('title') ?: __('Isolated Voice'),
             'openai_id' => $post->id,
-            'slug'      => Str::random(20) . Str::slug($user->fullName()) . '-isolated-voice',
+            'slug'      => Str::random(20) . Str::slug($user?->fullName()) . '-isolated-voice',
             'user_id'   => $user->id,
             'hash'      => Str::random(256),
             'credits'   => $characters,
@@ -1234,7 +1245,7 @@ class AIController extends Controller
                 'openai_id' => $request->openai_id ?? 1,
             ]);
         }
-        $entry->title = request('title') ?: __('New Workbook');
+        $entry->title = request('title') ?: null;
         $entry->credits = $total_user_tokens;
         $entry->words = $total_user_tokens;
         $entry->response = $response;
@@ -1329,6 +1340,7 @@ class AIController extends Controller
 
         $content = $completion->choices[0]->message->content;
         $driver->input($content)->calculateCredit()->decreaseCredit();
+        Usage::getSingle()->updateWordCounts($driver->calculate());
 
         return response()->json(['result' => $completion->choices[0]->message->content]);
     }
@@ -1403,8 +1415,6 @@ class AIController extends Controller
      */
     private function processImageGeneration(?EngineEnum $engine, ?EntityEnum $model, array $param): array
     {
-        // dd($engine , $model, $param);
-        
         return match ($engine) {
             EngineEnum::OPEN_AI          => $this->processOpenAIImage($model, $param),
             EngineEnum::STABLE_DIFFUSION => $this->processStableDiffusionImage($model, $param),
@@ -1414,53 +1424,42 @@ class AIController extends Controller
         };
     }
 
-   private function processOpenAIImage(?EntityEnum $model, array $param): array
-{
-    // dd($param);
-    $is_demo = Helper::appIsDemo();
-    
-    // Check if 'size' exists in $param and is not null, default to a valid string if needed
-    // $size = isset($param['size']) && is_string($param['size']) ? $param['size'] : null;
-    
-    $description = $param['description'];
-    $style = $param['image_style'] ?? null;
-    $lighting = $param['image_lighting'] ?? null;
-    $mood = $param['mood'] ?? null;
-    // $quality = isset($param['quality']) && is_string($param['quality']) ? $param['quality'] : null;
-    $prompt = $description;
-    
-    if (is_null($prompt)) {
-        throw new RuntimeException(__('You must provide a prompt'));
+    private function processOpenAIImage(?EntityEnum $model, array $param): array
+    {
+        $is_demo = Helper::appIsDemo();
+        $size = $param['size'];
+        $description = $param['description'];
+        $style = $param['image_style'] ?? null;
+        $lighting = $param['image_lighting'] ?? null;
+        $mood = $param['mood'] ?? null;
+        $quality = $param['quality'];
+        $prompt = $description;
+        if (is_null($prompt)) {
+            throw new RuntimeException(__('You must provide a prompt'));
+        }
+        $attributes = [
+            'style'    => $style ? "$style style" : null,
+            'lighting' => $lighting ? "$lighting lighting" : null,
+            'mood'     => $mood ? "$mood mood" : null,
+        ];
+        $prompt .= ' ' . implode(' ', array_filter($attributes));
+        $response = FacadesOpenAI::images()->create([
+            'model'           => $model,
+            'prompt'          => $prompt,
+            'size'            => $is_demo ? $this->getDemoImageSize($model) : $size,
+            'response_format' => 'b64_json',
+            'quality'         => $is_demo ? 'standard' : $quality,
+            'n'               => 1,
+        ]);
+        $contents = base64_decode($response['data'][0]['b64_json']);
+        $nameOfImage = Str::random(12) . '-DALL-E-' . Str::slug(explode(' ', mb_substr($prompt, 0, 15))[0]) . '.png';
+
+        return [
+            'prompt'                => $prompt,
+            'imageContent'          => $contents,
+            'nameOfImage'           => $nameOfImage,
+        ];
     }
-
-    $attributes = [
-        'style'    => $style ? "$style style" : null,
-        'lighting' => $lighting ? "$lighting lighting" : null,
-        'mood'     => $mood ? "$mood mood" : null,
-    ];
-    
-    $prompt .= ' ' . implode(' ', array_filter($attributes));
-    
-    $response = FacadesOpenAI::images()->create([
-        'model'           => $model,
-        'prompt'          => $prompt,
-        // Use the demo image size or the size passed, ensuring it is a string or omitted
-        'size'            => $this->getDemoImageSize($model),
-        'response_format' => 'b64_json',
-        'quality'         =>  'standard',
-        'n'               => 1,
-    ]);
-    
-    $contents = base64_decode($response['data'][0]['b64_json']);
-    $nameOfImage = Str::random(12) . '-DALL-E-' . Str::slug(explode(' ', mb_substr($prompt, 0, 15))[0]) . '.png';
-
-    return [
-        'prompt'                => $prompt,
-        'imageContent'          => $contents,
-        'nameOfImage'           => $nameOfImage,
-    ];
-}
-
 
     /**
      * @throws GuzzleException
@@ -1469,7 +1468,6 @@ class AIController extends Controller
      */
     private function processStableDiffusionImage(?EntityEnum $model, array $param): array
     {
-        // dd($model, $param);
         $stable_type = $param['type'];
         $prompt = $param['stable_description'];
         if (is_null($prompt)) {
@@ -1484,16 +1482,12 @@ class AIController extends Controller
         $init_image = $param['image_src'] ?? null;
         $mood = $param['mood'] ?? null;
         $defaultSdModel = $this->getStableDiffusionDefaultModel()->value;
-        // dd($defaultSdModel);
         $isV2BetaModels = EntityEnum::fromSlug($defaultSdModel)->isV2BetaSdEntity();
-        // dd($isV2BetaModels);
-        // dd(BedrockEngine::BEDROCK->value);
 
         $width = (int) explode('x', $image_resolution)[0];
         $height = (int) explode('x', $image_resolution)[1];
 
         if ($defaultSdModel === BedrockEngine::BEDROCK->value && $stable_type === 'text-to-image') {
-            // dd("Here");
             $response = $this->bedrockService->invokeStableDiffusion($prompt, random_int(1, 1000000), $width, $height);
             $nameOfImage = Str::random(12) . '-AWS-SD-' . Str::slug(explode(' ', mb_substr($prompt, 0, 15))[0]) . '.png';
 
@@ -1503,20 +1497,13 @@ class AIController extends Controller
                 'nameOfImage'           => $nameOfImage,
             ];
         }
-        // dd("Not Here");
-        
         $stableDiffusionKey = $this->getStableApiKey();
         if (empty($stableDiffusionKey)) {
             throw new RuntimeException(__('You must provide a StableDiffusion API Key.'));
         }
-        
-        // dd($isV2BetaModels, $stable_type);
-        
+
         $sd3Payload = [];
-        
-        // $baseUri = $isV2BetaModels && in_array($stable_type, ['text-to-image', 'image-to-image'], true)
-        
-        $baseUri = in_array($stable_type, ['text-to-image', 'image-to-image'], true)
+        $baseUri = $isV2BetaModels && in_array($stable_type, ['text-to-image', 'image-to-image'], true)
             ? 'https://api.stability.ai/v2beta/stable-image/generate/'
             : 'https://api.stability.ai/v1/generation/';
         $contentType = ($stable_type === 'image-to-image') ? 'multipart/form-data' : 'application/json';
@@ -1637,64 +1624,44 @@ class AIController extends Controller
         }
 
         try {
-            // dd("Here");
-            // dd("Here");
-            // dd($width . ':' . $height);
-            
-            if (in_array($stable_type, ['text-to-image', 'image-to-image', 'upscale'], true)) {
-                
-                // dd("Here" , $stable_type);
-                
-                
+            if ($isV2BetaModels && in_array($stable_type, ['text-to-image', 'image-to-image'], true)) {
                 $defaultSdModel = 'sd3';
                 $sd3Payload[] = ['name' => 'model', 'contents' => $defaultSdModel];
-                if($stable_type === 'upscale' && $stable_type === 'text-to-image')
-                {
-                    // dd("Here");
-                    
-                    $sd3Payload[] = [
-                        'name'     => 'aspect_ratio',
-                        'contents' => 21 . ':' . 9,
-                    ];
-                }
-                // dd("Not here");
+                $sd3Payload[] = [
+                    'name'     => 'aspect_ratio',
+                    'contents' => $width . ':' . $height,
+                ];
 
-                if ($stable_type === 'upscale') {
-                    // dd("Here");
-                    $http = new Client([
-                        'headers'  => [
-                            'Content-Type'  => $contentType,
-                            'Authorization' => 'Bearer ' . $stableDiffusionKey,
-                            'Accept'        => 'application/json',
+                $response = $client->post($defaultSdModel, [
+                    'headers'   => ['accept' => 'application/json'],
+                    'multipart' => $sd3Payload,
+                ]);
+
+            } elseif ($stable_type === 'upscale') {
+                set_time_limit(500);
+                $http = new Client([
+                    'headers'  => [
+                        'Content-Type'  => $contentType,
+                        'Authorization' => 'Bearer ' . $stableDiffusionKey,
+                        'Accept'        => 'application/json',
+                    ],
+                ]);
+                $response = $http->post('https://api.stability.ai/v2beta/stable-image/upscale/fast', [
+                    'multipart' => [
+                        [
+                            'name'     => 'image',
+                            'contents' => $init_image->get(),
+                            'filename' => $init_image->getClientOriginalName(),
                         ],
-                    ]);
-
-                    $response = $http->post('https://api.stability.ai/v2beta/stable-image/upscale/fast', [
-                        'multipart' => [
-                            [
-                                'name'     => 'image',
-                                'contents' => $init_image->get(),
-                                'filename' => $init_image->getClientOriginalName(),
-                            ],
-                            [
-                                'name'     => 'output_format',
-                                'contents' => 'png',
-                            ],
+                        [
+                            'name'     => 'output_format',
+                            'contents' => 'png',
                         ],
-                    ]);
-
-                } else {
-                    $response = $client->post($defaultSdModel, [
-                        'headers'   => ['accept' => 'application/json'],
-                        'multipart' => $sd3Payload,
-                    ]);
-                }
-
+                    ],
+                ]);
             } else {
                 $defaultSdModel = $stable_type === 'multi-prompt' ? EntityEnum::STABLE_DIFFUSION_V_1_6->value : $defaultSdModel;
-                $response = $client->post("$defaultSdModel/$stable_url", [
-                    $content_type => $payload,
-                ]);
+                $response = $client->post($defaultSdModel . '/' . $stable_url, [$content_type => $payload]);
             }
         } catch (Exception $e) {
             if ($e->hasResponse()) {
@@ -1713,7 +1680,7 @@ class AIController extends Controller
             $nameOfPrompt = explode(' ', mb_substr($prompt[0]['text'], 0, 15))[0];
             $nameOfImage = Str::random(12) . '-STABLE-' . $nameOfPrompt . '.png';
             if (
-                ($stable_type === 'text-to-image' || $stable_type === 'image-to-image' || $stable_type === 'upscale')
+                ($stable_type === 'text-to-image' || $stable_type === 'image-to-image' || $stable_type === 'upscale') && $isV2BetaModels
             ) {
                 $contents = base64_decode(json_decode($body, false, 512, JSON_THROW_ON_ERROR)->image);
             } else {
@@ -1739,6 +1706,9 @@ class AIController extends Controller
     private function processPiAPIImage(?EntityEnum $model, array $param): array
     {
         $prompt = $param['description_midjourney'];
+        if (is_null($prompt)) {
+            throw new RuntimeException(__('You must provide a prompt'));
+        }
 
         $requestId = PiAPIService::generate($prompt);
 
@@ -1755,10 +1725,15 @@ class AIController extends Controller
 
     private function processFalAIImage(?EntityEnum $model, array $param): array
     {
+
         if ($param['image_generator'] === 'ideogram') {
             $prompt = $param['description_ideogram'];
         } else {
             $prompt = $param['description_flux_pro'];
+        }
+
+        if (is_null($prompt)) {
+            throw new RuntimeException(__('You must provide a prompt'));
         }
         if ($model === EntityEnum::IDEOGRAM) {
             $requestId = FalAIService::ideogramGenerate($prompt);
@@ -1784,8 +1759,8 @@ class AIController extends Controller
 
         $data = [
             'team_id'   => $user->team_id,
-            'title'     => $imageDetails['nameOfImage'],
-            'slug'      => Str::random(7) . Str::slug($user->fullName()) . '-workbook',
+            'title'     => $imageDetails['prompt'] ? Str::limit($imageDetails['prompt'], 40) : $imageDetails['nameOfImage'],
+            'slug'      => Str::random(7) . Str::slug($user?->fullName()) . '-workbook',
             'user_id'   => $user->id,
             'openai_id' => $post->id,
             'input'     => $imageDetails['prompt'],

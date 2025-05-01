@@ -55,6 +55,12 @@ class EmailTemplatesController extends Controller
             'content' => 'required',
         ]);
 
+        setting(
+            [
+                'send_payment_confirmation' => $request->has('send_payment_confirmation') ? 1 : 0,
+            ]
+        )->save();
+
         $template->update($data);
 
         return redirect()

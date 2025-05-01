@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin\Config;
 
 use App\Helpers\Classes\Helper;
+use App\Helpers\Classes\MarketplaceHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Common\Menu;
-use App\Models\Extension;
 use App\Models\Setting;
 use App\Models\SettingTwo;
 use App\Services\Common\MenuService;
@@ -27,10 +27,7 @@ class AiToolsController extends Controller
 
     public function index(): View
     {
-        $chatSetting = Extension::query()
-            ->where('slug', 'chat-setting')
-            ->where('installed', true)
-            ->exists();
+        $chatSetting = MarketplaceHelper::isRegistered('chat-setting');
 
         return view('panel.admin.config.tools', compact(['chatSetting']));
     }
@@ -41,7 +38,7 @@ class AiToolsController extends Controller
             return back()->with(['message' => __('This feature is disabled in Demo version.'), 'type' => 'error']);
         }
 
-        if ($request->get('ai_chat_layout') !== setting('ai_chat_layout', 'single')) {
+        if ($request->get('ai_chat_layout')) {
             $chatRecord = Menu::query()->where('key', 'ai_chat_all')->first();
             if ($chatRecord) {
                 $chatRecord->route = $request->get('ai_chat_layout') === 'grid' ? 'dashboard.user.openai.chat.list' : 'dashboard.user.openai.chat.chat';

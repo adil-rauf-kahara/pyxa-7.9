@@ -5,6 +5,7 @@ namespace App\Services\Assistant;
 use App\Domains\Entity\BaseDriver;
 use App\Helpers\Classes\ApiHelper;
 use App\Helpers\Classes\Helper;
+use App\Models\Usage;
 use App\Models\UserOpenaiChat;
 use Exception;
 use GuzzleHttp\Client;
@@ -408,7 +409,7 @@ class AssistantService
     public function createMessage($threadId, $message): array
     {
 
-        if (count($message) > 2 || $message[0]['role'] === 'system') {
+        if (count($message) >= 2 || $message[0]['role'] === 'system') {
             $message = end($message);
         }
 
@@ -435,15 +436,31 @@ class AssistantService
     /**
      * @throws GuzzleException
      */
-    public function createRun($chat_bot, $assistantId, $threadId, $main_message, BaseDriver $driver): StreamedResponse
+    public function createRun($chat_bot, $assistantId, $threadId, $main_message, BaseDriver $driver): ?StreamedResponse
     {
         $total_used_tokens = 0;
         $output = '';
         $responsedText = '';
 
         return response()->stream(function () use ($assistantId, $threadId, $main_message, &$total_used_tokens, &$output, &$responsedText, $driver) {
-            $chat_id = $main_message->user_openai_chat_id;
-            $chat = UserOpenaiChat::whereId($chat_id)->first();
+            $chat = UserOpenaiChat::query()->where('id', $main_message->user_openai_chat_id)->first();
+
+            echo "event: message\n";
+            echo 'data: ' . $main_message->id . "\n\n";
+
+            if (! $driver->hasCreditBalance()) {
+                echo PHP_EOL;
+                echo "event: data\n";
+                echo 'data: ' . __('You have no credits left. Please buy more credits to continue.');
+                echo "\n\n";
+                flush();
+                echo "event: stop\n";
+                echo 'data: [DONE]';
+                echo "\n\n";
+                flush();
+
+                return null;
+            }
 
             $stream = $this->client->post(self::BASE_URL . str_replace('{thread_id}', $threadId, self::RUN_URL), [
                 'headers' => $this->getHeaders(),
@@ -465,15 +482,17 @@ class AssistantService
                         if (isset($eventData['delta']['content'])) {
                             foreach ($eventData['delta']['content'] as $content) {
                                 if ($content['type'] === 'text') {
+                                    $value = $content['text']['value'];
+                                    $text = str_replace(["\r\n", "\r", "\n"], '<br/>', $value);
+                                    $output .= $text;
+                                    $responsedText .= $value;
+                                    $total_used_tokens += countWords($value);
                                     if (connection_aborted()) {
                                         break 2;
                                     }
-                                    $output .= $content['text']['value'];
-                                    $responsedText .= $content['text']['value'];
-                                    $total_used_tokens += countWords($content['text']['value']);
                                     echo PHP_EOL;
                                     echo "event: data\n";
-                                    echo 'data: ' . $content['text']['value'];
+                                    echo 'data: ' . $text;
                                     echo "\n\n";
                                     flush();
                                 }
@@ -494,6 +513,8 @@ class AssistantService
             $main_message->save();
 
             $driver->input($responsedText)->calculateCredit()->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
+
             $chat->total_credits += $total_used_tokens;
             $chat->save();
         }, 200, [

@@ -2,7 +2,7 @@
 
 @section('title', __('AI Voice Clone'))
 @section('titlebar_actions')
-    <x-button href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.voice.create')) }}">
+    <x-button href="{{  (route('dashboard.user.voice.create')) }}">
         <x-tabler-plus class="size-4" />
         {{ __('Add New') }}
     </x-button>

@@ -43,7 +43,7 @@
                             </x-slot:trigger>
 
                             <x-slot:modal
-                                x-data
+                                x-data="{}"
                             >
                                 <form
                                     class="flex flex-col gap-4"
@@ -64,7 +64,16 @@
                                         rows=6
                                         placeholder="{{ __('Add custom prompt') }}"
                                     />
-
+                                    @if (auth()->user()?->isAdmin())
+                                        <x-forms.input
+                                            class:container="mb-2"
+                                            id="show_for_all"
+                                            name="show_for_all"
+                                            type="checkbox"
+                                            label="{{ __('Show this prompt for all users') }}"
+                                            switcher
+                                        />
+                                    @endif
                                     <div class="flex gap-4 border-t pt-3 text-end">
                                         <x-button
                                             class="grow basis-1/2"
@@ -97,7 +106,7 @@
                                         name="filter"
                                         variant="ghost"
                                         filter="all"
-                                        x-data
+                                        x-data="{}"
                                         ::class="promptFilter === '{{ $value }}' && 'active'"
                                         @click="changePromptFilter('{{ $value }}')"
                                     >
@@ -118,7 +127,7 @@
                                 x-model="searchPromptStr"
                                 ::bind="searchPromptStr"
                             />
-                            <x-tabler-search class="size-5 pointer-events-none absolute start-4 top-1/2 -translate-y-1/2" />
+                            <x-tabler-search class="pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2" />
                         </div>
                     </div>
 

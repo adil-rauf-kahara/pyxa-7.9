@@ -56,7 +56,7 @@
 
                     <x-navbar.dropdown.item>
                         <x-navbar.dropdown.link
-                            icon="{{ $child['icon'] ?: '' }}"
+                            icon="{{ $child['icon'] ?? '' }}"
                             label="{{ __($child['label']) }}"
                             href="{{ $child['route'] }}"
                             badge="{{ data_get($child, 'badge') ?? '' }}"

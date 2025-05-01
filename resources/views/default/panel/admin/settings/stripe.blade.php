@@ -8,7 +8,7 @@
                 <div class="col">
                     <a
                         class="page-pretitle flex items-center"
-                        href="{{ LaravelLocalization::localizeUrl(route('dashboard.index')) }}"
+                        href="{{  (route('dashboard.index')) }}"
                     >
                         <svg
                             class="!me-2 rtl:-scale-x-100"

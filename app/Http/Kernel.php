@@ -38,6 +38,8 @@ class Kernel extends HttpKernel
             \RachidLaasri\LaravelInstaller\Middleware\ApplicationStatus::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\Custom\LocaleMiddleware::class,
+            \App\Http\Middleware\Custom\ThemeMiddleware::class,
         ],
 
         'api' => [

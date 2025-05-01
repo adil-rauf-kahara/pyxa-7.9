@@ -58,6 +58,11 @@ class EntityManager extends Manager
         return $this->driver($driver)->forPlan($plan);
     }
 
+    public function driverForGuest(?EntityEnum $driver = null): BaseDriver
+    {
+        return $this->driver($driver)->forGuest();
+    }
+
     public function all(?EngineEnum $filterByEngine = null, ?User $user = null, bool $onlyListableCases = false, ?Plan $plan = null): Collection
     {
         return once(function () use ($filterByEngine, $user, $onlyListableCases, $plan) {

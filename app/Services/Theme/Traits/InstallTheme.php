@@ -114,12 +114,14 @@ trait InstallTheme
 
                 $item = $this->extensionRepository->find($extensionSlug);
 
-                if ($item['theme_type'] == 'Frontend') {
-                    setting(['front_theme' => $extensionSlug])->save();
-                } elseif ($item['theme_type'] == 'Dashboard') {
-                    setting(['dash_theme' => $extensionSlug])->save();
+                $folderName = data_get($this->indexJsonArray, 'slug');
+
+                if ($item['theme_type'] === 'Frontend') {
+                    setting(['front_theme' => $folderName])->save();
+                } elseif ($item['theme_type'] === 'Dashboard') {
+                    setting(['dash_theme' => $folderName])->save();
                 } else {
-                    setting(['front_theme' => $extensionSlug, 'dash_theme' => $extensionSlug])->save();
+                    setting(['front_theme' => $folderName, 'dash_theme' => $folderName])->save();
                 }
 
                 Artisan::call('optimize:clear');

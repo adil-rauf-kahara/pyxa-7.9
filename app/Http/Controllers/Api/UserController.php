@@ -221,7 +221,7 @@ class UserController extends Controller
                 $image = self::sanitizeSVG($request->file('avatar'));
             }
 
-            $image_name = Str::random(4) . '-' . Str::slug($user->fullName()) . '-avatar.' . $image->getClientOriginalExtension();
+            $image_name = Str::random(4) . '-' . Str::slug($user?->fullName()) . '-avatar.' . $image->getClientOriginalExtension();
 
             // Image extension check
             $imageTypes = ['jpg', 'jpeg', 'png', 'svg', 'webp'];
@@ -280,7 +280,7 @@ class UserController extends Controller
             ], 404);
         }
 
-        CreateActivity::for($user, 'Deleted', $user->fullName() . ' deleted his/her account.');
+        CreateActivity::for($user, 'Deleted', $user?->fullName() . ' deleted his/her account.');
 
         // All user data should be deleted from the database via cascade delete
         $user->delete();

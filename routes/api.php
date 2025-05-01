@@ -22,27 +22,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('register-user',  'App\Http\Controllers\Api\AuthController@registerUser');
- 
-Route::post('add-feature-to-user', 'App\Http\Controllers\Api\AuthController@addFeatureToUser');
-
-Route::post('add-tokens','App\Http\Controllers\Api\AuthController@addTokensToUser');
-
-Route::post('update-Entity-Credits-To-Unlimited','App\Http\Controllers\Api\AuthController@updateEntityCreditsToUnlimited');
-
-Route::post('update-text-models-to-unlimited','App\Http\Controllers\Api\AuthController@updateTextModelsToUnlimited');
-
-
-Route::prefix('auth')->group(function () {
-    Route::post('register', 'App\Http\Controllers\Api\AuthController@register');
-    Route::post('forgot-password', 'App\Http\Controllers\Api\AuthController@sendPasswordResetMail');
-    Route::get('email/verify', 'App\Http\Controllers\Api\AuthController@emailConfirmationMail');
-    Route::post('email/verify/resend', 'App\Http\Controllers\Api\AuthController@resend')->middleware('throttle:6,1');
-    Route::get('social-login', 'App\Http\Controllers\Api\AuthController@getSupportedLoginMethods');
-    Route::get('logo', 'App\Http\Controllers\Api\AppController@getLogo');
-    Route::post('google-login', 'App\Http\Controllers\Api\SocialLoginController@google');
-    Route::post('apple-login', 'App\Http\Controllers\Api\SocialLoginController@apple');
-});
+Route::prefix('auth')
+    ->group(function () {
+        Route::post('register', 'App\Http\Controllers\Api\AuthController@register');
+        Route::post('forgot-password', 'App\Http\Controllers\Api\AuthController@sendPasswordResetMail');
+        Route::get('email/verify', 'App\Http\Controllers\Api\AuthController@emailConfirmationMail');
+        Route::post('email/verify/resend', 'App\Http\Controllers\Api\AuthController@resend')->middleware('throttle:6,1');
+        Route::get('social-login', 'App\Http\Controllers\Api\AuthController@getSupportedLoginMethods');
+        Route::get('logo', 'App\Http\Controllers\Api\AppController@getLogo');
+        Route::post('google-login', 'App\Http\Controllers\Api\SocialLoginController@google');
+        Route::post('apple-login', 'App\Http\Controllers\Api\SocialLoginController@apple');
+    });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -190,5 +180,4 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('entity')->group(function () {
         Route::get('/list', 'App\Http\Controllers\Api\EntityController@getAllEntities'); // returns all entities with tokens
     });
-
 });

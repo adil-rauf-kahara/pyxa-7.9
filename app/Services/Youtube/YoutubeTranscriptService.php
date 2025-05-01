@@ -25,6 +25,7 @@ class YoutubeTranscriptService
                 ->onError(function ($response) {
                     return ['error' => 'IP blocked', 'status_code' => $response->getState()];
                 })->body();
+
             $matches = [];
             preg_match('/"captionTracks":(\[.*?])/', $response, $matches);
             if (isset($matches[1])) {

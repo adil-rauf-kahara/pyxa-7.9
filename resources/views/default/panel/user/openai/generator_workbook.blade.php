@@ -9,11 +9,11 @@
     $voice_tones = ['Professional', 'Funny', 'Casual', 'Excited', 'Witty', 'Sarcastic', 'Feminine', 'Masculine', 'Bold', 'Dramatic', 'Grumpy', 'Secretive', 'other'];
 
     $youtube_actions = [
-        'blog' => 'Prepare a Blog Post',
-        'short' => 'Explain the Main Idea',
-        'list' => 'Create a List',
-        'tldr' => 'Create TLDR',
-        'prons_cons' => 'Prepare Pros and Cons',
+        'blog' => __('Prepare a Blog Post'),
+        'short' => __('Explain the Main Idea'),
+        'list' => __('Create a List'),
+        'tldr' => __('Create TLDR'),
+        'prons_cons' => __('Prepare Pros and Cons'),
     ];
 @endphp
 @extends('panel.layout.app', ['disable_tblr' => true])
@@ -80,7 +80,7 @@
                                         <x-slot:label-extra>
                                             <a
                                                 class="inline-flex size-6 items-center justify-center rounded-lg bg-green-500/20 text-green-700 transition-all hover:scale-110 hover:bg-green-500 hover:text-green-100"
-                                                href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.brand.create')) }}"
+                                                href="{{ route('dashboard.user.brand.create') }}"
                                             >
                                                 <x-tabler-plus class="size-4" />
                                             </a>
@@ -444,6 +444,11 @@
     }
 @endphp
 @push('script')
+    <link
+        rel="stylesheet"
+        href="{{ custom_theme_url('/assets/libs/katex/katex.min.css') }}"
+    >
+
     <script>
         @if (setting('default_ai_engine', 'openai') == \App\Domains\Engine\Enums\EngineEnum::ANTHROPIC->value)
             const stream_type = 'backend';
@@ -459,6 +464,8 @@
     <script src="{{ custom_theme_url('/assets/libs/ace/src-min-noconflict/ext-language_tools.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/markdown-it.min.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/turndown.js') }}"></script>
+    <script src="{{ custom_theme_url('/assets/libs/katex/katex.min.js') }}"></script>
+    <script src="{{ custom_theme_url('/assets/libs/vscode-markdown-it-katex/index.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/libs/tinymce/tinymce.min.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/js/panel/tinymce-theme-handler.js') }}"></script>
     <script src="{{ custom_theme_url('/assets/js/format-string.js') }}"></script>

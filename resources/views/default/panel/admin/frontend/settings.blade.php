@@ -106,6 +106,62 @@
                 </div>
             </div>
 
+			<div class="col-md-12">
+				<div class="mb-3">
+					<label class="form-label">{{ __('Registration Active') }}</label>
+					<select
+						class="form-select"
+						id="register_active"
+						name="register_active"
+					>
+						<option
+							value="1"
+							{{ $setting->register_active == 1 ? 'selected' : '' }}
+						>
+							{{ __('Active') }}</option>
+						<option
+							value="0"
+							{{ $setting->register_active == 0 ? 'selected' : '' }}
+						>
+							{{ __('Passive') }}</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="col-md-12">
+				<div class="mb-3">
+					<label class="form-label">{{ __('Facebook domain verification') }}</label>
+					<input
+						class="form-control"
+						id="facebook_domain_verification"
+						type="text"
+						name="facebook_domain_verification"
+						value="{{ setting('facebook_domain_verification', '') }}"
+					>
+				</div>
+			</div>
+
+			<div class="col-md-12">
+				<div class="mb-3">
+					<label class="form-label">{{ __('Google No Index') }}</label>
+					<select
+						class="form-select"
+						id="google_robots"
+						name="google_robots"
+					>
+						<option
+							value="1"
+							{{ setting('google_robots', '0') == 1 ? 'selected' : '' }}
+						>
+							{{ __('Active') }}</option>
+						<option
+							value="0"
+							{{ setting('google_robots', '0') == 0 ? 'selected' : '' }}
+						>
+							{{ __('Passive') }}</option>
+					</select>
+				</div>
+			</div>
         </div>
 
         <div class="row mb-4">
@@ -326,6 +382,11 @@
                     >
                 </div>
             </div>
+
+
+
+
+
             <div class="col-md-12">
                 <div class="mb-3">
                     <div class="group relative w-full">
@@ -361,7 +422,48 @@
                         </div>
                     @endif
 
-                    <div class="col-md-12 deprecated hidden">
+					@if(setting('front_theme') === 'social-media')
+						<div class="col-md-12">
+							<div class="mb-3">
+								<label class="form-label">{{ __('No credit cart required') }}</label>
+								<input
+									class="form-control"
+									id="no_credit_cart_required"
+									type="text"
+									name="no_credit_cart_required"
+									value="{{ $fSetting->no_credit_cart_required }}"
+								>
+							</div>
+						</div>
+
+						<div class="col-md-12">
+							<div class="mb-3">
+								<label class="form-label">
+									{{ __('Faster content creation') }}
+								</label>
+								<textarea
+									class="form-control"
+									id="faster_content_creation"
+									name="faster_content_creation"
+								>{!! $fSetting->faster_content_creation !!}</textarea>
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="mb-3">
+								<label class="form-label">
+									{{ __('Over 5000 businesses') }}
+								</label>
+								<textarea
+									class="form-control"
+									id="over_5000_businesses"
+									name="over_5000_businesses"
+								>{!! $fSetting->over_5000_businesses !!}</textarea>
+							</div>
+						</div>
+					@endif
+
+
+					<div class="col-md-12 deprecated hidden">
                         <div class="mb-3">
                             <label class="form-label">
                                 {{ __('Footer Header') }}
@@ -748,6 +850,8 @@
                 >
                     {{ __('Save') }}
                 </button>
+			</div>
+		</div>
     </form>
 @endsection
 
@@ -772,7 +876,18 @@
 
         var frontend_code_before_body = ace.edit("frontend_code_before_body");
         frontend_code_before_body.session.setMode("ace/mode/html");
-    </script>
+
+		if($('#faster_content_creation')) {
+			var faster_content_creation = ace.edit("faster_content_creation");
+			frontend_code_before_body.session.setMode("ace/mode/html");
+		}
+
+		if($('#over_5000_businesses')){
+			var over_5000_businesses = ace.edit("over_5000_businesses");
+			over_5000_businesses.session.setMode("ace/mode/html");
+		}
+
+	</script>
     <script>
         function showDeprecated() {
             $('.deprecated').toggleClass('hidden');

@@ -62,7 +62,7 @@
                         class="!mt-8 w-full"
                         data-submit="train"
                         data-form="#form-train-web-site"
-                        data-list="#pages"
+                        data-list="#chatbotPages"
                         size="lg"
                         type="submit"
                 >

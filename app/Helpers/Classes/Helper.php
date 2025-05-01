@@ -3,6 +3,7 @@
 namespace App\Helpers\Classes;
 
 use App\Domains\Marketplace\Repositories\Contracts\ExtensionRepositoryInterface;
+use App\Enums\Roles;
 use App\Models\Currency;
 use App\Models\Finance\Subscription;
 use App\Models\RateLimit;
@@ -15,10 +16,22 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Models\Role;
 
 class Helper
 {
     use Traits\HasApiKeys;
+
+    public static function adminPermissions(string $key)
+    {
+        $permissions = Cache::remember('admin_permissions', 3600 * 24, function () {
+            $role = Role::findByName(Roles::ADMIN->value);
+
+            return collect($role->getAllPermissions())->pluck('name')->merge(['admin_dashboard']);
+        });
+
+        return $permissions->contains($key);
+    }
 
     public static function getCurrentActiveSubscription($userId = null)
     {
@@ -62,17 +75,21 @@ class Helper
 
     public static function showIntercomForVipMembership(): bool
     {
-        if (! Auth::user()?->isAdmin()) {
+        if (! Auth::user()->isAdmin()) {
             return false;
         }
 
-        $marketSubscription = app(ExtensionRepositoryInterface::class)->subscription()->json();
+        if (! Auth::user()?->isSuperAdmin()) {
+            if (! Auth::user()->checkPermission('VIP_CHAT_WIDGET')) {
+                return false;
+            }
+        }
 
-        $condition = data_get($marketSubscription, 'data.stripe_status') === 'active';
+        return (bool) Cache::remember('vip_membership', 300, function () {
+            $marketSubscription = app(ExtensionRepositoryInterface::class)->subscription()->json();
 
-        Cache::put('vip_membership', $condition, now()->addMinutes(5));
-
-        return $condition;
+            return data_get($marketSubscription, 'data.stripe_status') === 'active';
+        });
     }
 
     public static function marketplacePaymentMessage(string $status): string
@@ -239,6 +256,7 @@ class Helper
     public static function checkImageDailyLimit()
     {
         $settings_two = SettingTwo::getCache();
+
         if ($settings_two->daily_limit_enabled) {
             if (Helper::appIsDemo()) {
                 $msg = __('You have reached the maximum number of image generation allowed on the demo.');
@@ -279,7 +297,7 @@ class Helper
             if ($teamManager) {
                 if ($teamManager->remaining_images <= 0 and $teamManager->remaining_images != -1) {
                     $data = [
-                        'errors' => ['You have no credits left. Please consider upgrading your plan.'],
+                        'errors' => [__('You have no credits left. Please consider upgrading your plan.')],
                     ];
 
                     return response()->json($data, 429);
@@ -290,7 +308,7 @@ class Helper
                 if (! $member->allow_unlimited_credits) {
                     if ($member->remaining_images <= 0 and $member->remaining_images != -1) {
                         $data = [
-                            'errors' => ['You have no credits left. Please consider upgrading your plan.'],
+                            'errors' => [__('You have no credits left. Please consider upgrading your plan.')],
                         ];
 
                         return response()->json($data, 429);
@@ -300,7 +318,7 @@ class Helper
         } else {
             if ($user->remaining_images <= 0 and $user->remaining_images != -1) {
                 $data = [
-                    'errors' => ['You have no credits left. Please consider upgrading your plan.'],
+                    'errors' => [__('You have no credits left. Please consider upgrading your plan.')],
                 ];
 
                 return response()->json($data, 429);
@@ -324,9 +342,9 @@ class Helper
         return collect($urls)->map(fn ($url) => trim($url, '/'))->implode('/');
     }
 
-    public static function findCurrencyFromId(?int $id)
+    public static function findCurrencyFromId(null|int|string $id)
     {
-        return Currency::cacheFromSetting($id);
+        return Currency::cacheFromSetting((string) $id);
     }
 
     public static function defaultCurrency($column = 'code')

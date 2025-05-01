@@ -4,8 +4,18 @@
     lang="{{ LaravelLocalization::getCurrentLocale() }}"
     dir="{{ LaravelLocalization::getCurrentLocaleDirection() }}"
 >
-
 <head>
+	@if(setting('facebook_domain_verification'))
+		<meta
+			name="facebook-domain-verification"
+			content="{{ setting('facebook_domain_verification') }}"
+		/>
+	@endif
+
+	@if(setting('google_robots'))
+		<meta name="robots" content="noindex, nofollow" />
+	@endif
+
     <meta charset="UTF-8" />
     <meta
         http-equiv="X-UA-Compatible"
@@ -110,7 +120,7 @@
     <div
         class="pointer-events-none invisible fixed left-0 right-0 top-0 z-[99] opacity-0 transition-opacity"
         id="app-loading-indicator"
-        x-data
+        x-data="{}"
         :class="{ 'opacity-0': !$store.appLoadingIndicator.showing, 'invisible': !$store.appLoadingIndicator.showing }"
     >
         <div class="lqd-progress relative h-[3px] w-full bg-foreground/10">
@@ -163,6 +173,10 @@
     @livewireScriptConfig()
 
     @stack('script')
+
+	@if ($app_is_demo)
+		<x-demo-switcher themes-type="Frontend" />
+	@endif
 </body>
 
 </html>

@@ -10,6 +10,7 @@ use App\Models\OpenAIGenerator;
 use App\Models\Plan;
 use App\Models\Setting;
 use App\Models\SettingTwo;
+use App\Models\Usage;
 use App\Models\UserFavorite;
 use App\Models\UserOpenai;
 use App\Services\Bedrock\BedrockRuntimeService;
@@ -407,6 +408,7 @@ class AIWriterController extends Controller
             $message->words = 0;
             $message->save();
             $driver->input($response)->calculateCredit()->decreaseCredit();
+            Usage::getSingle()->updateWordCounts($driver->calculate());
             // echo 'data: {"status": "DONE"}';
             echo "\n\n";
             echo 'data: [DONE]';
@@ -571,6 +573,7 @@ class AIWriterController extends Controller
         $driver = Entity::driver();
         $driver->redirectIfNoCreditBalance();
         $driver->input($response)->calculateCredit()->decreaseCredit();
+        Usage::getSingle()->updateWordCounts($driver->calculate());
 
         return response()->json(['status' => 'Data saved successfully.']);
     }

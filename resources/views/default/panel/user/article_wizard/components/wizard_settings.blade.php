@@ -38,7 +38,7 @@
                             ])
                         >
                             <span
-                                class="size-6 m-0 flex items-center justify-center rounded-lg text-center transition-colors group-[&.active]/step:bg-primary group-[&.active]/step:text-primary-foreground"
+                                class="m-0 flex size-6 items-center justify-center rounded-lg text-center transition-colors group-[&.active]/step:bg-primary group-[&.active]/step:text-primary-foreground"
                             >
                                 {{ $loop->index + 1 }}
                             </span>
@@ -233,7 +233,7 @@
                     <x-button
                         class="w-full gap-9"
                         variant="link"
-                        x-data
+                        x-data="{}"
                         @click.prevent="advancedSettingsShowing = !advancedSettingsShowing"
                     >
                         <span class="h-px grow bg-foreground/10"></span>
@@ -387,7 +387,7 @@
                 </span>
             </h4>
 
-            <p class="text-balance mx-auto w-4/5 text-center font-medium opacity-60">
+            <p class="mx-auto w-4/5 text-balance text-center font-medium opacity-60">
                 {{ __('You can edit your article in documents once it is generated.') }}
             </p>
         </div>
@@ -399,25 +399,25 @@
             <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-6 rounded-xl border p-4">
                 <h4 class="m-0">
                     <span class="flex gap-2 group-[:not([data-step='0'])]/article-wizard:hidden">
-                        <span class="size-5 m-0 flex items-center justify-center rounded-md bg-primary/10 text-3xs text-primary">
+                        <span class="m-0 flex size-5 items-center justify-center rounded-md bg-primary/10 text-3xs text-primary">
                             1
                         </span>
                         {{ __('Select Keywords') }}
                     </span>
                     <span class="flex gap-2 group-[:not([data-step='1'])]/article-wizard:hidden">
-                        <span class="size-5 m-0 flex items-center justify-center rounded-md bg-primary/10 text-3xs text-primary">
+                        <span class="m-0 flex size-5 items-center justify-center rounded-md bg-primary/10 text-3xs text-primary">
                             2
                         </span>
                         {{ __('Choose a Title') }}
                     </span>
                     <span class="flex gap-2 group-[:not([data-step='2'])]/article-wizard:hidden">
-                        <span class="size-5 m-0 flex items-center justify-center rounded-md bg-primary/10 text-3xs text-primary">
+                        <span class="m-0 flex size-5 items-center justify-center rounded-md bg-primary/10 text-3xs text-primary">
                             3
                         </span>
                         {{ __('Outline') }}
                     </span>
                     <span class="flex gap-2 group-[:not([data-step='3'])]/article-wizard:hidden">
-                        <span class="size-5 m-0 flex items-center justify-center rounded-md bg-primary/10 text-3xs text-primary">
+                        <span class="m-0 flex size-5 items-center justify-center rounded-md bg-primary/10 text-3xs text-primary">
                             4
                         </span>
                         {{ __('Image (optional)') }}
@@ -441,7 +441,7 @@
                         </x-slot:trigger>
 
                         <x-slot:modal
-                            x-data
+                            x-data="{}"
                         >
                             <x-forms.input
                                 id="new_keyword"
@@ -499,12 +499,10 @@
                                 >
                                     {{ __('Cancel') }}
                                 </x-button>
-                               
                                 <x-button
                                     id="btn_add_new"
                                     tag="button"
                                     x-ref="submitBtn"
-                                    @click="modalOpen = false"
                                 >
                                     {{ __('Add') }}
                                 </x-button>
@@ -568,7 +566,7 @@
                     </span>
                     <span class="flex items-center gap-2 group-[.lqd-form-submitting]:hidden">
                         {{ __('Next') }}
-                        <span class="size-7 inline-flex items-center justify-center rounded-full bg-background text-foreground">
+                        <span class="inline-flex size-7 items-center justify-center rounded-full bg-background text-foreground">
                             <x-tabler-chevron-right class="size-4" />
                         </span>
                     </span>
@@ -589,7 +587,7 @@
                     </span>
                     <span class="flex items-center gap-2 group-[.lqd-form-submitting]:hidden">
                         {{ __('Next') }}
-                        <span class="size-7 inline-flex items-center justify-center rounded-full bg-background text-foreground">
+                        <span class="inline-flex size-7 items-center justify-center rounded-full bg-background text-foreground">
                             <x-tabler-chevron-right class="size-4" />
                         </span>
                     </span>
@@ -607,7 +605,7 @@
                         {{ __('Result') }}
                     </h2>
                     <a
-                        class="text-nowrap hidden items-center gap-1.5 rounded-md bg-green-600/10 px-2.5 py-1 text-[12px] font-medium leading-none text-green-700 transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-600/5 dark:text-green-400 [&.active]:flex"
+                        class="hidden items-center gap-1.5 text-nowrap rounded-md bg-green-600/10 px-2.5 py-1 text-[12px] font-medium leading-none text-green-700 transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-600/5 dark:text-green-400 [&.active]:flex"
                         id="saved_documents"
                         href="{{ route('dashboard.user.openai.documents.all') }}"
                     >
@@ -647,7 +645,7 @@
 
 <template id="selected_title">
     <p class="title flex w-full cursor-pointer items-center gap-3 rounded-2xl px-4 py-2.5 text-heading-foreground shadow-[0_3px_19px_rgba(47,58,99,0.06)] dark:bg-foreground/5">
-        <span class="size-9 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+        <span class="flex size-9 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
             <x-tabler-check class="size-5" />
         </span>
         <span class="title_text"></span>
@@ -655,7 +653,7 @@
 </template>
 <template id="unselected_title">
     <p class="title flex w-full cursor-pointer items-center gap-3 rounded-2xl border px-4 py-2.5 text-heading-foreground">
-        <span class="size-9 flex items-center justify-center rounded-full bg-foreground/5"></span>
+        <span class="flex size-9 items-center justify-center rounded-full bg-foreground/5"></span>
         <span class="title_text"></span>
     </p>
 </template>
@@ -670,7 +668,7 @@
         data="0"
     >
         <ul class="my-0 list-inside list-disc pe-14 text-xs"></ul>
-        <span class="size-9 absolute end-5 top-5 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+        <span class="absolute end-5 top-5 flex size-9 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
             <x-tabler-check class="size-5" />
         </span>
     </div>
@@ -690,7 +688,7 @@
             class="w-full rounded-2xl border shadow-2xl shadow-black/10"
             src=""
         >
-        <span class="size-9 absolute -end-4 -top-4 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+        <span class="absolute -end-4 -top-4 flex size-9 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
             <x-tabler-check class="size-5" />
         </span>
     </div>

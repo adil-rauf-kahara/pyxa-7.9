@@ -7,7 +7,7 @@
         <x-button
                 variant="primary"
                 onclick="{{ $app_is_demo ? 'return toastr.info(\'This feature is disabled in Demo version.\')' : '' }}"
-                href="{{ $app_is_demo ? '#' : LaravelLocalization::localizeUrl(route('dashboard.admin.ai-assistant.create')) }}"
+                href="{{ $app_is_demo ? '#' :  (route('dashboard.admin.ai-assistant.create')) }}"
         >
             {{ __('Add New Assistant') }}
         </x-button>

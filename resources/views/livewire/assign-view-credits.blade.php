@@ -18,7 +18,7 @@
                         class:label="w-2/3"
                         class="space-y-2"
                         tooltip="{{ $defaultModel->label() }}"
-                        label="{{ $defaultModel->value }} ({{ $defaultModel->subLabel() }} Model)"
+                        label="{{ $defaultModel->value }} ({!! $defaultModel->subLabel() . ($defaultModel->value === \App\Domains\Entity\Enums\EntityEnum::GPT_4_O->value ? __(' & Vision') : '' ) !!} Model)"
                         :error="'entities.' . $defaultModel->engine()->slug() . '.' . $defaultModel->slug() . '.credit'"
                     >
                         <div class="absolute -top-0.5 end-0 !m-0 lg:top-0">
@@ -44,12 +44,28 @@
                                 min="0"
                                 step="1"
                             />
-                            <small>
-                                {{ $defaultModel->tooltipHowToCalc() }}
-                            </small>
+							<div class="w-full flex justify-between mt-1">
+								<small>
+									{{ $defaultModel->tooltipHowToCalc() }}
+								</small>
+								<small>
+									@php
+										$key = $defaultModel->engine()->slug().'.'.$defaultModel->slug();
+
+										if (data_get($costs, $key . '.isUnlimited')) {
+											$cost = '∞';
+										} else{
+										 	$cost = '$' . data_get($costs, $key.'.credit', 0.00);
+										}
+									@endphp
+									{{ trans('Estimated cost (USD): '). $cost }}
+								</small>
+							</div>
+
                         </div>
                     </x-form.group>
                 @endforeach
+
 
                 @if ($modelsWithoutDefault->count() > 0)
                     <div x-data="{ showContent: false }">
@@ -104,9 +120,24 @@
                                                 min="0"
                                                 step="1"
                                             />
-                                            <small>
-                                                {{ $entity->key->tooltipHowToCalc() }}
-                                            </small>
+
+											<div class="w-full flex justify-between mt-1">
+												<small>
+													{{ $entity->key->tooltipHowToCalc() }}
+												</small>
+												<small>
+													@php
+														$key = $entity->engine->slug().'.'.$entity->key->slug();
+
+														if (data_get($costs, $key . '.isUnlimited')) {
+															$cost = '∞';
+														} else{
+															 $cost = '$' . data_get($costs, $key.'.credit', 0.00);
+														}
+													@endphp
+													{{ trans('Estimated cost (USD): '). $cost }}
+												</small>
+											</div>
                                         </div>
                                     </x-form.group>
                                 @endforeach
@@ -117,4 +148,29 @@
             </div>
         @endif
     @endforeach
+
+	@if(count($totals) && $plan)
+		<ul>
+			@foreach($totals['engine'] as $total)
+				<li class="flex justify-between p-1">
+					<span>{{ $total['enum']->label() }}</span>
+					<span>${{ $total['total'] }}</span>
+				</li>
+			@endforeach
+
+				<hr>
+			<li class="flex justify-between p-1">
+				<span>@lang('Plan Price')</span>
+				<span>${{ $plan->price }}</span>
+			</li>
+			<li class="flex justify-between p-1">
+				<span>@lang('Total Cost')</span>
+				<span>${{ $totals['costs'] }}</span>
+			</li>
+			<li class="flex justify-between p-1">
+				<span>@lang('Net Profit')</span>
+				<span>${{ $plan->price - $totals['costs'] }}</span>
+			</li>
+		</ul>
+	@endif
 </div>

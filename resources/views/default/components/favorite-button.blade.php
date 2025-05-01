@@ -14,7 +14,7 @@
 		events: true,
 	})"
     @ajax:missing="$event.preventDefault()"
-    @ajax:after="isFavorite = !isFavorite"
+    @ajax:after="isFavorite = !isFavorite; $dispatch('favorite-toggled', { id: {{ $id }}, isFavorite: isFavorite })"
     href="#"
     title="{{ __('Favorite') }}"
 >

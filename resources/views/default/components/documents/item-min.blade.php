@@ -1,11 +1,12 @@
 @php
     $base_class .= ' flex gap-4 p-4 text-xs last:border-none';
+	$isImage = $entry->generator->type === 'image';
 @endphp
 
 <a
     data-type="{{ trim($entry->generator->type) }}"
     {{ $attributes->withoutTwMergeClasses()->twMerge($base_class, $attributes->get('class')) }}
-    href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.openai.documents.single', $entry->slug)) }}"
+    href="{{  (route('dashboard.user.openai.documents.single', $entry->slug)) }}"
 >
     <x-lqd-icon
         class="lqd-posts-item-icon lqd-docs-item-icon"
@@ -20,7 +21,7 @@
     </x-lqd-icon>
     <span class="block w-0 max-w-full grow overflow-hidden">
         <span class="lqd-posts-item-title lqd-docs-item-title block text-sm font-medium">
-            {{ __($entry->generator->title) }}
+            {{ $isImage ? str()->limit($entry->input, 25) : __($entry->generator->title) }}
         </span>
         <span class="lqd-posts-item-desc lqd-docs-item-desc block w-full overflow-hidden overflow-ellipsis whitespace-nowrap italic opacity-45">
             {{ str()->words(__($entry->generator->description), 30) }}

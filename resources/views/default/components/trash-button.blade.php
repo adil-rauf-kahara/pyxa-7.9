@@ -17,5 +17,5 @@
     href="#"
     title="{{ __('Delete') }}"
 >
-    <x-tabler-trash />
+    <x-tabler-trash class="size-5" />
 </x-button>

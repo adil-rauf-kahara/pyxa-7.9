@@ -7,37 +7,38 @@
 @endphp
 
 <x-dropdown.dropdown
-    class="header-user-dropdown"
+    {{ $attributes->twMerge('header-user-dropdown') }}
     anchor="end"
     offsetY="20px"
 >
     <x-slot:trigger
-        class="size-9 p-0"
+        class="{{ @twMerge('size-9 p-0', $attributes->get('class:trigger')) }}"
     >
-        <span
-            class="size-full inline-block rounded-full bg-cover"
-            style="background-image: url({{ custom_theme_url($user_avatar) }})"
-        ></span>
+        @if (isset($trigger) && filled($trigger))
+            {{ $trigger }}
+        @else
+            <span
+                class="inline-block size-full rounded-full bg-cover"
+                style="background-image: url({{ custom_theme_url($user_avatar) }})"
+            ></span>
+        @endif
     </x-slot:trigger>
 
     <x-slot:dropdown
         class="min-w-52"
     >
         <div class="px-3 pt-3">
-            <p class="m-0 text-foreground">{{ Auth::user()->fullName() }}</p>
+            <p class="m-0 text-foreground">{{ Auth::user()?->fullName() }}</p>
             <p class="text-3xs text-foreground/70">{{ Auth::user()->email }}</p>
         </div>
-
         <hr>
-
-        <x-credit-list
-            class:legends="gap-1"
-            class:modal-trigger="text-2xs w-full"
-            modal-trigger-variant="ghost-shadow"
-            modal-trigger-pos="block"
-            expanded-modal-trigger
-        />
-
+		@if($app_is_not_demo)
+			@include('components.includes.credit-list-for-user')
+		@else
+			{!! \Illuminate\Support\Facades\Cache::remember('components.includes.credit-list-for-user', 3600 * 36000, function () {
+				return view('components.includes.credit-list-for-user')->render();
+            }) !!}
+		@endif
         <hr>
 
         <div class="pb-2 text-2xs">

@@ -3,6 +3,7 @@
 namespace App\Services\PaymentGateways;
 
 use App\Actions\CreateActivity;
+use App\Actions\EmailPaymentConfirmation;
 use App\Enums\Plan\FrequencyEnum;
 use App\Enums\Plan\TypeEnum;
 use App\Events\StripeWebhookEvent;
@@ -158,7 +159,7 @@ class StripeService
 
             $price = (int) ($plan->price * 100);
 
-            $findCurrency = Helper::findCurrencyFromId($gateway->id);
+            $findCurrency = Helper::findCurrencyFromId($gateway?->currency);
 
             $currency = $findCurrency->getAttribute('code');
 
@@ -273,7 +274,7 @@ class StripeService
                 $user->stripe_id = $stripeCustomer->id;
                 $user->save();
             }
-            $currency = Helper::findCurrencyFromId($gateway->id)->code;
+            $currency = Helper::findCurrencyFromId($gateway?->currency)->code;
             $taxRate = $gateway->tax;
             $tax_rate_id = null;
             $taxValue = taxToVal($plan->price, $taxRate);
@@ -628,6 +629,7 @@ class StripeService
                 // }
                 // inform the admin
                 CreateActivity::for($user, __('Subscribed to'), $plan->name . ' ' . __('Plan'));
+                EmailPaymentConfirmation::create($user, $plan)->send();
                 \App\Models\Usage::getSingle()->updateSalesCount($total);
             } else {
                 Log::error("StripeController::subscribeCheckout() - Invalid $intentType");
@@ -845,6 +847,7 @@ class StripeService
                     dispatch(new CancelAwaitingPaymentSubscriptions($stripe, $waitingSubs));
                 }
                 CreateActivity::for($user, __('Purchased'), $plan->name . ' ' . __('Plan'));
+                EmailPaymentConfirmation::create($user, $plan)->send();
                 \App\Models\Usage::getSingle()->updateSalesCount($total);
             } catch (Exception $th) {
                 DB::rollBack();
@@ -1019,7 +1022,7 @@ class StripeService
 
         Config::set('cashier.key', $clientId);
         Config::set('cashier.secret', $clientSecret);
-        Config::set('cashier.currency', Helper::findCurrencyFromId($gateway->id)->code);
+        Config::set('cashier.currency', Helper::findCurrencyFromId($gateway?->currency)->code);
 
         return $clientSecret;
     }

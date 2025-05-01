@@ -161,7 +161,7 @@ jQuery(document).ready(function($) {
 		}
 
 		btn.addClass('lqd-is-busy');
-		$('#pages').addClass('hidden');
+		$('#chatbotPages').addClass('hidden');
 
 		$.ajax({
 			type: 'POST',
@@ -175,12 +175,12 @@ jQuery(document).ready(function($) {
 					toastr.success(response.message);
 				}
 
-				$('#pages').html(response.content);
+				$('#chatbotPages').html(response.content);
 
 				btn.removeClass('lqd-is-busy');
-				$('#pages').removeClass('hidden');
+				$('#chatbotPages').removeClass('hidden');
 
-				$('#pages_total_count').val( $('#pages > .item').length );
+				$('#pages_total_count').val( $('#chatbotPages > .item').length );
 
 			},
 			error: function (response) {

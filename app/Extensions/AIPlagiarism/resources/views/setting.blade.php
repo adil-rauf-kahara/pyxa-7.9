@@ -1,5 +1,7 @@
 @extends('panel.layout.app')
 @section('title', __('Plagiarism API Settings'))
+@section('titlebar_subtitle', __('This API key is used for these features: AI Plagiarism, AI Detector'))
+
 @section('additional_css')
     <link href="/assets/select2/select2.min.css" rel="stylesheet" />
 @endsection

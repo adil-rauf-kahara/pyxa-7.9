@@ -9,11 +9,11 @@
 	$voice_tones = ['Professional', 'Funny', 'Casual', 'Excited', 'Witty', 'Sarcastic', 'Feminine', 'Masculine', 'Bold', 'Dramatic', 'Grumpy', 'Secretive', 'other'];
 
 	$youtube_actions = [
-		'blog' => 'Prepare a Blog Post',
-		'short' => 'Explain the Main Idea',
-		'list' => 'Create a List',
-		'tldr' => 'Create TLDR',
-		'prons_cons' => 'Prepare Pros and Cons',
+		'blog' => __('Prepare a Blog Post'),
+		'short' => __('Explain the Main Idea'),
+		'list' => __('Create a List'),
+		'tldr' => __('Create TLDR'),
+		'prons_cons' => __('Prepare Pros and Cons'),
 	];
 @endphp
 
@@ -56,7 +56,7 @@
 					<x-slot:label-extra>
 						<a
 							class="size-6 inline-flex items-center justify-center rounded-lg bg-green-500/20 text-green-700 transition-all hover:scale-110 hover:bg-green-500 hover:text-green-100"
-							href="{{ LaravelLocalization::localizeUrl(route('dashboard.user.brand.create')) }}"
+							href="{{  (route('dashboard.user.brand.create')) }}"
 						>
 							<x-tabler-plus class="size-4"/>
 						</a>

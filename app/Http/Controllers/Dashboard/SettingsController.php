@@ -6,6 +6,7 @@ use App\Domains\Engine\Enums\EngineEnum;
 use App\Domains\Entity\Enums\EntityEnum;
 use App\Helpers\Classes\ApiHelper;
 use App\Helpers\Classes\Helper;
+use App\Helpers\Classes\MarketplaceHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Settings\GeneralSettingsRequest;
 use App\Models\Extension;
@@ -604,8 +605,6 @@ class SettingsController extends Controller
                     'serper_seo_tool_improve'    => $request->serper_seo_tool_improve,
                 ])->save();
             }
-
-            app(MenuService::class)->regenerate();
         }
 
         return response()->json([], 200);
@@ -801,13 +800,20 @@ class SettingsController extends Controller
             $settings_two->openai_default_stream_server = $request->openai_default_stream_server;
             $settings->save();
             $settings_two->save();
-            setting([
+            setting(key: [
                 'hide_creativity_option'    => $request->hide_creativity_option,
                 'hide_tone_of_voice_option' => $request->hide_tone_of_voice_option,
                 'hide_output_length_option' => $request->hide_output_length_option,
                 'dalle_hidden'              => $request->dalle_hidden,
                 'realtime_voice_chat'       => $request->realtime_voice_chat,
+                'openai_file_search'        => $request->openai_file_search,
             ])->save();
+
+            if (MarketplaceHelper::isRegistered('chatbot')) {
+                \App\Extensions\Chatbot\System\Models\Chatbot::query()->update([
+                    'ai_model' => $request->openai_default_model,
+                ]);
+            }
         }
         app(MenuService::class)->regenerate();
 
@@ -822,6 +828,8 @@ class SettingsController extends Controller
                 $user->affiliate_status = $request->input('affiliate_status');
                 $user->save();
             }
+
+            app(MenuService::class)->regenerate();
         }
 
         return response()->json([], 200);

@@ -4,6 +4,7 @@ namespace App\Helpers\Classes;
 
 use App\Models;
 use App\Models\OpenAIGenerator;
+use App\Models\OpenaiGeneratorChatCategory;
 use App\Services\Common\MenuService;
 use Database\Seeders\AdminPermissionSeeder;
 use Database\Seeders\EngineSeeder;
@@ -20,13 +21,14 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use RachidLaasri\LaravelInstaller\Repositories\ApplicationStatusRepositoryInterface;
 
 class InstallationHelper
 {
-    public static function runInstallation(): void
+    public static function runInstallation(?bool $check = true): void
     {
-        $installationData = self::data();
+        $installationData = self::data($check);
 
         foreach ($installationData as $key => $value) {
             if (isset($value['table'])) {
@@ -89,7 +91,7 @@ class InstallationHelper
         DB::beginTransaction();
     }
 
-    public static function data(): array
+    public static function data(?bool $check = true): array
     {
         return [
             [
@@ -347,6 +349,17 @@ class InstallationHelper
                 ],
             ],
             [
+                'table' => 'email_templates',
+                'sql'   => [
+                    [
+                        'condition' => Models\EmailTemplates::count() === 0,
+                        'files'     => [
+                            'dev_tools/subscription_and_payment_email_templates.sql',
+                        ],
+                    ],
+                ],
+            ],
+            [
                 'table' => 'plans',
                 'sql'   => [
                     [
@@ -359,6 +372,25 @@ class InstallationHelper
                             foreach ($plans as $plan) {
                                 $plan->open_ai_items = $openaiItems;
                                 $plan->save();
+                            }
+                        },
+                    ],
+                ],
+            ],
+            [
+                'table' => 'plans',
+                'sql'   => [
+                    [
+                        'condition' => Schema::hasColumn('plans', 'hidden_url'),
+                        'callback'  => function () {
+                            $plans = Models\Plan::whereNotNull('hidden_url')->get();
+
+                            foreach ($plans as $plan) {
+                                $newUrl = Str::replace('/dashboard/user/', '/plan/', $plan->hidden_url);
+
+                                if ($newUrl !== $plan->hidden_url) {
+                                    $plan->update(['hidden_url' => $newUrl]);
+                                }
                             }
                         },
                     ],
@@ -453,7 +485,7 @@ class InstallationHelper
                 'table' => 'settings_two',
                 'sql'   => [
                     [
-                        'condition' => Models\SettingTwo::query()->whereNotNull('liquid_license_domain_key')->exists(),
+                        'condition' => Models\SettingTwo::query()->whereNotNull('liquid_license_domain_key')->exists() && $check,
                         'callback'  => function () {
                             try {
                                 $check = Helper::settingTwo('liquid_license_domain_key');
@@ -495,7 +527,9 @@ class InstallationHelper
                                     'label' => 'AI Bots',
                                     'order' => 2,
                                 ]);
-
+                                Models\Common\Menu::query()->where('key', 'ext_chat_bot_agent')->update([
+                                    'label' => 'Human Agent',
+                                ]);
                             } catch (Exception $exception) {
                             }
                         },
@@ -654,6 +688,11 @@ class InstallationHelper
                                         'key' => 'introductions',
                                     ])->delete();
 
+                                Models\Common\Menu::query()
+                                    ->where([
+                                        'key' => 'api_cost_management',
+                                    ])->delete();
+
                                 $apiIntegration = Models\Common\Menu::query()
                                     ->where([
                                         'key' => 'api_integration',
@@ -680,9 +719,6 @@ class InstallationHelper
                                 Models\Common\Menu::query()->where('key', 'api_integration_fal_ai')->update([
                                     'label'     => 'Fal AI',
                                 ]);
-
-                                $keysToBeDeleted = ['novita_extension', 'tavus_extension', 'api_integration_llama', 'ai_tavus'];
-                                Models\Common\Menu::query()->whereIn('key', $keysToBeDeleted)->delete();
 
                                 app(MenuService::class)->regenerate();
                             } catch (Exception $exception) {
@@ -776,6 +812,38 @@ class InstallationHelper
                                 Models\Frontend\FrontendSectionsStatus::query()->update([
                                     'marquee_items' => 'Cold Email,Newsletter,Summarize,Product Description,Testimonial,Pick an outfit,Study Vocabulary, Create a workout plan,Transcribe my class notes,Create a pros and cons list,Morning Productivity Plan,Experience Tokyo like a local,Translate',
                                 ]);
+                            } catch (Exception $exception) {
+                            }
+                        },
+                    ],
+                ],
+            ],
+            [
+                'table' => 'openai_chat_category',
+                'sql'   => [
+                    [
+                        'condition' => true,
+                        'callback'  => function () {
+                            try {
+                                // fill the column with the default value if it's empty
+
+                                $data = OpenaiGeneratorChatCategory::query()
+                                    ->where('slug', 'ai_pdf')
+                                    ->first();
+
+                                if ($data) {
+                                    $description = $data->description;
+                                    $helps_with = $data->helps_with;
+
+                                    $description = str_replace('CSV', 'CSX, XLS, XLSX', $description);
+                                    $helps_with = str_replace('CSV', 'CSX, XLS, XLSX', $helps_with);
+
+                                    $data->update([
+                                        'description' => $description,
+                                        'helps_with'  => $helps_with,
+                                    ]);
+                                }
+
                             } catch (Exception $exception) {
                             }
                         },

@@ -1,3 +1,4 @@
+@if ($app_is_not_demo)
 <script>
     document.addEventListener('DOMContentLoaded', function() {
 		fetch('/vip-intercom-partial')
@@ -23,3 +24,4 @@
 </script>
 
 <div id="vip-intercom-container"></div>
+@endif

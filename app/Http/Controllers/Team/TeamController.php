@@ -48,7 +48,7 @@ class TeamController extends Controller
         return Team::query()->firstOrCreate([
             'user_id' => auth()->id(),
         ], [
-            'name'        => $user->fullName(),
+            'name'        => $user?->fullName(),
             'allow_seats' => $allow_seats ?: 0,
         ]);
     }
