@@ -27,18 +27,18 @@
     });
 
     @if ($lastThreeMessage != null)
-            @foreach ($lastThreeMessage as $entry)
-        message = {
-        role: "user",
-        content: @json($entry->input)
-    };
-    messages.push(message);
-    message = {
-        role: "assistant",
-        content: @json($entry->output)
-    };
-    messages.push(message);
-    @endforeach
+        @foreach ($lastThreeMessage as $entry)
+            message = {
+                role: "user",
+                content: @json($entry->input)
+            };
+            messages.push(message);
+            message = {
+                role: "assistant",
+                content: @json($entry->output)
+            };
+            messages.push(message);
+        @endforeach
     @endif
 </script>
 <script src="{{ custom_theme_url('/assets/js/panel/openai_chat.js?v=' . time()) }}"></script>
@@ -61,12 +61,12 @@
             $.ajax({
                 url: '/dashboard/user/brand/get-products/' + brand_id,
                 type: 'get',
-                success: function (response) {
+                success: function(response) {
                     product_element.empty();
                     if (response.length == 0) {
                         product_element.append('<option value="">Select Product</option>');
                     } else {
-                        $.each(response, function (index, value) {
+                        $.each(response, function(index, value) {
                             product_element.append('<option value="' + value.id + '">' + value.name + '</option>');
                         });
                     }

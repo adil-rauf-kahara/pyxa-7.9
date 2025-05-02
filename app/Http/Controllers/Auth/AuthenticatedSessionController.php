@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\EmailConfirmation;
 use App\Events\UsersActivityEvent;
-use App\Helpers\Classes\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Mail\OtpEmail;
@@ -98,9 +97,7 @@ class AuthenticatedSessionController extends Controller
                 return response()->json(['link' => '2fa/login']);
             }
 
-            if (Helper::appIsNotDemo()) {
-                event(new UsersActivityEvent($user->email, $user->type, $request->ip(), $request->header('User-Agent')));
-            }
+            event(new UsersActivityEvent($user->email, $user->type, $request->ip(), $request->header('User-Agent')));
         }
 
         return response()->json([

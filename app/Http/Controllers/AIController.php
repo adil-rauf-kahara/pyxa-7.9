@@ -1473,7 +1473,6 @@ class AIController extends Controller
         if (is_null($prompt)) {
             throw new RuntimeException(__('You must provide a prompt'));
         }
-
         $negative_prompt = $param['negative_prompt'];
         $style_preset = $param['style_preset'];
         $sampler = $param['sampler'];
@@ -1636,7 +1635,6 @@ class AIController extends Controller
                     'headers'   => ['accept' => 'application/json'],
                     'multipart' => $sd3Payload,
                 ]);
-
             } elseif ($stable_type === 'upscale') {
                 set_time_limit(500);
                 $http = new Client([
@@ -1665,14 +1663,18 @@ class AIController extends Controller
             }
         } catch (Exception $e) {
             if ($e->hasResponse()) {
-                $errorMessage = $e->getResponse()->getBody()->getContents();
-                $errorData = json_decode($errorMessage, true, 512, JSON_THROW_ON_ERROR);
-                $errorDetails = $errorData['errors'][0] ?? 'Unknown error';
+                try {
+                    $responseBody = $e->getResponse()->getBody()->getContents();
+                    $errorData = json_decode($responseBody, true);
+                    $errorMessage = $errorData['message'] ?? ($errorData['errors'][0] ?? 'Unknown error');
 
-                throw new RuntimeException($errorDetails);
+                    throw new RuntimeException($errorMessage);
+                } catch (JsonException $jsonException) {
+                    throw new RuntimeException('Failed to decode error response.');
+                }
+            } else {
+                throw new RuntimeException('An unexpected error occurred: ' . $e->getMessage());
             }
-
-            throw new RuntimeException($e->getMessage());
         }
 
         $body = $response->getBody();

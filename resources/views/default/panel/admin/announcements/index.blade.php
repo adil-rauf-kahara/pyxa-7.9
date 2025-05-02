@@ -35,64 +35,19 @@
         class="py-10"
         x-data="{ 'activeFilter': 'Light' }"
     >
-        @if (setting('notification_active', 0) == 1)
-            <form
-                class="mx-auto flex w-full flex-col gap-5 lg:w-5/12"
-                action="{{ route('dashboard.admin.announcements.store') }}"
-                method="POST"
-            >
+
+        @if (View::exists('announcement::partials.list'))
+            <div class="mx-auto flex w-full flex-col gap-5 lg:w-5/12">
                 <x-form-step
                     step="1"
-                    label="{{ __('Send Announcement') }}"
+                    label="{{ __('Public Announcement') }}"
                 />
-
-                @csrf
-                <x-forms.input
-                    id="title"
-                    size="lg"
-                    label="{{ __('Title') }}"
-                    tooltip="{{ __('The title of the announcement.') }}"
-                    placeholder="{{ __('Title') }}"
-                    name="title"
-                    required
-                />
-
-                <x-forms.input
-                    id="message"
-                    label="{{ __('Message') }}"
-                    tooltip="{{ __('The message of the announcement.') }}"
-                    placeholder="{{ __('Message') }}"
-                    type="textarea"
-                    rows="3"
-                    name="message"
-                />
-
-                <x-forms.input
-                    id="url"
-                    label="{{ __('URL') }}"
-                    tooltip="{{ __('The URL of the announcement. Leave empty if you do not want to include a URL.') }}"
-                    placeholder="{{ __('URL (optional)') }}"
-                    name="url"
-                />
-
-                @if ($app_is_demo)
-                    <x-button
-                        type="button"
-                        onclick="return toastr.info('This feature is disabled in Demo version.');"
-                    >
-                        {{ __('Save') }}
-                    </x-button>
-                @else
-                    <x-button type="submit">
-                        {{ __('Save') }}
-                    </x-button>
-                @endif
-
-            </form>
+                @include('announcement::partials.list')
+            </div>
         @endif
 
         <form
-            class="mx-auto flex w-full flex-col gap-4 pt-10 lg:w-5/12"
+            class="mx-auto flex w-full flex-col gap-4 py-10 lg:w-5/12"
             action="{{ route('dashboard.admin.announcements.store') }}"
             method="POST"
             enctype="multipart/form-data"
@@ -183,7 +138,10 @@
                 rows="3"
                 name="announcement_description"
             >
-                {!! setting('announcement_description', 'We are excited to have you here. Explore the marketplace to find the best AI models for your needs.') !!}
+                {!! setting(
+                    'announcement_description',
+                    'We are excited to have you here. Explore the marketplace to find the best AI models for your needs.',
+                ) !!}
             </x-forms.input>
 
             <x-forms.input
@@ -418,6 +376,62 @@
             @endif
 
         </form>
+
+        @if (setting('notification_active', 0) == 1)
+            <form
+                class="mx-auto flex w-full flex-col gap-5 lg:w-5/12"
+                action="{{ route('dashboard.admin.announcements.store') }}"
+                method="POST"
+            >
+                <x-form-step
+                    step="3"
+                    label="{{ __('Send Announcement') }}"
+                />
+
+                @csrf
+                <x-forms.input
+                    id="title"
+                    size="lg"
+                    label="{{ __('Title') }}"
+                    tooltip="{{ __('The title of the announcement.') }}"
+                    placeholder="{{ __('Title') }}"
+                    name="title"
+                    required
+                />
+
+                <x-forms.input
+                    id="message"
+                    label="{{ __('Message') }}"
+                    tooltip="{{ __('The message of the announcement.') }}"
+                    placeholder="{{ __('Message') }}"
+                    type="textarea"
+                    rows="3"
+                    name="message"
+                />
+
+                <x-forms.input
+                    id="url"
+                    label="{{ __('URL') }}"
+                    tooltip="{{ __('The URL of the announcement. Leave empty if you do not want to include a URL.') }}"
+                    placeholder="{{ __('URL (optional)') }}"
+                    name="url"
+                />
+
+                @if ($app_is_demo)
+                    <x-button
+                        type="button"
+                        onclick="return toastr.info('This feature is disabled in Demo version.');"
+                    >
+                        {{ __('Save') }}
+                    </x-button>
+                @else
+                    <x-button type="submit">
+                        {{ __('Save') }}
+                    </x-button>
+                @endif
+
+            </form>
+        @endif
 
     </div>
 @endsection

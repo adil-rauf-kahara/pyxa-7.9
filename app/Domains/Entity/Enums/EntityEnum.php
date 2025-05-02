@@ -39,6 +39,7 @@ use App\Domains\Entity\Drivers\SerperDriver;
 use App\Domains\Entity\Drivers\SpeechifyDriver;
 use App\Domains\Entity\Drivers\StableDiffusion;
 use App\Domains\Entity\Drivers\SynthesiaDriver;
+use App\Domains\Entity\Drivers\Together;
 use App\Domains\Entity\Drivers\UnsplashDriver;
 use App\Domains\Entity\Drivers\XAI;
 use App\Enums\AITokenType;
@@ -209,6 +210,9 @@ enum EntityEnum: string
     case DALL_E_2 = 'dall-e-2';
 
     case DALL_E_3 = 'dall-e-3';
+
+    case GPT_IMAGE_1 = 'gpt-image-1';
+
     case TTS_1 = 'tts-1';
     case TTS_1_HD = 'tts-1-hd';
     case GROK_2_1212 = 'grok-2-1212';
@@ -276,6 +280,8 @@ enum EntityEnum: string
 
     case FAST_ANIMATEDIFF_TURBO = 'fast-animatediff/turbo/video-to-video';
 
+    case BLACK_FOREST_LABS_FLUX_1_SCHNELL = 'black-forest-labs/FLUX.1-schnell';
+
     public static function listableCases(): Collection
     {
         return collect(self::cases())->map(
@@ -304,6 +310,7 @@ enum EntityEnum: string
     public function label(): string
     {
         return match ($this) {
+            self::BLACK_FOREST_LABS_FLUX_1_SCHNELL  => __('Black Forest Labs Flux 1 Schnell'),
             self::IMAGE_TO_VIDEO                    => __('AI Video'),
             self::STABLE_DIFFUSION_XL_1024_V_1_0    => __('Stable Diffusion XL 1.0'),
             self::STABLE_DIFFUSION_V_1_6            => __('Stable Diffusion 1.6'),
@@ -336,6 +343,7 @@ enum EntityEnum: string
             self::WHISPER_1                   => __('WHISPER 1 The latest text to speech model, optimized for speed.'),
             self::DALL_E_2                    => __('DALL-E 2 The previous DALL·E model released in Nov 2022.'),
             self::DALL_E_3                    => __('DALL-E 3 The latest DALL·E model released in Nov 2023.'),
+            self::GPT_IMAGE_1                 => __('GPT-IMAGE-1 The latest image model released in Nov 2025.'),
             self::TTS_1                       => __('TTS 1 The latest text to speech model, optimized for speed.'),
             self::TTS_1_HD                    => __('TTS 1 HD The latest text to speech model, optimized for quality.'),
             self::GPT_4_O                     => __('GPT-4o Most advanced works for Vision, multimodal flagship model that’s cheaper and faster than GPT-4 Turbo.  (Updated Knowleddge cutoff of Oct 2023, 128k)'),
@@ -487,6 +495,8 @@ enum EntityEnum: string
             self::CORE,
             self::ULTRA,
             self::AWS_BEDROCK => EngineEnum::STABLE_DIFFUSION,
+            // Together
+            self::BLACK_FOREST_LABS_FLUX_1_SCHNELL => EngineEnum::TOGETHER,
             // OpenAI
             self::DAVINCI,
             self::TEXT_DAVINCI_003,
@@ -505,6 +515,7 @@ enum EntityEnum: string
             self::WHISPER_1,
             self::DALL_E_2,
             self::DALL_E_3,
+            self::GPT_IMAGE_1,
             self::TTS_1,
             self::TTS_1_HD,
             self::GPT_4_O,
@@ -618,6 +629,8 @@ enum EntityEnum: string
     public function driverClass(): string
     {
         return match ($this) {
+            // Together
+            self::BLACK_FOREST_LABS_FLUX_1_SCHNELL=> Together\FLUX1SchnellDriver::class,
             // Stable Diffusion
             self::IMAGE_TO_VIDEO                   => StableDiffusion\ImageToVideoDriver::class,
             self::STABLE_DIFFUSION_XL_1024_V_1_0   => StableDiffusion\XL1024V10Driver::class,
@@ -651,6 +664,7 @@ enum EntityEnum: string
             self::WHISPER_1                   => OpenAI\Whisper1Driver::class,
             self::DALL_E_2                    => OpenAI\DallE2Driver::class,
             self::DALL_E_3                    => OpenAI\DallE3Driver::class,
+            self::GPT_IMAGE_1                 => OpenAI\GptImage1Driver::class,
             self::TTS_1                       => OpenAI\TTS1Driver::class,
             self::TTS_1_HD                    => OpenAI\TTS1HDDriver::class,
             self::GPT_4_O                     => OpenAI\GPT4ODriver::class,
@@ -766,9 +780,10 @@ enum EntityEnum: string
     public function unitPrice(): float
     {
         return match ($this) {
-            self::IMAGE_TO_VIDEO                 => 0.2,
-            self::STABLE_DIFFUSION_XL_1024_V_1_0 => 0.009,
-            self::STABLE_DIFFUSION_V_1_6         => 0.009,
+            self::BLACK_FOREST_LABS_FLUX_1_SCHNELL => 0.002359,
+            self::IMAGE_TO_VIDEO                   => 0.2,
+            self::STABLE_DIFFUSION_XL_1024_V_1_0   => 0.006,
+            self::STABLE_DIFFUSION_V_1_6           => 0.01,
             self::SD_3, self::ULTRA, self::SD_3_TURBO => 0.03,
             self::SD_3_MEDIUM        => 0.035,
             self::SD_3_LARGE         => 0.065,
@@ -784,13 +799,14 @@ enum EntityEnum: string
             self::GPT_3_5_TURBO_16K      => 0.00000532,
             self::GPT_3_5_TURBO_0125     => 0.000001995,
             self::GPT_4_TURBO, self::GPT_4_1106_PREVIEW, self::GPT_4_0125_PREVIEW, self::GPT_4_VISION_PREVIEW, self::TTS_1_HD => 0.0000399,
-            self::GPT_4                  => 0.0000798,
-            self::TEXT_EMBEDDING_ADA_002 => 0.0000000665,
-            self::TEXT_EMBEDDING_3_SMALL => 0.0000000665,
-            self::TEXT_EMBEDDING_3_LARGE => 0.0000000665,
-            self::WHISPER_1              => 0.000000798,
-            self::DALL_E_2               => 0.0000266,
-            self::DALL_E_3               => 0.0001596,
+            self::GPT_4                     => 0.0000798,
+            self::TEXT_EMBEDDING_ADA_002    => 0.0000000665,
+            self::TEXT_EMBEDDING_3_SMALL    => 0.0000000665,
+            self::TEXT_EMBEDDING_3_LARGE    => 0.0000000665,
+            self::WHISPER_1                 => 0.000000798,
+            self::DALL_E_2                  => 0.04,
+            self::DALL_E_3                  => 0.08,
+            self::GPT_IMAGE_1               => 0.042,
             self::TTS_1, self::GPT_4_O   => 0.00001995,
             self::GPT_4_O_MINI                => 0.000000798,
             self::GPT_4_O_SEARCH_PREVIEW      => 0.0000798,

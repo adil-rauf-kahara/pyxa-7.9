@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use JsonException;
 use OpenAI;
 use Throwable;
 
@@ -722,9 +723,8 @@ class SettingsController extends Controller
 
     public function stablediffusionTest(): void
     {
-        $client = new Client;
         $settings = SettingTwo::getCache();
-        if ($settings->stable_diffusion_api_key == '') {
+        if ($settings->stable_diffusion_api_key === '') {
             echo 'You must provide Stable Difussion API key.';
 
             return;
@@ -735,39 +735,52 @@ class SettingsController extends Controller
         foreach ($apiKeys as $apiKey) {
 
             $client = new Client([
-                'base_uri' => 'https://stablediffusionapi.com',
+                'base_uri' => 'https://api.stability.ai/v2beta/stable-image/generate/',
                 'headers'  => [
-                    'Content-Type' => 'application/json',
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Accept'        => 'application/json',
                 ],
             ]);
-            $prompt = 'Man on the mountain';
+            $sd3Payload = [
+                [
+                    'name'     => 'prompt',
+                    'contents' => 'cat',
+                ],
+                [
+                    'name'     => 'file',
+                    'contents' => 'no',
+                ],
+                [
+                    'name'     => 'output_format',
+                    'contents' => 'png',
+                ],
+                [
+                    'name'     => 'model',
+                    'contents' => 'sd3',
+                ],
+            ];
 
             try {
-                // print_r($client); exit;
-                $response = $client->post('/api/v3/text2img', [
-                    'json' => [
-                        'key'                 => $apiKey,
-                        'prompt'              => $prompt,
-                        'negative_prompt'     => null,
-                        'width'               => 512,
-                        'height'              => 512,
-                        'samples'             => 1,
-                        'num_inference_steps' => '20',
-                        'seed'                => null,
-                        'guidance_scale'      => 7.5,
-                        'safety_checker'      => 'yes',
-                        'multi_lingual'       => 'no',
-                        'panorama'            => 'no',
-                        'self_attention'      => 'no',
-                        'upscale'             => 'no',
-                        'embeddings_model'    => null,
-                        'webhook'             => null,
-                        'track_id'            => null,
-                    ],
+                $response = $client->post('sd3', [
+                    'headers'   => ['accept' => 'application/json'],
+                    'multipart' => $sd3Payload,
                 ]);
                 echo ' <br>' . $apiKey . ' - SUCCESS <br>';
             } catch (Exception $e) {
-                echo $e->getMessage() . ' - ' . $apiKey . ' -FAILED <br>';
+                if ($e->hasResponse()) {
+                    try {
+                        $responseBody = $e->getResponse()->getBody()->getContents();
+                        $errorData = json_decode($responseBody, true);
+                        $errorMessage = $errorData['message'] ?? ($errorData['errors'][0] ?? 'Unknown error');
+
+                        echo $errorMessage . ' - ' . $apiKey . ' -FAILED <br>';
+                    } catch (JsonException $jsonException) {
+                        echo 'Failed to decode error response.' . ' - ' . $apiKey . ' -FAILED <br>';
+                    }
+                } else {
+                    echo 'An unexpected error occurred: ' . $e->getMessage() . ' - ' . $apiKey . ' -FAILED <br>';
+                }
             }
         }
     }

@@ -20,7 +20,7 @@ use RachidLaasri\LaravelInstaller\Middleware\ApplicationStatus;
 
 Route::get('language/{lang}/change', LocaleController::class)->name('language.change');
 
-Route::get('test', [TestController::class, 'test'])->name('test');
+Route::any('test', [TestController::class, 'test'])->name('test');
 
 Route::view('test/chatbot', 'default.chatbot');
 Route::get('default', static function () {

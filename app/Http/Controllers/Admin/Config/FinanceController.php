@@ -48,7 +48,8 @@ class FinanceController extends Controller
 
         setting(
             [
-                'onetime_commission'  => $request->has('onetime_commission') ? 1 : 0,
+                'onetime_commission'     => $request->has('onetime_commission') ? 1 : 0,
+                'soft_plan_cancellation' => $request->has('soft_plan_cancellation') ? 1 : 0,
             ]
         )->save();
 

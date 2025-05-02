@@ -12,7 +12,6 @@
                     $defaultModels = $aiEngine->getDefaultModels($setting, $settings_two);
                     $modelsWithoutDefault = $aiEngine->getListableActiveModels($setting, $settings_two);
                 @endphp
-
                 @foreach ($defaultModels as $defaultModel)
                     <x-form.group
                         class:label="w-2/3"
@@ -55,9 +54,12 @@
 										if (data_get($costs, $key . '.isUnlimited')) {
 											$cost = '∞';
 										} else{
-										 	$cost = '$' . data_get($costs, $key.'.credit', 0.00);
+											if (is_numeric(data_get($costs, $key.'.credit', 0.00))) {
+												$cost = '$' . formatSmallNumber(data_get($costs, $key.'.credit', 0.00));
+											}
 										}
 									@endphp
+
 									{{ trans('Estimated cost (USD): '). $cost }}
 								</small>
 							</div>
@@ -132,7 +134,9 @@
 														if (data_get($costs, $key . '.isUnlimited')) {
 															$cost = '∞';
 														} else{
-															 $cost = '$' . data_get($costs, $key.'.credit', 0.00);
+															if (is_numeric(data_get($costs, $key.'.credit', 0.00))) {
+																$cost = '$' . formatSmallNumber(data_get($costs, $key.'.credit', 0.00));
+															}
 														}
 													@endphp
 													{{ trans('Estimated cost (USD): '). $cost }}

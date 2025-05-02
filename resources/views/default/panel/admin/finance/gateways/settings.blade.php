@@ -332,7 +332,7 @@
 		@if($options['code'] === 'stripe' || $options['code'] === 'razorpay')
 			<x-forms.input
 				disabled
-				value="{{ url('webhook').'/' . $options['code'] }}"
+				value="{{ url('webhooks').'/' . $options['code'] }}"
 				id="bank_account_details"
 				name="bank_account_details"
 				size="lg"

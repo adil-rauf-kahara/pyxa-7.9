@@ -54,6 +54,7 @@ class User extends Authenticatable
         'defi_setting',
         'affiliate_status',
         'entity_credits',
+        'last_activity_at',
     ];
 
     protected $hidden = [

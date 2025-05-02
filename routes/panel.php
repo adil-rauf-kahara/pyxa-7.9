@@ -358,6 +358,14 @@ Route::middleware(['auth', 'updateUserActivity'])
             ->group(function () {
                 Route::get('/', [AdminController::class, 'index'])->name('index');
 
+                Route::group([
+                    'as'	    => 'dashboard-widget.',
+                    'prefix' => 'dashboard-widget',
+                ], function () {
+                    Route::put('order', [AdminController::class, 'dashboardWidgetOrderUpdate'])->name('order');
+                    Route::put('{widget}/status', [AdminController::class, 'updateDashboardWidgetStatus'])->name('status');
+                });
+
                 Route::resource('ai-assistant', AssistantController::class);
 
                 Route::group([

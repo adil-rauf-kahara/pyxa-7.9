@@ -329,7 +329,8 @@
 						'default.panel.admin.settings.particles.photo-studio-general-setting',
 						'vendor.empty',
 					])
-				</div>
+					@includeIf('ai-realtime-image::partials.ai-realtime-image-tool')
+			</div>
 		</div>
 
 

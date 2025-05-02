@@ -1,5 +1,18 @@
 @php
-    $voice_tones = ['Professional', 'Funny', 'Casual', 'Excited', 'Witty', 'Sarcastic', 'Feminine', 'Masculine', 'Bold', 'Dramatic', 'Grumpy', 'Secretive'];
+    $voice_tones = [
+        'Professional',
+        'Funny',
+        'Casual',
+        'Excited',
+        'Witty',
+        'Sarcastic',
+        'Feminine',
+        'Masculine',
+        'Bold',
+        'Dramatic',
+        'Grumpy',
+        'Secretive',
+    ];
 @endphp
 
 @extends('panel.layout.settings')

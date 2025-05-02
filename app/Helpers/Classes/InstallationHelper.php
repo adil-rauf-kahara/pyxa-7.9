@@ -3,10 +3,12 @@
 namespace App\Helpers\Classes;
 
 use App\Models;
+use App\Models\DashboardWidget;
 use App\Models\OpenAIGenerator;
 use App\Models\OpenaiGeneratorChatCategory;
 use App\Services\Common\MenuService;
 use Database\Seeders\AdminPermissionSeeder;
+use Database\Seeders\DashboardWidgetSeeder;
 use Database\Seeders\EngineSeeder;
 use Database\Seeders\EntitySeeder;
 use Database\Seeders\IntroductionSeeder;
@@ -1066,6 +1068,20 @@ class InstallationHelper
                                 }
 
                                 app(MenuService::class)->regenerate();
+                            } catch (Exception $exception) {
+                            }
+                        },
+                    ],
+                ],
+            ],
+            [
+                'table' => 'dashboard_widgets',
+                'sql'   => [
+                    [
+                        'condition' => DashboardWidget::query()->doesntExist(),
+                        'callback'  => function () {
+                            try {
+                                app(DashboardWidgetSeeder::class)->run();
                             } catch (Exception $exception) {
                             }
                         },

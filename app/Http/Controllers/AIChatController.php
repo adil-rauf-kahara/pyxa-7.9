@@ -521,12 +521,14 @@ class AIChatController extends Controller
 
         $doc_content = file_get_contents($doc->getRealPath());
         $fileName = Str::random(12) . '.' . $type;
+
         Storage::disk('public')->put('temp.' . $type, $doc_content);
+
         Storage::disk('public')->put($fileName, $doc_content);
 
-        $uploadedFile = new File(substr("/uploads/$fileName", 1));
-
         $resPath = "/uploads/$fileName";
+
+        $uploadedFile = new File(public_path("$resPath"));
 
         if ($this->settings_two->ai_image_storage === 's3') {
             try {
@@ -540,7 +542,7 @@ class AIChatController extends Controller
 
         if ($type === 'pdf') {
             $parser = new \Smalot\PdfParser\Parser;
-            $text = $parser->parseFile('uploads/temp.pdf')->getText();
+            $text = $parser->parseFile(public_path('uploads/temp.pdf'))->getText();
             if (! mb_check_encoding($text, 'UTF-8')) {
                 $page = mb_convert_encoding($text, 'UTF-8', mb_detect_encoding($text));
             } else {
@@ -623,9 +625,6 @@ class AIChatController extends Controller
 
     public function startNewDocChat(Request $request): JsonResponse
     {
-        set_time_limit(500);
-        ini_set('max_execution_time', 500);
-
         if ((int) setting('openai_file_search', 0) === 1) {
             return $this->startNewDocChatResponseApi($request);
         }
@@ -647,6 +646,7 @@ class AIChatController extends Controller
 
         try {
             $filePath = $this->uploadDoc($request, $chat->id, $request->type);
+
             $chat->reference_url = $filePath;
             $chat->doc_name = $request->file('doc')->getClientOriginalName();
             $chat->save();
@@ -2354,6 +2354,24 @@ class AIChatController extends Controller
         $chat = UserOpenaiChat::find($request->chat_id);
         $chat_bot = EntityEnum::fromSlug(empty($request->model) ? $this->settings?->openai_default_model : $request->model) ?? EntityEnum::GPT_4_O;
 
+        if (! empty($chat->category->slug) && $chat->category->slug === 'ai_chat_image') {
+            $chat_bot = $this->getDefaultOpenAiImageModel();
+            $driver = EntityFacade::driver($chat_bot)->inputImageCount(1);
+            Usage::getSingle()->updateImageCounts($driver->calculate());
+        } else {
+            $driver = EntityFacade::driver($chat_bot)->input($request->response);
+            Usage::getSingle()->updateWordCounts($driver->calculate());
+        }
+
+        try {
+            $driver->redirectIfNoCreditBalance();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'status'  => 'error',
+            ], 419);
+        }
+
         $message = new UserOpenaiChatMessage;
         $message->user_openai_chat_id = $chat->id;
         $message->user_id = Auth::id();
@@ -2368,15 +2386,8 @@ class AIChatController extends Controller
         $message->pdfName = $request->pdfName;
         $message->outputImage = $request->outputImage;
         $message->save();
-        if (! empty($chat->category->slug) && $chat->category->slug === 'ai_chat_image') {
-            $chat_bot = $this->getDefaultOpenAiImageModel();
-            $driver = EntityFacade::driver($chat_bot)->inputImageCount(1);
-            Usage::getSingle()->updateImageCounts($driver->calculate());
-        } else {
-            $driver = EntityFacade::driver($chat_bot)->input($request->response);
-            Usage::getSingle()->updateWordCounts($driver->calculate());
-            $driver->calculateCredit()->decreaseCredit();
-        }
+
+        $driver->calculateCredit()->decreaseCredit();
 
         return response()->json([]);
     }

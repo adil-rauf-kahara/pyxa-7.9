@@ -32,34 +32,29 @@ class ViewServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Share app status
         $this->sharedAppStatus();
-
-        // pagination
         Paginator::useBootstrap();
 
-        if (! Helper::dbConnectionStatus()) {
-            return;
+        if (Helper::dbConnectionStatus()) {
+            $this->tables = app('magicai_tables');
+
+            if (! TableSchema::hasTable('migrations', $this->tables) || ! TableSchema::hasTable('settings', $this->tables)) {
+                return;
+            }
+
+            $this->shareSetting();
+
+            $this->shareAiGenerator();
+
+            //        $this->viewComposerShare();
+
+            $this->goodForNowShare();
+
+            View::composer(
+                ['components.navbar.navbar', 'panel.layout.partials.menu'],
+                PlanComposer::class
+            );
         }
-
-        $this->tables = app('magicai_tables');
-
-        if (! TableSchema::hasTable('migrations', $this->tables) || ! TableSchema::hasTable('settings', $this->tables)) {
-            return;
-        }
-
-        $this->shareSetting();
-
-        $this->shareAiGenerator();
-
-        //        $this->viewComposerShare();
-
-        $this->goodForNowShare();
-
-        View::composer(
-            ['components.navbar.navbar', 'panel.layout.partials.menu'],
-            PlanComposer::class
-        );
     }
 
     public function goodForNowShare(): void

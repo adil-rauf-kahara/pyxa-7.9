@@ -17,6 +17,7 @@ use App\Models\ChatCategory;
 use App\Models\Clients;
 use App\Models\Coupon;
 use App\Models\CustomSettings;
+use App\Models\DashboardWidget;
 use App\Models\Faq;
 use App\Models\Favourite;
 use App\Models\Finance\AiChatModelPlan;
@@ -88,17 +89,24 @@ class AdminController extends Controller
         }
 
         return view('panel.admin.index', [
-            'activity'       => $this->service->activity(),
-            'latestOrders'   => $this->service->latestOrders(),
-            'gatewayError'   => false,
-            'vip_membership' => (bool) $vip_membership,
+            'activity'              => $this->service->activity(),
+            'latestOrders'   		     => $this->service->latestOrders(),
+            'recentTransactions'    => $this->service->getRecentTransactions(),
+            'gatewayError'          => false,
+            'vip_membership'        => (bool) $vip_membership,
         ]);
     }
 
     private function isMobileDevice($userAgent): bool
     {
         $mobileDevices = [
-            'Mobile', 'Android', 'Silk/', 'Kindle', 'BlackBerry', 'Opera Mini', 'Opera Mobi',
+            'Mobile',
+            'Android',
+            'Silk/',
+            'Kindle',
+            'BlackBerry',
+            'Opera Mini',
+            'Opera Mobi',
         ];
 
         foreach ($mobileDevices as $device) {
@@ -481,7 +489,6 @@ class AdminController extends Controller
         } else {
             return response()->json([], 403);
         }
-
     }
 
     public function categoryList(Request $request)
@@ -1222,7 +1229,6 @@ class AdminController extends Controller
             if ($save == 1) {
                 $bottomline->save();
             }
-
         }
     }
 
@@ -1565,7 +1571,6 @@ class AdminController extends Controller
                     $settings->{$logo} = $image_name;
                     $settings->save();
                 }
-
             }
 
             if ($request->hasFile('favicon')) {
@@ -1590,7 +1595,6 @@ class AdminController extends Controller
                 $settings->save();
             }
         }
-
     }
 
     // Section Settings
@@ -2175,5 +2179,46 @@ class AdminController extends Controller
         Cache::forget('admin_permissions');
 
         return back()->with(['message' => __('Saved Successfully'), 'type' => 'success']);
+    }
+
+    // dashboard widget
+    public function dashboardWidgetOrderUpdate(Request $request)
+    {
+        if (Helper::appIsDemo()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => trans('This feature is disabled in demo mode.'),
+            ]);
+        }
+
+        $data = $request->get('menu');
+        $widgets = array_keys($data);
+
+        foreach ($widgets as $key => $value) {
+            DashboardWidget::where('id', $value)
+                ->update(['order' => $key]);
+        }
+
+        Cache::forget('dashboard_widgets');
+
+        return response()->json(['message' => __('Updated Successfully'), 'type' => 'success']);
+    }
+
+    // dashboard widget status
+    public function updateDashboardWidgetStatus(DashboardWidget $widget, Request $request)
+    {
+        if (Helper::appIsDemo()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => trans('This feature is disabled in demo mode.'),
+            ]);
+        }
+
+        $widget->update(['enabled' => ! $widget->enabled]);
+        Cache::forget('dashboard_widgets');
+
+        return response()->json([
+            'message' => trans('Widget updated'),
+        ]);
     }
 }

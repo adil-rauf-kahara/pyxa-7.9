@@ -7,8 +7,8 @@
     "file": "assets/fetch-CvTUqYbn.js",
     "name": "fetch"
   },
-  "_pusher-DBv1u2fG.js": {
-    "file": "assets/pusher-DBv1u2fG.js",
+  "_pusher-C2yoWxVh.js": {
+    "file": "assets/pusher-C2yoWxVh.js",
     "name": "pusher",
     "isDynamicEntry": true,
     "imports": [
@@ -67,7 +67,7 @@
     "src": "public/themes/sleek/assets/img/bg/bg.png"
   },
   "resources/views/bolt/js/app.js": {
-    "file": "assets/app-ERqHoRpI.js",
+    "file": "assets/app-tO9Ntdj-.js",
     "name": "app",
     "src": "resources/views/bolt/js/app.js",
     "isEntry": true,
@@ -78,7 +78,7 @@
     ]
   },
   "resources/views/bolt/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-Chv6sGOc.js",
+    "file": "assets/chatbotApp-B_fI0H-p.js",
     "name": "chatbotApp",
     "src": "resources/views/bolt/js/chatbotApp.js",
     "isEntry": true,
@@ -89,17 +89,17 @@
     ]
   },
   "resources/views/bolt/scss/dashboard.scss": {
-    "file": "assets/dashboard-C-1bGCUb.css",
+    "file": "assets/dashboard-GTaYfqps.css",
     "src": "resources/views/bolt/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/bolt/scss/landing-page.scss": {
-    "file": "assets/landing-page-Ds8OAtuC.css",
+    "file": "assets/landing-page-TSxx7QEM.css",
     "src": "resources/views/bolt/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/classic/js/app.js": {
-    "file": "assets/app-CvwQnxh4.js",
+    "file": "assets/app-CZmHs7Jp.js",
     "name": "app",
     "src": "resources/views/classic/js/app.js",
     "isEntry": true,
@@ -110,7 +110,7 @@
     ]
   },
   "resources/views/classic/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-DKU6qOTy.js",
+    "file": "assets/chatbotApp-8T35LCOV.js",
     "name": "chatbotApp",
     "src": "resources/views/classic/js/chatbotApp.js",
     "isEntry": true,
@@ -121,17 +121,17 @@
     ]
   },
   "resources/views/classic/scss/dashboard.scss": {
-    "file": "assets/dashboard-BRJ6LGcY.css",
+    "file": "assets/dashboard-BB_EnSaD.css",
     "src": "resources/views/classic/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/classic/scss/landing-page.scss": {
-    "file": "assets/landing-page-Ds8OAtuC.css",
+    "file": "assets/landing-page-TSxx7QEM.css",
     "src": "resources/views/bolt/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/creative/js/app.js": {
-    "file": "assets/app-D4O_hqRx.js",
+    "file": "assets/app-C-s1tJdk.js",
     "name": "app",
     "src": "resources/views/creative/js/app.js",
     "isEntry": true,
@@ -142,7 +142,7 @@
     ]
   },
   "resources/views/creative/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-6Q9C_2mc.js",
+    "file": "assets/chatbotApp-DutfoVmH.js",
     "name": "chatbotApp",
     "src": "resources/views/creative/js/chatbotApp.js",
     "isEntry": true,
@@ -153,17 +153,17 @@
     ]
   },
   "resources/views/creative/scss/dashboard.scss": {
-    "file": "assets/dashboard-51QBP459.css",
+    "file": "assets/dashboard-CuNV-J4W.css",
     "src": "resources/views/creative/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/creative/scss/landing-page.scss": {
-    "file": "assets/landing-page-BZpOmnqu.css",
+    "file": "assets/landing-page-B7UyWD7q.css",
     "src": "resources/views/creative/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/dark/js/app.js": {
-    "file": "assets/app-Bfui-GoS.js",
+    "file": "assets/app-CJ9lhrLu.js",
     "name": "app",
     "src": "resources/views/dark/js/app.js",
     "isEntry": true,
@@ -174,7 +174,7 @@
     ]
   },
   "resources/views/dark/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-BeOSN_49.js",
+    "file": "assets/chatbotApp-BVhWKrfm.js",
     "name": "chatbotApp",
     "src": "resources/views/dark/js/chatbotApp.js",
     "isEntry": true,
@@ -185,17 +185,17 @@
     ]
   },
   "resources/views/dark/scss/dashboard.scss": {
-    "file": "assets/dashboard-51QBP459.css",
+    "file": "assets/dashboard-CuNV-J4W.css",
     "src": "resources/views/creative/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/dark/scss/landing-page.scss": {
-    "file": "assets/landing-page-C25lwIGe.css",
+    "file": "assets/landing-page-CNt3ARUz.css",
     "src": "resources/views/dark/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/default/js/app.js": {
-    "file": "assets/app-Dz1qQbOU.js",
+    "file": "assets/app-BjR-fWpQ.js",
     "name": "app",
     "src": "resources/views/default/js/app.js",
     "isEntry": true,
@@ -205,11 +205,11 @@
     ],
     "dynamicImports": [
       "node_modules/laravel-echo/dist/echo.js",
-      "_pusher-DBv1u2fG.js"
+      "_pusher-C2yoWxVh.js"
     ]
   },
   "resources/views/default/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-CiL88lYN.js",
+    "file": "assets/chatbotApp-C63GT450.js",
     "name": "chatbotApp",
     "src": "resources/views/default/js/chatbotApp.js",
     "isEntry": true,
@@ -218,21 +218,21 @@
       "_clipboard-CBCTDmBy.js"
     ],
     "css": [
-      "assets/chatbotApp-COJ9vDyl.css"
+      "assets/chatbotApp-Df91Tu7f.css"
     ]
   },
   "resources/views/default/scss/dashboard.scss": {
-    "file": "assets/dashboard-51QBP459.css",
+    "file": "assets/dashboard-CuNV-J4W.css",
     "src": "resources/views/creative/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/default/scss/landing-page.scss": {
-    "file": "assets/landing-page-Ds8OAtuC.css",
+    "file": "assets/landing-page-TSxx7QEM.css",
     "src": "resources/views/bolt/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/magic-works/js/app.js": {
-    "file": "assets/app-CbtJgqPd.js",
+    "file": "assets/app-DPIIxqRR.js",
     "name": "app",
     "src": "resources/views/magic-works/js/app.js",
     "isEntry": true,
@@ -243,7 +243,7 @@
     ]
   },
   "resources/views/magic-works/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-D_gwOZ6t.js",
+    "file": "assets/chatbotApp-Be-jbDX5.js",
     "name": "chatbotApp",
     "src": "resources/views/magic-works/js/chatbotApp.js",
     "isEntry": true,
@@ -254,17 +254,17 @@
     ]
   },
   "resources/views/magic-works/scss/dashboard.scss": {
-    "file": "assets/dashboard-Dp3gtTHh.css",
+    "file": "assets/dashboard-Drb2Dc7H.css",
     "src": "resources/views/magic-works/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/magic-works/scss/landing-page.scss": {
-    "file": "assets/landing-page-Dl-NaiEF.css",
+    "file": "assets/landing-page-BuQb0fR2.css",
     "src": "resources/views/magic-works/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/modern/js/app.js": {
-    "file": "assets/app-Ch5nkplN.js",
+    "file": "assets/app-C1aSuL-z.js",
     "name": "app",
     "src": "resources/views/modern/js/app.js",
     "isEntry": true,
@@ -275,7 +275,7 @@
     ]
   },
   "resources/views/modern/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-CtVhZyOp.js",
+    "file": "assets/chatbotApp-DP_msa76.js",
     "name": "chatbotApp",
     "src": "resources/views/modern/js/chatbotApp.js",
     "isEntry": true,
@@ -283,21 +283,21 @@
       "_fetch-CvTUqYbn.js"
     ],
     "css": [
-      "assets/chatbotApp-COJ9vDyl.css"
+      "assets/chatbotApp-Df91Tu7f.css"
     ]
   },
   "resources/views/modern/scss/dashboard.scss": {
-    "file": "assets/dashboard-51QBP459.css",
+    "file": "assets/dashboard-CuNV-J4W.css",
     "src": "resources/views/creative/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/modern/scss/landing-page.scss": {
-    "file": "assets/landing-page-BmhoVNxD.css",
+    "file": "assets/landing-page-VCLmkoQZ.css",
     "src": "resources/views/modern/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/myai-tools/js/app.js": {
-    "file": "assets/app-DGO_csf_.js",
+    "file": "assets/app-wxejI5xy.js",
     "name": "app",
     "src": "resources/views/myai-tools/js/app.js",
     "isEntry": true,
@@ -308,7 +308,7 @@
     ]
   },
   "resources/views/myai-tools/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-B3E7WqZc.js",
+    "file": "assets/chatbotApp-Boz3nup_.js",
     "name": "chatbotApp",
     "src": "resources/views/myai-tools/js/chatbotApp.js",
     "isEntry": true,
@@ -319,17 +319,17 @@
     ]
   },
   "resources/views/myai-tools/scss/dashboard.scss": {
-    "file": "assets/dashboard-DEyfIKyQ.css",
+    "file": "assets/dashboard-Ds_sEnrK.css",
     "src": "resources/views/myai-tools/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/myai-tools/scss/landing-page.scss": {
-    "file": "assets/landing-page-CicZObqo.css",
+    "file": "assets/landing-page-B02JQeAd.css",
     "src": "resources/views/myai-tools/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/neura/js/app.js": {
-    "file": "assets/app-BDi-qwnv.js",
+    "file": "assets/app-DF4CNWa8.js",
     "name": "app",
     "src": "resources/views/neura/js/app.js",
     "isEntry": true,
@@ -340,7 +340,7 @@
     ]
   },
   "resources/views/neura/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-n81wPa03.js",
+    "file": "assets/chatbotApp-CcsMe7NS.js",
     "name": "chatbotApp",
     "src": "resources/views/neura/js/chatbotApp.js",
     "isEntry": true,
@@ -351,17 +351,17 @@
     ]
   },
   "resources/views/neura/scss/dashboard.scss": {
-    "file": "assets/dashboard-DX-CRI-A.css",
+    "file": "assets/dashboard-CDnWMBUz.css",
     "src": "resources/views/neura/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/neura/scss/landing-page.scss": {
-    "file": "assets/landing-page-Ds8OAtuC.css",
+    "file": "assets/landing-page-TSxx7QEM.css",
     "src": "resources/views/bolt/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/sleek/js/app.js": {
-    "file": "assets/app-DF8X4vI4.js",
+    "file": "assets/app-DO0_m3Lz.js",
     "name": "app",
     "src": "resources/views/sleek/js/app.js",
     "isEntry": true,
@@ -372,7 +372,7 @@
     ]
   },
   "resources/views/sleek/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-DmHiL4tD.js",
+    "file": "assets/chatbotApp-hQH-H5u8.js",
     "name": "chatbotApp",
     "src": "resources/views/sleek/js/chatbotApp.js",
     "isEntry": true,
@@ -383,17 +383,17 @@
     ]
   },
   "resources/views/sleek/scss/dashboard.scss": {
-    "file": "assets/dashboard-Dr9qT5vw.css",
+    "file": "assets/dashboard-DH5CWkaA.css",
     "src": "resources/views/sleek/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/sleek/scss/landing-page.scss": {
-    "file": "assets/landing-page-Ds8OAtuC.css",
+    "file": "assets/landing-page-TSxx7QEM.css",
     "src": "resources/views/bolt/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/social-media-dashboard/js/app.js": {
-    "file": "assets/app-BcClBPnX.js",
+    "file": "assets/app-BJLuxJoA.js",
     "name": "app",
     "src": "resources/views/social-media-dashboard/js/app.js",
     "isEntry": true,
@@ -404,7 +404,7 @@
     ]
   },
   "resources/views/social-media-dashboard/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-DWINjF2s.js",
+    "file": "assets/chatbotApp-DNCVLqQf.js",
     "name": "chatbotApp",
     "src": "resources/views/social-media-dashboard/js/chatbotApp.js",
     "isEntry": true,
@@ -415,17 +415,17 @@
     ]
   },
   "resources/views/social-media-dashboard/scss/dashboard.scss": {
-    "file": "assets/dashboard-DQ12XE8m.css",
+    "file": "assets/dashboard-I-nHuPpt.css",
     "src": "resources/views/social-media-dashboard/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/social-media-dashboard/scss/landing-page.scss": {
-    "file": "assets/landing-page-8-3RfOpM.css",
+    "file": "assets/landing-page-cmy9uFsi.css",
     "src": "resources/views/social-media-dashboard/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/social-media-front/js/app.js": {
-    "file": "assets/app-C4DIgFMQ.js",
+    "file": "assets/app-C0X38jPG.js",
     "name": "app",
     "src": "resources/views/social-media-front/js/app.js",
     "isEntry": true,
@@ -436,7 +436,7 @@
     ]
   },
   "resources/views/social-media-front/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-Br9cIQvb.js",
+    "file": "assets/chatbotApp-Db9LIuqZ.js",
     "name": "chatbotApp",
     "src": "resources/views/social-media-front/js/chatbotApp.js",
     "isEntry": true,
@@ -447,17 +447,17 @@
     ]
   },
   "resources/views/social-media-front/scss/dashboard.scss": {
-    "file": "assets/dashboard-YFMkRoCr.css",
+    "file": "assets/dashboard-DnELMlmH.css",
     "src": "resources/views/social-media-front/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/social-media-front/scss/landing-page.scss": {
-    "file": "assets/landing-page-8-3RfOpM.css",
+    "file": "assets/landing-page-cmy9uFsi.css",
     "src": "resources/views/social-media-dashboard/scss/landing-page.scss",
     "isEntry": true
   },
   "resources/views/spawnd/js/app.js": {
-    "file": "assets/app-PYb94aWg.js",
+    "file": "assets/app-CAuDLUFN.js",
     "name": "app",
     "src": "resources/views/spawnd/js/app.js",
     "isEntry": true,
@@ -468,7 +468,7 @@
     ]
   },
   "resources/views/spawnd/js/chatbotApp.js": {
-    "file": "assets/chatbotApp-DLIMu1n-.js",
+    "file": "assets/chatbotApp-YqKcMEDx.js",
     "name": "chatbotApp",
     "src": "resources/views/spawnd/js/chatbotApp.js",
     "isEntry": true,
@@ -479,12 +479,12 @@
     ]
   },
   "resources/views/spawnd/scss/dashboard.scss": {
-    "file": "assets/dashboard-ux2xkQHV.css",
+    "file": "assets/dashboard-CFSvUVQm.css",
     "src": "resources/views/spawnd/scss/dashboard.scss",
     "isEntry": true
   },
   "resources/views/spawnd/scss/landing-page.scss": {
-    "file": "assets/landing-page-Ds8OAtuC.css",
+    "file": "assets/landing-page-TSxx7QEM.css",
     "src": "resources/views/bolt/scss/landing-page.scss",
     "isEntry": true
   }

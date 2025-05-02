@@ -3,14 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Notify;
+use App\Domains\Engine\Concerns\HasCache;
+use App\Extensions\Announcement\System\Models\Announcement;
+use App\Helpers\Classes\MarketplaceHelper;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class AnnouncementController extends Controller
 {
+    use HasCache;
+
     public function index()
     {
+        $this->setAnnouncement();
+
         return view('panel.admin.announcements.index');
     }
 
@@ -132,5 +140,27 @@ class AnnouncementController extends Controller
         ])->save();
 
         return response()->json(['message' => __('Announcement has been reset.'), 'success' => true]);
+    }
+
+    // set announcement
+    protected function setAnnouncement(): void
+    {
+        if (! MarketplaceHelper::isRegistered('announcement')) {
+            Cache::forget('public_announcements');
+
+            $this->cache('public_announcements', function () {
+                return [];
+            });
+
+            return;
+        }
+
+        if (cache()->has('public_announcements') && cache('public_announcements') === []) {
+            Cache::forget('public_announcements');
+        }
+
+        $this->cache('public_announcements', function () {
+            return Announcement::query()->orderByDesc('created_at')->take(10)->get();
+        });
     }
 }

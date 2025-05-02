@@ -357,7 +357,7 @@ class AssistantService
                 'headers' => $this->getHeaders(),
             ])->getBody()->getContents();
 
-            return json_decode($response, true, 512, JSON_THROW_ON_ERROR)['data'];
+            return json_decode($response, true, 512, JSON_THROW_ON_ERROR);
         } catch (Exception $e) {
             return [
                 'status'  => 'error',

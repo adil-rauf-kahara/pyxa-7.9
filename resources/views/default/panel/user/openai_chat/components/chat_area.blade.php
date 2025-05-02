@@ -79,7 +79,7 @@
         @endif
     @endif
 
-    <div class="lqd-chat-ai-bubble mb-2.5 flex max-w-full content-start gap-2 last:mb-0">
+    <div class="lqd-chat-ai-bubble mb-2.5 flex max-w-full content-start items-start gap-2 last:mb-0">
         @if ($message->output != null)
             <div class="lqd-chat-sender flex items-center gap-2.5">
                 <span
@@ -96,7 +96,7 @@
                     $output = str_replace(['<br>', '<br/>', '<br >', '<br />'], "\n", $output);
                 @endphp
                 <pre
-                    class="chat-content prose relative w-full max-w-none !whitespace-pre-wrap px-6 py-3 indent-0 font-[inherit] text-xs font-normal text-current [word-break:break-word] empty:hidden [&_*]:text-current">{{ $output }}</pre>
+                    class="chat-content prose relative w-full max-w-none !whitespace-pre-wrap px-6 py-3.5 indent-0 font-[inherit] text-xs font-normal text-current [word-break:break-word] empty:hidden [&_*]:text-current">{{ $output }}</pre>
                 <div
                     class="lqd-clipboard-copy-wrap group/copy-wrap pointer-events-auto invisible absolute -end-5 bottom-0 opacity-0 transition-all group-hover:!visible group-hover:!opacity-100">
                     <button
@@ -128,11 +128,25 @@
         </div>
     @endif
 @endforeach
+
 @if ($chat?->category?->slug !== 'ai_realtime_voice_chat' && count($chat?->messages ?? []) === 0)
-    <div class="mb-2.5 flex content-end">
-        <div class="w-full-none rounded-[2em] bg-secondary text-heading-foreground dark:bg-white/[2%]">
-            <div class="chat-content px-6 py-3">
-                {{ __('You have no message... Please start typing.') }}
+    <div class="lqd-chat-ai-bubble mb-2.5 flex max-w-full content-start items-start gap-2 last:mb-0 group-[&.lqd-chat-v2]/body:first:hidden">
+        <div class="chat-content-container group relative max-w-[calc(100%-64px)] rounded-[2em] bg-clay text-heading-foreground dark:bg-white/[2%]">
+            @php
+                $output = __('You have no message... Please start typing.');
+                $output = str_replace(['<br>', '<br/>', '<br >', '<br />'], "\n", $output);
+            @endphp
+            <pre
+                class="chat-content prose relative w-full max-w-none !whitespace-pre-wrap px-6 py-3.5 indent-0 font-[inherit] text-xs font-normal text-current [word-break:break-word] empty:hidden [&_*]:text-current">{{ $output }}</pre>
+            <div
+                class="lqd-clipboard-copy-wrap group/copy-wrap pointer-events-auto invisible absolute -end-5 bottom-0 opacity-0 transition-all group-hover:!visible group-hover:!opacity-100">
+                <button
+                    class="lqd-clipboard-copy inline-flex size-10 items-center justify-center rounded-full border-none bg-white p-0 text-black shadow-lg transition-all hover:-translate-y-[2px] hover:scale-110"
+                    data-copy-options='{ "content": ".chat-content", "contentIn": "<.chat-content-container" }'
+                    title="{{ __('Copy to clipboard') }}"
+                >
+                    <x-tabler-copy class="size-4" />
+                </button>
             </div>
         </div>
     </div>

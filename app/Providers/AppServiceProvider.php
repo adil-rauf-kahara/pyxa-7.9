@@ -42,7 +42,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-
         if ($this->app->environment('local')) {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);
@@ -59,7 +58,6 @@ class AppServiceProvider extends ServiceProvider
             Schema::defaultStringLength(191);
             $this->initializeTables();
             $this->configSet();
-            $this->setTheme();
             $this->jobRuns();
             $this->app->setLocale($this->getLocale('en'));
         } else {
@@ -69,38 +67,6 @@ class AppServiceProvider extends ServiceProvider
         $this->registerHealthChecks();
         $this->bootBladeDirectives();
         $this->bootObservers();
-    }
-
-    protected function setTheme(): void
-    {
-        if (TableSchema::hasTable('app_settings', app('magicai_tables'))) {
-            $this->setDefaultSettings();
-
-            $activated_front_theme = setting('front_theme');
-            $activated_dash_theme = setting('dash_theme');
-
-            $sameTheme = $activated_front_theme === $activated_dash_theme;
-
-            $isDashboard = request()->is('dashboard*', '*/dashboard*');
-
-            $themeToSet = match (true) {
-                $sameTheme   => $activated_front_theme,
-                $isDashboard => $activated_dash_theme,
-                default      => $activated_front_theme,
-            };
-
-            Theme::set($themeToSet);
-        }
-    }
-
-    protected function setDefaultSettings(): void
-    {
-        if (setting('front_theme') === null) {
-            setting(['front_theme' => 'default'])->save();
-        }
-        if (setting('dash_theme') === null) {
-            setting(['dash_theme' => 'default'])->save();
-        }
     }
 
     protected function configSet(): void

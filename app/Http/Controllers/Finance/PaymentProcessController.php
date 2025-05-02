@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Actions\CreateActivity;
+use App\Domains\Entity\Enums\EntityEnum;
+use App\Domains\Entity\Facades\Entity;
 use App\Enums\Plan\FrequencyEnum;
 use App\Helpers\Classes\Helper;
 use App\Http\Controllers\Controller;
@@ -25,6 +27,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -348,9 +351,42 @@ class PaymentProcessController extends Controller
 
     public function checkSubscriptionStatusFromAjax(): JsonResponse
     {
+        Auth::user()?->update([
+            'last_activity_at' => now(),
+        ]);
+
         return response()->json([
             'status' => self::getSubscriptionStatus(),
         ]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function checkSoftDelete($activeSub): void
+    {
+        if (! $activeSub) {
+            $user = auth()->user();
+            $needsToBeCancelled = Subscriptions::where('user_id', $user->id)
+                ->where('stripe_status', 'cancelled')
+                ->whereDate('ends_at', Carbon::today())
+                ->first();
+            if ($needsToBeCancelled) {
+                $plan = Plan::find($needsToBeCancelled->plan_id)->first();
+                if ($plan) {
+                    $modelsCredit = $plan->getAttribute('ai_models');
+                    foreach ($modelsCredit as $modelsGroup) {
+                        foreach ($modelsGroup as $model => $credit) {
+                            $driver = Entity::driver(EntityEnum::fromSlug($model))->forUser($user);
+                            $driver->setAsUnlimited(false);
+                            $driver->decreaseCredit($credit['credit']);
+                        }
+                    }
+                }
+                $needsToBeCancelled->ends_at = Carbon::today()->subDay(1);
+                $needsToBeCancelled->save();
+            }
+        }
     }
 
     public static function getSubscriptionStatus(): ?bool
@@ -363,11 +399,16 @@ class PaymentProcessController extends Controller
         } else {
             $activeSubY = getCurrentActiveSubscriptionYokkasa();
             if ($activeSubY) {
+                $activeSub = $activeSubY;
                 $gateway = 'yokassa';
             }
         }
 
         try {
+            if ((bool) setting('soft_plan_cancellation', false)) {
+                self::checkSoftDelete($activeSub);
+            }
+
             return GatewaySelector::selectGateway($gateway)::getSubscriptionStatus();
         } catch (Exception $e) {
             return false;
@@ -561,7 +602,7 @@ class PaymentProcessController extends Controller
             } else {
                 // Cancel subscription
                 try {
-                    if ($activeSub->paid_with !== 'yokassa') {
+                    if (! in_array($activeSub->paid_with, ['razorpay', 'yokassa'])) {
                         $tmp = self::cancelActiveSubscription();
                     }
                 } catch (Exception $ex) {

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\EmailConfirmation;
 use App\Events\UsersActivityEvent;
-use App\Helpers\Classes\Helper;
 use App\Helpers\Classes\MarketplaceHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
@@ -38,8 +37,8 @@ class AuthenticationController extends Controller
             $user = User::where('email', $githubUser->getEmail())->first();
             $user->github_token = $githubUser->token;
             $user->github_refresh_token = $githubUser->refreshToken;
-            $userSocialAvatar = $githubUser->getAvatar() ?? ($user->avatar ?? 'assets/img/auth/default-avatar.png');
-            $user->avatar = $user->avatar === 'assets/img/auth/default-avatar.png' ? $userSocialAvatar : $user->avatar;
+            $userSocialAvatar = $githubUser->getAvatar() ?? ($user->avatar ?? custom_theme_url('/assets/img/auth/default-avatar.png'));
+            $user->avatar = $user->avatar === custom_theme_url('/assets/img/auth/default-avatar.png') ? $userSocialAvatar : $user->avatar;
             $user->affiliate_code = $user->affiliate_code ?? Str::upper(Str::random(12));
             $user->save();
         } else {
@@ -62,10 +61,7 @@ class AuthenticationController extends Controller
         Auth::login($user);
         $ip = $request->ip();
         $connection = $request->header('User-Agent');
-
-        if (Helper::appIsNotDemo()) {
-            event(new UsersActivityEvent($user->email, $user->type, $ip, $connection));
-        }
+        event(new UsersActivityEvent($user->email, $user->type, $ip, $connection));
 
         return redirect('/dashboard/user');
     }
@@ -81,8 +77,8 @@ class AuthenticationController extends Controller
             $user = User::where('email', $googleUser->getEmail())->first();
             $user->google_token = $googleUser->token;
             $user->google_refresh_token = $googleUser->refreshToken;
-            $userSocialAvatar = $googleUser->getAvatar() ?? ($user->avatar ?? 'assets/img/auth/default-avatar.png');
-            $user->avatar = $user->avatar === 'assets/img/auth/default-avatar.png' ? $userSocialAvatar : $user->avatar;
+            $userSocialAvatar = $googleUser->getAvatar() ?? ($user->avatar ?? custom_theme_url('/assets/img/auth/default-avatar.png'));
+            $user->avatar = $user->avatar === custom_theme_url('/assets/img/auth/default-avatar.png') ? $userSocialAvatar : $user->avatar;
             $user->affiliate_code = $user->affiliate_code ?? Str::upper(Str::random(12));
             $user->save();
         } else {
@@ -121,8 +117,8 @@ class AuthenticationController extends Controller
             if ($checkUser) {
                 $user = User::where('email', $facebookUser->getEmail())->first();
                 $user->facebook_token = $facebookUser->token;
-                $userSocialAvatar = $facebookUser->getAvatar() ?? ($user->avatar ?? 'assets/img/auth/default-avatar.png');
-                $user->avatar = $user->avatar === 'assets/img/auth/default-avatar.png' ? $userSocialAvatar : $user->avatar;
+                $userSocialAvatar = $facebookUser->getAvatar() ?? ($user->avatar ?? custom_theme_url('/assets/img/auth/default-avatar.png'));
+                $user->avatar = $user->avatar === custom_theme_url('/assets/img/auth/default-avatar.png') ? $userSocialAvatar : $user->avatar;
                 $user->affiliate_code = $user->affiliate_code ?? Str::upper(Str::random(12));
                 $user->save();
             } else {
@@ -252,9 +248,7 @@ class AuthenticationController extends Controller
             $ip = $request->ip();
             $connection = $request->header('User-Agent');
 
-			if (Helper::appIsNotDemo()) {
-				event(new UsersActivityEvent($user->email, $user->type, $ip, $connection));
-			}
+            event(new UsersActivityEvent($user->email, $user->type, $ip, $connection));
         } else {
             $data = [
                 'errors' => ['We have sent you an email for account confirmation. Please confirm your account to continue.'],

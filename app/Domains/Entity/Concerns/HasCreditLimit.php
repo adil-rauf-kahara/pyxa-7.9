@@ -10,9 +10,11 @@ use App\Models\Plan;
 use App\Models\Setting;
 use App\Models\SettingTwo;
 use App\Models\User;
+use App\Models\UserUsageCredit;
 use Closure;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 
 trait HasCreditLimit
@@ -75,9 +77,11 @@ trait HasCreditLimit
 
         $engineDefaultModels = $this->engine()->getDefaultModels(Setting::getCache(), SettingTwo::getCache());
         $model = $this->model();
-        if ($model && ! $model->is_selected &&
+        if (
+            $model && ! $model->is_selected &&
             ! in_array($model->key, $engineDefaultModels, true) &&
-            ! in_array($model->id, $aiFinances, true)) {
+            ! in_array($model->id, $aiFinances, true)
+        ) {
             return 0;
         }
 
@@ -93,9 +97,11 @@ trait HasCreditLimit
 
         $engineDefaultModels = $this->engine()->getDefaultModels(Setting::getCache(), SettingTwo::getCache());
         $model = $this->model();
-        if ($model && ! $model->is_selected &&
+        if (
+            $model && ! $model->is_selected &&
             ! in_array($model->key, $engineDefaultModels, true) &&
-            ! in_array($model->id, $aiFinances, true)) {
+            ! in_array($model->id, $aiFinances, true)
+        ) {
             return false;
         }
 
@@ -197,6 +203,18 @@ trait HasCreditLimit
         if ($this->guest || $this->isUnlimitedCredit()) {
             return true;
         }
+
+        $unitPrice = EntityEnum::fromSlug($this->enum()->slug())->unitPrice();
+        $currentSpend = $value * $unitPrice;
+        setting(['total_spend' => ((int) setting('total_spend', 0) + $currentSpend)])->save();
+
+        UserUsageCredit::create([
+            'user_id'     => Auth::id(),
+            'model_key'   => $this->enum()->slug(),
+            'credit'      => $value,
+            'unit_price'  => $unitPrice,
+            'total'       => $value * $unitPrice,
+        ]);
 
         return $this->updateUserCredit($value, function ($creditBalance, $credit) {
             return max(0, $creditBalance - $credit);

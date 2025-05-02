@@ -3,7 +3,7 @@
 namespace App\Services\Dashboard;
 
 use App\Domains\Engine\Concerns\HasCache;
-use App\Extensions\Anouncement\System\Models\Anouncement;
+use App\Extensions\Announcement\System\Models\Announcement;
 use App\Extensions\Chatbot\System\Models\Chatbot;
 use App\Helpers\Classes\MarketplaceHelper;
 use App\Models\UserOpenai;
@@ -21,7 +21,7 @@ class UserDashboardService
             ->setFavoriteOpenAi()
             ->setAffiliateTotalEarning()
             ->setFavoriteChatbot()
-            ->setAnouncements()
+            ->setAnnouncements()
             ->setUserChatbots();
     }
 
@@ -70,7 +70,6 @@ class UserDashboardService
         $this->cache('user_chatbots', function () {
             return auth()->user()->chatbots;
         });
-
     }
 
     public function setAffiliateTotalEarning(): static
@@ -96,7 +95,7 @@ class UserDashboardService
                 $totalWithdrawal += $affWithdrawal->amount;
             }
 
-            return $totalEarnings - $totalWithdrawal;
+            return max(0, $totalEarnings - $totalWithdrawal);
         });
 
         return $this;
@@ -138,25 +137,24 @@ class UserDashboardService
         return $this;
     }
 
-    public function setAnouncements(): static
+    public function setAnnouncements(): static
     {
-        if (! MarketplaceHelper::isRegistered('anouncement')) {
-            Cache::forget('anouncement');
+        if (! MarketplaceHelper::isRegistered('announcement')) {
+            Cache::forget('announcements');
 
-            $this->cache('anouncements', function () {
-
+            $this->cache('announcements', function () {
                 return [];
             });
 
             return $this;
         }
 
-        if (cache()->has('anouncements') && cache('anouncements') === []) {
-            Cache::forget('anouncements');
+        if (cache()->has('announcements') && cache('announcements') === []) {
+            Cache::forget('announcements');
         }
 
-        $this->cache('anouncements', function () {
-            return Anouncement::query()->take(4)->get();
+        $this->cache('announcements', function () {
+            return Announcement::query()->whereActive(true)->orderByDesc('created_at')->take(4)->get();
         });
 
         return $this;

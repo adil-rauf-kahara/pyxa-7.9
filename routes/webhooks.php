@@ -14,3 +14,8 @@ Route::prefix('webhooks')
         Route::any('stripe/{plan}/{user}/success/prepaid', [PaymentProcessController::class, 'prepaidStripeSuccess'])->name('stripe.success');
         Route::any('stripe/cancel/prepaid', [PaymentProcessController::class, 'stripeCancel'])->name('stripe.cancel');
     });
+Route::prefix('webhook')
+    ->name('webhook.')
+    ->group(function () {
+        Route::match(['get', 'post'], '/{gateway}', [PaymentProcessController::class, 'handleWebhook']);
+    });

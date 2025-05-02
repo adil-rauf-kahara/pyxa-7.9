@@ -78,46 +78,47 @@ export default (prompt1, prompt2, prompt3) => ({
 		this.processAudioRecordingBuffer = this.processAudioRecordingBuffer.bind(this);
 	},
 	async start() {
-		// if(window.isDemo){
-		if (false) {
-			toastr.error('This feature is disabled in the demo version.');
-			return;
-		} else {
-			if (Alpine.store('realtimeChatStatus').isActive) return;
-
-			Alpine.store('realtimeChatStatus').setActive(true);
-
-			this.switchVisualizers('waiting');
-
-			this.wsConnection = new LowLevelRTClient(
-				{ key: atob(prompt1) + atob(prompt2) + atob(prompt3) },
-				{ model: 'gpt-4o-realtime-preview-2024-12-17' }
-			);
-
-			try {
-				await this.wsConnection.send(this.createConfigMessage());
-			} catch (error) {
+		this.checkBalance(true).then(result => {
+			if (result.shouldStop) {
+				toastr.error(result.errorMsg);
 				this.stop();
-				console.error('Error sending initial config message:', error);
-				this.appendToChatBubble('ai', '[Connection error]: Unable to send initial config message. Please check your endpoint and authentication details.');
-				return;
 			}
+		});
 
-			await Promise.all([ this.startRecorder(), this.startPlayer() ])
-				.then(() => {
-					this.handleRealtimeMessages();
+		if (Alpine.store('realtimeChatStatus').isActive) return;
 
-					this.startBarsVisualizer();
-					this.startDotVisualizer();
+		Alpine.store('realtimeChatStatus').setActive(true);
 
-					this.switchVisualizers('idle');
-				})
-				.catch(error => {
-					this.stop();
-					console.error('Error starting recorder and player:', error);
-					this.appendToChatBubble('ai', '[Error]: Unable to start audio recorder and player. Please check your microphone permissions and refresh the page.');
-				});
+		this.switchVisualizers('waiting');
+
+		this.wsConnection = new LowLevelRTClient(
+			{ key: atob(prompt1) + atob(prompt2) + atob(prompt3) },
+			{ model: 'gpt-4o-realtime-preview-2024-12-17' }
+		);
+
+		try {
+			await this.wsConnection.send(this.createConfigMessage());
+		} catch (error) {
+			this.stop();
+			console.error('Error sending initial config message:', error);
+			this.appendToChatBubble('ai', '[Connection error]: Unable to send initial config message. Please check your endpoint and authentication details.');
+			return;
 		}
+
+		await Promise.all([ this.startRecorder(), this.startPlayer() ])
+			.then(() => {
+				this.handleRealtimeMessages();
+
+				this.startBarsVisualizer();
+				this.startDotVisualizer();
+
+				this.switchVisualizers('idle');
+			})
+			.catch(error => {
+				this.stop();
+				console.error('Error starting recorder and player:', error);
+				this.appendToChatBubble('ai', '[Error]: Unable to start audio recorder and player. Please check your microphone permissions and refresh the page.');
+			});
 	},
 	stop() {
 		if ( !this.lastResponseSaved && 'saveResponseAsync' in window && this.lastUserQuestion.trim() !== '' && this.lastAiResponse.trim() !== '' ) {
@@ -198,6 +199,12 @@ export default (prompt1, prompt2, prompt3) => ({
 					this.switchVisualizers('idle');
 					break;
 				case 'response.content_part.added':
+					this.checkBalance(true).then(result => {
+						if (result.shouldStop) {
+							toastr.error(result.errorMsg);
+							this.stop();
+						}
+					});
 					this.lastAiResponse = '';
 
 					Alpine.store('realtimeChatStatus').setConversationStarted(true);
@@ -461,4 +468,26 @@ export default (prompt1, prompt2, prompt3) => ({
 
 		animate();
 	},
+	checkBalance(onStart = false) {
+		return new Promise((resolve) => {
+			$.ajax({
+				url: '/dashboard/user/realtime/chat/checkBalance',
+				type: 'POST',
+				data: {
+					onStart: onStart,
+				},
+				dataType: 'json',
+				success: response => {
+					const shouldStop = response.status !== 'success';
+					const errorMsg = response.message || '';
+					resolve({ shouldStop, errorMsg });
+				},
+				error: () => {
+					const shouldStop = true;
+					const errorMsg = 'An error occurred.';
+					resolve({ shouldStop, errorMsg });
+				}
+			});
+		});
+	}
 });

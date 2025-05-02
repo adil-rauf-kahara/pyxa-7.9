@@ -53,11 +53,11 @@
         @includeFirst(['onboarding-pro::banner', 'vendor.empty'])
     @endif
 
+    @include('panel.layout.partials.mode-script')
+
     @includeIf('panel.layout.after-body-open')
 
     @stack('after-body-open')
-
-    @include('panel.layout.partials.mode-script')
 
     @include('panel.layout.partials.loading')
 

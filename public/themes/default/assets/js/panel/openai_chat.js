@@ -18,10 +18,8 @@ let streamed_text = '';
 let streamed_message_id = 0;
 let navigatingInChatsHistory = false;
 let selectedHistoryPrompt = -1;
-let animatedWordIndex = 0;
 let lastFinishedAnimatedWordIndex = -1;
-let aiResponseStreaming = false; // indicator of server streaming
-let aiResponseAnimating = false; // indicator of client animation
+let aiResponseStreaming = false;
 
 /**
  * Credits: Joydeep Bhowmik https://dev.to/joydeep23/adding-keys-our-dom-diffing-algorithm-4d7g
@@ -205,18 +203,14 @@ function conversationAreaScrollHandler() {
 }
 
 function onConversationAreaScroll() {
-	const isTouchScreen =
-		'ontouchstart' in window || navigator.maxTouchPoints > 0;
+	const isTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 	conversationAreaScrollLocked =
 		!isTouchScreen && // Disable scroll lock on touch devices
 		this.scrollTop + this.offsetHeight + 10 >= this.scrollHeight;
 
-	conversationAreaScrollDir =
-		this.scrollTop > conversationAreaLastScrollTop ? 'down' : 'up';
-	conversationAreaScrollDelta = Math.abs(
-		this.scrollTop - conversationAreaLastScrollTop,
-	);
+	conversationAreaScrollDir = this.scrollTop > conversationAreaLastScrollTop ? 'down' : 'up';
+	conversationAreaScrollDelta = Math.abs( this.scrollTop - conversationAreaLastScrollTop );
 	conversationAreaLastScrollTop = this.scrollTop <= 0 ? 0 : this.scrollTop;
 }
 
@@ -229,85 +223,76 @@ conversationAreaScrollHandler();
  * @param {string} options.className
  */
 function wrapWords(node, options = {}) {
-	const wrapper = (function () {
-		let wordIndex = 0;
+	let wordIndex = 0;
 
-		function wrapWordsInner(node, options = {}) {
-			if (
-				node.nodeName === 'PRE' ||
-				node.nodeName === 'CODE' ||
-				node.nodeName === 'A' ||
-				node.classList?.contains('katex')
-			) {
-				if (options.className) {
-					node.classList.add(...options.className.split(' '));
-				}
-				node.setAttribute('data-index', wordIndex++);
-				if (wordIndex <= lastFinishedAnimatedWordIndex) {
-					node.classList.add('animated');
-				}
-				return;
-			}
+	function addAttrs(node) {
+		node.setAttribute('data-index', wordIndex++);
 
-			if (node.nodeType === 3) {
-				const words = node.textContent.trim().split(/[\s\n]+/);
-
-				if (words.length <= 1 && words[0].length > 0) {
-					const span = document.createElement('span');
-					span.textContent = words[0];
-					if (options.className) {
-						span.classList.add(...options.className.split(' '));
-					}
-					span.setAttribute('data-index', wordIndex++);
-					if (wordIndex <= lastFinishedAnimatedWordIndex) {
-						span.classList.add('animated');
-					}
-					if (words[0].startsWith('[DONE]')) {
-						span.classList.add('done-signal');
-					}
-					node.parentNode.replaceChild(span, node);
-
-					return;
-				}
-
-				const fragment = document.createDocumentFragment();
-
-				words.forEach((word, i) => {
-					if (word.length > 0) {
-						const span = document.createElement('span');
-						span.textContent = word;
-						if (options.className) {
-							span.classList.add(...options.className.split(' '));
-						}
-						span.setAttribute('data-index', wordIndex++);
-						if (wordIndex <= lastFinishedAnimatedWordIndex) {
-							span.classList.add('animated');
-						}
-						if (word.startsWith('[DONE]')) {
-							span.classList.add('done-signal');
-						}
-						fragment.appendChild(span);
-					}
-					if (i < words.length - 1) {
-						fragment.appendChild(document.createTextNode(' '));
-					}
-				});
-
-				node.parentNode.replaceChild(fragment, node);
-
-				return;
-			}
-
-			if (node.classList?.contains(options.className?.split(' ')[0])) return;
-
-			const childNodes = [ ...node.childNodes ];
-			childNodes.forEach(child => wrapWordsInner(child, options));
+		if ( wordIndex <= lastFinishedAnimatedWordIndex ) {
+			node.classList.add('animated');
 		}
 
-		return wrapWordsInner;
-	})();
+		if (options.className) {
+			node.classList.add(...options.className.split(' '));
+		}
+	}
 
-	wrapper(node, options);
+	function createSpan(textContent) {
+		const span = document.createElement('span');
+
+		span.textContent = textContent;
+
+		addAttrs(span);
+
+		if (textContent.includes('[DONE]')) {
+			span.classList.add('done-signal');
+		}
+
+		return span;
+	}
+
+	function wrapWordsInner(node) {
+		if (
+			node.nodeName === 'PRE' ||
+			node.nodeName === 'CODE' ||
+			node.nodeName === 'A' ||
+			node.nodeName === 'TR' ||
+			node.classList?.contains('katex')
+		) {
+			addAttrs(node);
+			return;
+		}
+
+		if (node.nodeType === 3) {
+			const words = node.textContent.trim().split(/[\s\n]+/);
+
+			if (words.length <= 1 && words[0].length > 0) {
+				node.parentNode.replaceChild(createSpan(words[0]), node);
+				return;
+			}
+
+			const fragment = document.createDocumentFragment();
+
+			words.forEach((word, i) => {
+				if (word.length > 0) {
+					fragment.appendChild(createSpan(word));
+				}
+				if (i < words.length - 1) {
+					fragment.appendChild(document.createTextNode(' '));
+				}
+			});
+
+			node.parentNode.replaceChild(fragment, node);
+			return;
+		}
+
+		if (node.classList?.contains(options.className?.split(' ')[0])) return;
+
+		const childNodes = [ ...node.childNodes ];
+		childNodes.forEach(child => wrapWordsInner(child, options));
+	}
+
+	wrapWordsInner(node);
 }
 
 function getAiResponseString(withoutDone = true) {
@@ -325,16 +310,6 @@ function getAiResponseString(withoutDone = true) {
 
 function fixUnclosedMarkdownSyntax(string) {
 	let text = string;
-
-	let unclosedLinkTextMatch = text.match(/\[([^\]]*$)/);
-	if (unclosedLinkTextMatch) {
-		text = text + '](#)';
-	}
-
-	let unclosedLinkUrlMatch = text.match(/\[([^\]]+)\]\(([^)]*$)/);
-	if (unclosedLinkUrlMatch) {
-		text = text + ')';
-	}
 
 	let boldMatch = text.match(/\*\*(?:(?!\*\*).)*$/);
 	if (boldMatch) {
@@ -368,6 +343,9 @@ function fixUnclosedMarkdownSyntax(string) {
  *
  * @param {string} string
  * @param {object} options
+ * @param {object} options.wrapper
+ * @param {string} options.wrapper.el
+ * @param {string} options.wrapper.attrs
  * @param {boolean} options.readyForAnimation
  */
 function formatString(string, options = {}) {
@@ -393,16 +371,13 @@ function formatString(string, options = {}) {
 			const language = lang && lang !== '' ? lang : 'md';
 			const codeString = str;
 
-			if (Prism.languages[language]) {
-				const highlighted = Prism.highlight(
-					codeString,
-					Prism.languages[language],
-					language,
-				);
-				return `<pre class="${options.readyForAnimation ? 'animated-word' : ''} !whitespace-pre-wrap rounded [direction:ltr] max-w-full !w-full language-${language}"><code data-lang="${language}" class="language-${language}">${highlighted}</code></pre>`;
-			}
+			const highlighted = Prism.highlight(
+				codeString,
+				(Prism.languages[language] != null ? Prism.languages[language] : (language === 'blade' ? Prism.languages.html : Prism.languages.markup)),
+				language,
+			);
 
-			return codeString;
+			return `<pre class="${options.readyForAnimation ? 'animated-word' : ''} !whitespace-pre-wrap rounded [direction:ltr] max-w-full !w-full language-${language}"><code data-lang="${language}" class="language-${language}">${highlighted}</code></pre>`;
 		},
 	});
 
@@ -481,7 +456,38 @@ function formatString(string, options = {}) {
 		});
 	});
 
+	// Add a renderer rule to handle emphasize and strong markup at the end of a string without closing markers
+	renderer.use(function(md) {
+		md.core.ruler.after('inline', 'fix_unclosed_markup', function (state) {
+			state.tokens.forEach(function (blockToken) {
+				if (blockToken.type !== 'inline') return;
+
+				blockToken.children.forEach((token, idx) => {
+					const { content } = token;
+
+					// Check for unclosed markup at the end of the content
+					if (token.type === 'text') {
+						// Replace multiple patterns in sequence
+						let newContent = content;
+
+						// Remove trailing *** (three or more asterisks)
+						newContent = newContent.replace(/\*{3,}$/, '');
+
+						// Update content if modified
+						if (newContent !== content) {
+							token.content = newContent;
+						}
+					}
+				});
+			});
+		});
+	});
+
 	let renderedString = renderer.render(renderer.utils.unescapeAll(string));
+
+	if ( options.wrapper ) {
+		renderedString = `<${options.wrapper.el} ${Object.entries(options.wrapper.attrs).map(([ key, value ]) => `${key}="${value}"`).join(' ')}>${renderedString}</${options.wrapper.el}>`;
+	}
 
 	if (options.readyForAnimation) {
 		const html = liquidVDOM.parseHTML(renderedString);
@@ -509,9 +515,8 @@ function switchGenerateButtonsStatus(generating) {
 let conversationAreaAutoScrolling = false;
 const handleConversationsAreaScroll = _.throttle(() => {
 	const conversationArea = document.querySelector('.conversation-area');
-	const aiBubbleHeight = lastAiChatBubble.offsetHeight;
 	const aiBubbleOffsetTop = lastAiChatBubble.offsetTop;
-	const word = [ ...lastAiChatBubble.querySelectorAll('.animated-word:not(.done-signal).animated') ].at(-1);
+	const word = [ ...lastAiChatBubble.querySelectorAll('.animated-word:not(.done-signal)') ].filter((el, i) => i <= Math.max(0, lastFinishedAnimatedWordIndex)).at(-1);
 
 	if (!word) return;
 
@@ -522,9 +527,8 @@ const handleConversationsAreaScroll = _.throttle(() => {
 	const wordHeight = wordRect.height;
 	const conversationHeight = conversationRect.height;
 
-	lastAiChatBubble.style.setProperty( '--animating-word-y', `${wordOffsetTop}px`, );
-
 	if (
+		!conversationAreaAutoScrolling &&
 		( conversationAreaScrollDir === 'down' || ( conversationAreaScrollDir === 'up' && conversationAreaScrollDelta < 3 ) ) &&
         ( conversationAreaScrollLocked || ( wordTop < ( conversationHeight * 4/5 )))
 	) {
@@ -535,69 +539,92 @@ const handleConversationsAreaScroll = _.throttle(() => {
 			scrollPosition = aiBubbleOffsetTop + wordOffsetTop - (conversationArea.clientHeight / 2) + (wordHeight / 2);
 		}
 
-		! conversationAreaAutoScrolling && $(conversationArea).stop().animate({
-			scrollTop: scrollPosition,
-		}, {
-			start: () => {
-				conversationAreaAutoScrolling = true;
-			},
-			complete: () => {
-				conversationAreaAutoScrolling = false;
-			}
-		});
-
-		// conversationArea.scroll({
-		// 	top: scrollPosition,
-		// 	behavior: 'smooth',
-		// });
+		$(conversationArea)
+			.stop(true)
+			.animate({
+				scrollTop: scrollPosition,
+			}, {
+				duration: 600,
+				start: () => {
+					conversationAreaAutoScrolling = true;
+				},
+				complete: () => {
+					conversationAreaAutoScrolling = false;
+				},
+			});
 	}
 }, 175, { leading: false });
 
+const setAnimatingWordY = _.throttle(() => {
+	const word = [ ...lastAiChatBubble.querySelectorAll('.animated-word:not(.done-signal)') ].filter((el, i) => i <= Math.max(0, lastFinishedAnimatedWordIndex)).at(-1);
+
+	if (!word) return;
+
+	let offsetTop = word.offsetTop;
+
+	if ( word?.nodeName === 'TR' ) {
+		offsetTop = offsetTop + (word.closest('table')?.offsetTop || 0);
+	}
+
+	lastAiChatBubble.style.setProperty( '--animating-word-y', `${offsetTop}px`, );
+}, 175, { leading: false });
+
 function onAiResponse() {
-	const aiBubbleChatContent =
-		lastAiChatBubble?.querySelector('.chat-content');
+	const aiBubbleChatContent = lastAiChatBubble?.querySelector('.chat-content');
+	let wordsToAnimate = [];
+	let alreadyAnimatedWords = [];
 
 	if (!aiBubbleChatContent) return;
 
 	lastAiChatBubble.classList.remove('loading');
 
+	lastAiChatBubble.classList.toggle('streaming-on', aiResponseStreaming);
+
 	const responseString = getAiResponseString(false);
-	const animationKeyframes = [
-		{ opacity: 0, transform: 'translateX(3px)' },
-		{ opacity: 1, transform: 'translateX(0)' },
-	];
 
 	const formattedResponse = formatString(responseString, {
-		readyForAnimation: true,
+		readyForAnimation: true
 	});
 
 	if (!formattedResponse.trim()) return;
 
-	const vdom = liquidVDOM.parseHTML(formattedResponse);
-	const dom = aiBubbleChatContent;
+	const responseHTML = liquidVDOM.parseHTML(formattedResponse);
 
-	liquidVDOM.clean(dom);
-	liquidVDOM.diff(vdom, dom);
+	if ( aiResponseStreaming ) {
+		const elementsToDelete = [ ...responseHTML.querySelectorAll('ul:nth-last-child(-n + 1):not(:nth-child(-n + 1)) li:nth-last-child(-n + 1):not(:nth-child(-n + 1)), ol:nth-last-child(-n + 1):not(:nth-child(-n + 1)) li:nth-last-child(-n + 1):not(:nth-child(-n + 1)), p:nth-last-child(-n + 1):not(:nth-child(-n + 1))') ];
 
-	const animatedWords = [ ...aiBubbleChatContent.querySelectorAll('.animated-word') ]
-		.filter(word => !word.classList.contains('animated') && parseInt(word.getAttribute('data-index'), 10) >= animatedWordIndex);
+		elementsToDelete.forEach(el => el.remove());
+	}
 
-	aiResponseAnimating = true;
+	liquidVDOM.clean(aiBubbleChatContent);
+	liquidVDOM.diff(responseHTML, aiBubbleChatContent);
 
-	animatedWords.forEach(word => {
+	aiBubbleChatContent.querySelectorAll('.animated-word').forEach(word => {
 		const dataIndex = parseInt(word.getAttribute('data-index'), 10);
-		const delay = (dataIndex - lastFinishedAnimatedWordIndex) * 0.02 * 1000;
+		if (dataIndex > lastFinishedAnimatedWordIndex) {
+			wordsToAnimate.push(word);
+		} else {
+			alreadyAnimatedWords.push(word);
+		}
+	});
 
-		animatedWordIndex = dataIndex;
+	alreadyAnimatedWords.forEach(word => {
+		word.classList.add('animated');
+	});
 
-		if ( dataIndex <= lastFinishedAnimatedWordIndex ){
-			word.classList.add('animated');
-			handleConversationsAreaScroll();
-			return;
+	wordsToAnimate.forEach(word => {
+		const dataIndex = parseInt(word.getAttribute('data-index'), 10);
+		const delay = (dataIndex - Math.max(0, lastFinishedAnimatedWordIndex)) * 0.03 * 1000;
+		const wordStyles = getComputedStyle(word);
+
+		const opacity = parseFloat(wordStyles.opacity);
+
+		if ( opacity !== 0 ) {
+			return word.classList.add('animated');
 		}
 
-		word.animate(animationKeyframes, {
-			duration: 125,
+		word.animate([ { opacity: 1 } ], {
+			duration: 175,
 			easing: 'ease',
 			fill: 'both',
 			delay: delay,
@@ -608,19 +635,21 @@ function onAiResponse() {
 
 			if ( !isDoneSignal ) {
 				lastFinishedAnimatedWordIndex = Math.max(lastFinishedAnimatedWordIndex, dataIndex);
-				handleConversationsAreaScroll();
 			}
 
 			if (!aiResponseStreaming && isDoneSignal) {
-				aiResponseAnimating = false;
 				lastAiChatBubble.classList.remove('animating-words');
 				switchGenerateButtonsStatus(false);
 			}
+
+			setAnimatingWordY();
+
+			// handleConversationsAreaScroll();
 		};
 	});
 }
 
-_.observe(aiResponseTextArray, 'create', _.throttle(onAiResponse, 100));
+_.observe(aiResponseTextArray, 'create', _.throttle(onAiResponse, 750, { leading: false }));
 
 function updateFav(id) {
 	$.ajax({
@@ -1004,17 +1033,27 @@ async function saveResponseAsync(
 	formData.append('outputImage', outputImage);
 	formData.append('model', model);
 
-	await jQuery.ajax({
-		url: '/dashboard/user/openai/chat/low/chat_save',
-		type: 'POST',
-		headers: {
-			'X-CSRF-TOKEN': '{{ csrf_token() }}',
-		},
-		data: formData,
-		contentType: false,
-		processData: false,
-	});
-
+	try {
+		const result = await jQuery.ajax({
+			url: '/dashboard/user/openai/chat/low/chat_save',
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': '{{ csrf_token() }}',
+			},
+			data: formData,
+			contentType: false,
+			processData: false,
+		});
+		if (result.status === 'error') {
+			toastr.error(result.message, 'Error');
+		}
+	} catch (error) {
+		if (error.responseJSON && error.responseJSON.message) {
+			toastr.error(error.responseJSON.message, 'Error');
+		} else {
+			toastr.error('An unexpected error occurred. Please try again.', 'Error');
+		}
+	}
 	return false;
 }
 
@@ -1062,13 +1101,11 @@ function handlePromptHistory(prompt) {
 
 	const promptHistoryArray = JSON.parse(promptHistory);
 
-	if (promptHistoryArray.at(-1) !== prompt) {
-		if (promptHistoryArray.length >= 20) {
-			promptHistoryArray.shift();
-		}
-
-		promptHistoryArray.push(prompt);
+	if ( promptHistoryArray.includes(prompt) ) {
+		promptHistoryArray.splice(promptHistoryArray.indexOf(prompt), 1);
 	}
+
+	promptHistoryArray.push(prompt);
 
 	localStorage.setItem('promptHistory', JSON.stringify(promptHistoryArray));
 }
@@ -1208,7 +1245,6 @@ function updateChatButtons() {
 
 		switchGenerateButtonsStatus(true);
 
-		animatedWordIndex = 0;
 		lastFinishedAnimatedWordIndex = -1;
 		aiResponseStreaming = true;
 		conversationAreaScrollDir = 'down';
@@ -1388,8 +1424,6 @@ function updateChatButtons() {
 					if (e.data === '[DONE]') {
 						aiResponseStreaming = false;
 
-						aiBubbleWrapper.classList.remove('loading');
-
 						messages.push({
 							role: 'assistant',
 							content: getAiResponseString(),
@@ -1408,8 +1442,6 @@ function updateChatButtons() {
 
 						clearInterval(nIntervId);
 
-						console.log('sreaming done');
-
 						aiResponseTextArray.push(' [DONE]');
 
 						changeChatTitle(streamed_message_id);
@@ -1421,7 +1453,6 @@ function updateChatButtons() {
 					}
 				},
 				onclose: () => {
-					// console.log('Connection closed');
 					streamed_message_id = 0;
 					streamed_text = '';
 				},

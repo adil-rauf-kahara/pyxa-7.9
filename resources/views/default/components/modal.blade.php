@@ -5,7 +5,7 @@
     $modal_head_base_class = 'lqd-modal-head flex flex-wrap items-center gap-3 border-b px-4 py-2 relative';
     $modal_body_base_class = 'lqd-modal-body p-10';
     $modal_content_base_class =
-        'lqd-modal-content relative z-[100] max-h-[95vh] min-w-[min(calc(100%-2rem),540px)] rounded-xl bg-background shadow-2xl shadow-black/10 overflow-y-auto';
+        'lqd-modal-content relative z-[100] max-h-[95vh] min-w-[min(calc(100%-2rem),540px)] overflow-y-auto overscroll-contain rounded-xl bg-background shadow-2xl shadow-black/10';
     $modal_close_btn_base_class = 'lqd-modal-close size-8 ms-auto inline-flex items-center justify-center rounded-lg transition-all hover:bg-foreground/20';
 
     if ($type !== 'inline') {

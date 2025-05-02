@@ -97,20 +97,6 @@
             @if (view()->hasSection('chat_sidebar_actions'))
                 @yield('chat_sidebar_actions')
             @else
-                <x-button
-                    class="lqd-upload-doc-trigger group size-8 shrink-0 grid-flow-row place-items-center rounded-full shadow-md max-md:grid md:hidden"
-                    variant="none"
-                    size="none"
-                    href="javascript:void(0);"
-                    onclick="{!! $disable_actions
-                        ? 'return toastr.info(\'{{ __('This feature is disabled in Demo version.') }}\')'
-                        : 'return deleteAllConv(\'{{ isset($category) ? $category->id : 0 }}\')' !!}"
-                >
-                    <x-tabler-trash class="size-5" />
-                    <span class="sr-only">
-                        {{ __('Clear All') }}
-                    </span>
-                </x-button>
                 @if (isset($category) && $category->slug == 'ai_pdf')
                     {{-- #selectDocInput is present in chat_sidebar component. no need to duplicate it here --}}
                     <x-button
@@ -134,8 +120,8 @@
                         onclick="{!! $disable_actions
                             ? 'return toastr.info(\'{{ __('This feature is disabled in Demo version.') }}\')'
                             : (auth()->check()
-                                    ? 'return startNewChat(\'{{ $category->id }}\', \'{{ LaravelLocalization::getCurrentLocale() }}\', \'chatpro\')'
-                                    : 'return window.location.reload();') !!}"
+                                ? 'return startNewChat(\'{{ $category->id }}\', \'{{ LaravelLocalization::getCurrentLocale() }}\', \'chatpro\')'
+                                : 'return window.location.reload();') !!}"
                     >
                         <x-tabler-plus class="size-5" />
                         <span class="sr-only">

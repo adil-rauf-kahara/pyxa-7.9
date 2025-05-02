@@ -87,10 +87,12 @@ enum Introduction: string implements Contracts\WithStringBackedEnum
 
     case SOCIAL_MEDIA = 'social_media';
     case AI_REALTIME_VOICE_CHAT = 'ai_realtime_voice_chat';
+    case AI_REALTIME_IMAGE = 'ai_realtime_image';
 
     public function label(): string
     {
         return match ($this) {
+            self::AI_REALTIME_IMAGE               => __('Realtime Image'),
             self::AI_REALTIME_VOICE_CHAT          => __('Realtime Voice Chat'),
             self::INITIALIZE         	            => __('Onboarding'),
             self::LAST         		                 => __('Onboarding End'),

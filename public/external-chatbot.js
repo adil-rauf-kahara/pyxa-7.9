@@ -280,7 +280,6 @@
     <button
         id="lqd-ext-chatbot-trigger"
         type="button"
-        @click.prevent="toggleWindowState()"
     >
         <img
             id="lqd-ext-chatbot-trigger-img"

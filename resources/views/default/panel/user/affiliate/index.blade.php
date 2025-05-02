@@ -3,7 +3,7 @@
 @section('titlebar_actions')
     <x-button
         variant="primary"
-        href="{{  (route('dashboard.user.affiliates.users')) }}"
+        href="{{ route('dashboard.user.affiliates.users') }}"
     >
         {{ __('Affilated Users') }}
     </x-button>
@@ -30,12 +30,12 @@
                                 class="hidden"
                                 id="ref-code"
                                 disabled
-                                value="{{  (url('/') . '/register?aff=' . \Illuminate\Support\Facades\Auth::user()->affiliate_code) }}"
+                                value="{{ url('/') . '/register?aff=' . \Illuminate\Support\Facades\Auth::user()->affiliate_code }}"
                             />
                             <x-forms.input
                                 class="h-10 bg-background"
                                 disabled
-                                value="{{ str()->limit( (url('/') . '/register?aff=' . \Illuminate\Support\Facades\Auth::user()->affiliate_code), 60) }}"
+                                value="{{ str()->limit(url('/') . '/register?aff=' . \Illuminate\Support\Facades\Auth::user()->affiliate_code, 60) }}"
                             />
                             <x-button
                                 class="copy-aff-link absolute end-0 top-0 inline-flex h-full w-9 items-center rounded-input bg-transparent text-heading-foreground hover:bg-emerald-400 hover:text-white"
@@ -47,7 +47,8 @@
                         </div>
                     </div>
 
-                    <div class="ms-auto w-full text-center font-semibold text-heading-foreground max-md:-order-1 max-md:mb-3 max-md:!text-start md:w-4/12">
+                    <div
+                        class="ms-auto w-full text-center font-semibold text-heading-foreground max-md:-order-1 max-md:mb-3 max-md:!text-start md:w-4/12">
                         <h4 class="mb-0 text-base">
                             {{ __('Earnings') }}
                         </h4>
@@ -56,7 +57,7 @@
                             @if (currencyShouldDisplayOnRight(currency()->symbol))
                                 {{ $totalEarnings - $totalWithdrawal }}{{ currency()->symbol }}
                             @else
-                                {{ currency()->symbol }}{{ $totalEarnings - $totalWithdrawal }}
+                                {{ currency()->symbol }}{{ max(0, $totalEarnings - $totalWithdrawal) }}
                             @endif
                         </p>
 
@@ -88,19 +89,25 @@
 
                 <ol class="mb-12 flex flex-col gap-4 text-heading-foreground">
                     <li>
-                        <span class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
+                        <span
+                            class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary"
+                        >
                             1
                         </span>
                         {!! __('You <strong>send your invitation link</strong> to your friends.') !!}
                     </li>
                     <li>
-                        <span class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
+                        <span
+                            class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary"
+                        >
                             2
                         </span>
                         {!! __('<strong>They subscribe</strong> to a paid plan by using your refferral link.') !!}
                     </li>
                     <li>
-                        <span class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
+                        <span
+                            class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary"
+                        >
                             3
                         </span>
                         @if ($is_onetime_commission)

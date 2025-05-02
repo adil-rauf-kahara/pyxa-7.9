@@ -24,6 +24,13 @@
         method="GET"
         x-init
         x-target="{{ $target_id }}"
+        @if (isset($ajax_before)) @ajax:before="{{ $ajax_before }}" @endif
+        @if (isset($ajax_after)) @ajax:after="{{ $ajax_after }}" @endif
+        @if (isset($ajax_sent)) @ajax:sent="{{ $ajax_sent }}" @endif
+        @if (isset($ajax_merge)) @ajax:merge="{{ $ajax_merge }}" @endif
+        @if (isset($ajax_merged)) @ajax:merged="{{ $ajax_merged }}" @endif
+        @if (isset($ajax_success)) @ajax:success="{{ $ajax_success }}" @endif
+        @if (isset($ajax_error)) @ajax:error="{{ $ajax_error }}" @endif
     >
         <input
             type="hidden"
@@ -40,7 +47,7 @@
             name="sortAscDesc"
             :value="$store.documentsFilter.sortAscDesc"
         >
-        <nav class="lqd-pagination flex items-center justify-between pb-6 pt-10">
+        <nav class="lqd-pagination flex flex-wrap items-center justify-between gap-y-4 pb-6 pt-10">
             <p class="m-0 text-foreground/70">
                 {{ __('Showing') }}
                 <span>{{ $paginator->firstItem() }}</span>
@@ -51,11 +58,11 @@
                 {{ __('results') }}
             </p>
 
-            <ul class="lqd-pagination-list flex items-center gap-1">
+            <ul class="lqd-pagination-list flex flex-wrap items-center gap-1">
                 {{-- Previous Page Link --}}
                 <li
                     @class([
-                        'lqd-pagination-item flex w-7 h-7 items-center justify-center rounded-full',
+                        'lqd-pagination-item flex w-7 h-7 shrink-0 items-center justify-center rounded-full',
                         'opacity-50 pointer-events-none' => $paginator->onFirstPage(),
                     ])
                     aria-label="{{ __('Prev') }}"

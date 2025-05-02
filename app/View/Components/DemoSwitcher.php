@@ -18,7 +18,14 @@ class DemoSwitcher extends Component
         protected ExtensionRepositoryInterface $inter,
         public string $themesType = 'Frontend'|'Dashboard'|'All',
     ) {
-        $this->themes = $inter->themes();
+        $this->themes = array_merge([[
+            'theme_type' => $themesType,
+            'name'       => 'AI Chat Pro',
+            'slug'       => 'aichatpro',
+            'icon'       => 'http://liquidlabs.uk/market/assets/icons/ai-chat-pro.jpg',
+            'price'      => 10,
+            'extension'  => true,
+        ]], $inter->themes());
     }
 
     /**

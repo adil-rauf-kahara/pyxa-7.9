@@ -43,7 +43,12 @@
         ],
     ];
 
-    $premium_features = \App\Models\OpenAIGenerator::query()->where('active', 1)->where('premium', 1)->get()->pluck('title')->toArray();
+    $premium_features = \App\Models\OpenAIGenerator::query()
+        ->where('active', 1)
+        ->where('premium', 1)
+        ->get()
+        ->pluck('title')
+        ->toArray();
     $user_is_premium = false;
     $plan = auth()->user()?->relationPlan;
     if ($plan) {
@@ -56,19 +61,29 @@
     $style_string = '';
 
     if (setting('announcement_background_color')) {
-        $style_string .= '.lqd-card.lqd-announcement-card { background-color: ' . setting('announcement_background_color') . ';}';
+        $style_string .=
+            '.lqd-card.lqd-announcement-card { background-color: ' . setting('announcement_background_color') . ';}';
     }
 
     if (setting('announcement_background_image')) {
-        $style_string .= '.lqd-card.lqd-announcement-card { background-image: url(' . setting('announcement_background_image') . '); }';
+        $style_string .=
+            '.lqd-card.lqd-announcement-card { background-image: url(' .
+            setting('announcement_background_image') .
+            '); }';
     }
 
     if (setting('announcement_background_color_dark')) {
-        $style_string .= '.theme-dark .lqd-card.lqd-announcement-card { background-color: ' . setting('announcement_background_color_dark') . ';}';
+        $style_string .=
+            '.theme-dark .lqd-card.lqd-announcement-card { background-color: ' .
+            setting('announcement_background_color_dark') .
+            ';}';
     }
 
     if (setting('announcement_background_image_dark')) {
-        $style_string .= '.theme-dark .lqd-card.lqd-announcement-card { background-image: url(' . setting('announcement_background_image_dark') . '); }';
+        $style_string .=
+            '.theme-dark .lqd-card.lqd-announcement-card { background-image: url(' .
+            setting('announcement_background_image_dark') .
+            '); }';
     }
 
     $favoriteOpenAis = cache('favorite_openai');
@@ -390,19 +405,25 @@
 
                     <ol class="mb-12 flex flex-col gap-4 text-heading-foreground">
                         <li>
-                            <span class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
+                            <span
+                                class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary"
+                            >
                                 1
                             </span>
                             {!! __('You <strong>send your invitation link</strong> to your friends.') !!}
                         </li>
                         <li>
-                            <span class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
+                            <span
+                                class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary"
+                            >
                                 2
                             </span>
                             {!! __('<strong>They subscribe</strong> to a paid plan by using your refferral link.') !!}
                         </li>
                         <li>
-                            <span class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary">
+                            <span
+                                class="me-2 inline-flex size-7 items-center justify-center rounded-full bg-primary/10 font-extrabold text-primary"
+                            >
                                 3
                             </span>
                             @if ($is_onetime_commission)
@@ -446,7 +467,6 @@
             </x-card>
         @endif
         {{-- end: invite team --}}
-
         {{-- begin: affiliates --}}
         @includeIf('panel.user.dashboard.affiliates')
         {{-- end: affiliates --}}
@@ -696,10 +716,23 @@
 
                             if ($upgrade) {
                                 $href = LaravelLocalization::localizeUrl(route('dashboard.user.payment.subscription'));
-                            } elseif (isset($entry->slug) && in_array($entry->slug, ['ai_vision', 'ai_ai_chat_image', 'ai_code_generator', 'ai_youtube', 'ai_pdf'])) {
-                                $href = LaravelLocalization::localizeUrl(route('dashboard.user.openai.generator.workbook', $entry->slug));
+                            } elseif (
+                                isset($entry->slug) &&
+                                in_array($entry->slug, [
+                                    'ai_vision',
+                                    'ai_ai_chat_image',
+                                    'ai_code_generator',
+                                    'ai_youtube',
+                                    'ai_pdf',
+                                ])
+                            ) {
+                                $href = LaravelLocalization::localizeUrl(
+                                    route('dashboard.user.openai.generator.workbook', $entry->slug),
+                                );
                             } else {
-                                $href = LaravelLocalization::localizeUrl(route('dashboard.user.openai.generator', $entry->slug));
+                                $href = LaravelLocalization::localizeUrl(
+                                    route('dashboard.user.openai.generator', $entry->slug),
+                                );
                             }
                         @endphp
                         @if ($upgrade || $entry->active == 1)
@@ -708,7 +741,8 @@
                                 href="{{ $href }}"
                             >
                             @else
-                                <p class="lqd-posts-item relative flex w-full flex-col flex-wrap items-start gap-3 border-b p-4 text-xs transition-all last:border-none">
+                                <p
+                                    class="lqd-posts-item relative flex w-full flex-col flex-wrap items-start gap-3 border-b p-4 text-xs transition-all last:border-none">
                         @endif
                         <x-lqd-icon
                             size="lg"
@@ -727,7 +761,9 @@
                                 {{ __($entry->title) }}
                             </span>
                             <div class="lqd-posts-item-content-inner h-full">
-                                <span class="lqd-fav-temp-item-desc line-clamp-4 max-w-full text-ellipsis italic opacity-45">
+                                <span
+                                    class="lqd-fav-temp-item-desc line-clamp-4 max-w-full text-ellipsis italic opacity-45"
+                                >
                                     {{ str()->words(__($entry->description)) }}
                                 </span>
                             </div>
@@ -756,7 +792,7 @@
         </x-card>
         {{-- end: favorite templates --}}
 
-        @includeFirst(['anouncement::partials.dashboard', 'vendor.empty'])
+        @includeFirst(['announcement::partials.dashboard', 'vendor.empty'])
 
         {{-- begin: submit ticket --}}
         <x-card
@@ -766,7 +802,8 @@
         >
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col items-center gap-3">
-                    <div class="inline-grid size-36 items-center justify-center rounded-full bg-[#F9F9F9] dark:bg-foreground/5">
+                    <div
+                        class="inline-grid size-36 items-center justify-center rounded-full bg-[#F9F9F9] dark:bg-foreground/5">
                         <img
                             src="{{ asset('images/icons/submit-ticket.png') }}"
                             alt=""
@@ -793,8 +830,16 @@
 
 @push('script')
     @if ($app_is_not_demo)
-        @includeFirst(['onboarding::include.introduction', 'panel.admin.onboarding.include.introduction', 'vendor.empty'])
-        @includeFirst(['onboarding-pro::include.introduction', 'panel.admin.onboarding-pro.include.introduction', 'vendor.empty'])
+        @includeFirst([
+            'onboarding::include.introduction',
+            'panel.admin.onboarding.include.introduction',
+            'vendor.empty',
+        ])
+        @includeFirst([
+            'onboarding-pro::include.introduction',
+            'panel.admin.onboarding-pro.include.introduction',
+            'vendor.empty',
+        ])
     @endif
     @if (Route::has('dashboard.user.dash_notify_seen'))
         <script>

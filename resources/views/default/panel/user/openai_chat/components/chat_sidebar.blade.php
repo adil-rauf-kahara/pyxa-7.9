@@ -39,6 +39,21 @@
                 @include('panel.user.openai_chat.components.chat_sidebar_list', ['website_url' => $website_url ?? null])
             @endif
         </div>
+
+        <div class="p-3 shadow md:hidden">
+            <x-button
+                class="lqd-chat-clear-all group w-full shrink-0"
+                variant="danger"
+                href="javascript:void(0);"
+                onclick="{!! $disable_actions
+                    ? 'return toastr.info(\'{{ __('This feature is disabled in Demo version.') }}\')'
+                    : 'return deleteAllConv(\'{{ isset($category) ? $category->id : 0 }}\')' !!}"
+            >
+                <x-tabler-trash class="size-5" />
+                {{ __('Clear All') }}
+            </x-button>
+        </div>
+
         <div class="chats-new mt-auto flex gap-2 px-6 py-8 max-md:hidden">
             @if (view()->hasSection('chat_sidebar_actions'))
                 @yield('chat_sidebar_actions')

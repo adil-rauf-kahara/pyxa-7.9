@@ -91,6 +91,36 @@
 							</div>
 						</div>
                 </div>
+
+				<x-form-step
+					class="mb-4 mt-5"
+					step="3"
+					label="{{ __('Plans Settings') }}"
+				>
+					<x-badge
+						class="ms-2 text-2xs"
+						variant="secondary"
+					>
+						@lang('New')
+					</x-badge>
+				</x-form-step>
+				<div class="row">
+					<div class="col-md-12">
+						<div class="mb-3">
+							<label class="form-label">{{ __('Soft Plan Cancellation') }}</label>
+							<x-forms.input
+								id="soft_plan_cancellation"
+								name="soft_plan_cancellation"
+								type="checkbox"
+								switcher
+								type="checkbox"
+								:checked="(bool) setting('soft_plan_cancellation', false)"
+								label="{{ __('Enable') }}"
+								tooltip="{{ __('When this option is enabled, the plan will be soft cancelled and the user will be able to use features and credits until the end of the billing cycle. When disabled, the plan will be hard cancelled and the user will lose access to all features and credits immediately.') }}"
+							/>
+						</div>
+					</div>
+				</div>
             </div>
 
             <div class="col-md-5 mx-auto">

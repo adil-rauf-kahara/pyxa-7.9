@@ -31,6 +31,9 @@ trait CreditUpdater
      */
     public static function creditDecreaseCancelPlan(User $user, Plan $plan): void
     {
+        if ((bool) setting('soft_plan_cancellation', false)) {
+            return;
+        }
         $modelsCredit = $plan->getAttribute('ai_models');
         foreach ($modelsCredit as $modelsGroup) {
             foreach ($modelsGroup as $model => $credit) {

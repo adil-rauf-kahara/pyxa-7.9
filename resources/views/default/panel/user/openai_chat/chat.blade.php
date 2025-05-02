@@ -150,7 +150,7 @@
         <div class="lqd-chat-user-bubble mb-2 flex flex-row-reverse content-end gap-2 lg:ms-auto">
             <span
                 class="lqd-chat-avatar inline-block size-6 shrink-0 rounded-full bg-cover bg-center"
-                style="background-image: url({{ url(Auth::user()->avatar, true) }})"
+                style="background-image: url({{ url(Auth::user()->avatar) }})"
             >
                 <span class="sr-only">
                     @lang('You'):
@@ -175,7 +175,7 @@
     </template>
 
     <template id="chat_ai_bubble">
-        <div class="lqd-chat-ai-bubble group mb-2 flex content-start gap-2">
+        <div class="lqd-chat-ai-bubble group mb-2 flex max-w-full content-start items-start gap-2">
             <span
                 class="lqd-chat-avatar inline-block size-6 shrink-0 rounded-full bg-cover bg-center"
                 style="background-image: url('{{ !empty($chat->category->image) ? custom_theme_url($chat->category->image, true) : url(custom_theme_url('/assets/img/auth/default-avatar.png')) }}')"
@@ -185,20 +185,20 @@
                 </span>
             </span>
             <div
-                class="chat-content-container relative min-h-11 max-w-[calc(100%-64px)] rounded-3xl text-heading-foreground before:absolute before:inset-0 before:inline-block before:rounded-3xl before:bg-clay group-[&.loading]:before:animate-pulse-intense dark:text-heading-foreground dark:before:bg-white/[2%]">
-                <div class="lqd-typing relative inline-flex items-center gap-3 rounded-full px-5 py-3.5 font-medium leading-none">
-                    <div class="lqd-typing-dots flex h-5 items-center gap-1">
-                        <span class="lqd-typing-dot inline-block size-1 rounded-full bg-current opacity-40 ![animation-delay:0.2s]"></span>
-                        <span class="lqd-typing-dot inline-block size-1 rounded-full bg-current opacity-60 ![animation-delay:0.3s]"></span>
-                        <span class="lqd-typing-dot inline-block size-1 rounded-full bg-current opacity-80 ![animation-delay:0.4s]"></span>
+                class="chat-content-container relative min-h-12 min-w-12 max-w-[calc(100%-64px)] rounded-3xl text-heading-foreground before:absolute before:inset-0 before:inline-block before:rounded-3xl before:bg-clay group-[&.loading]:before:animate-pulse-intense dark:text-heading-foreground dark:before:bg-white/[2%]">
+                <div class="inline-flex min-h-11 max-w-full items-center rounded-full font-medium leading-none transition-all">
+                    <div class="lqd-typing relative inline-flex aspect-square w-12 shrink-0 items-center justify-center overflow-hidden">
+                        <div class="lqd-typing-dots flex h-5 shrink-0 items-center justify-center gap-1">
+                            <span class="lqd-typing-dot inline-block size-1 shrink-0 rounded-full bg-current opacity-40 ![animation-delay:0.2s]"></span>
+                            <span class="lqd-typing-dot inline-block size-1 shrink-0 rounded-full bg-current opacity-60 ![animation-delay:0.3s]"></span>
+                            <span class="lqd-typing-dot inline-block size-1 shrink-0 rounded-full bg-current opacity-80 ![animation-delay:0.4s]"></span>
+                        </div>
                     </div>
-                </div>
-                <div class="inline-flex max-w-full items-center rounded-full font-medium leading-none">
                     @if ($category->slug == 'ai_chat_image')
                         <div class="loader_image loader_image_bubble lqd-typing lqd-typing-loader relative"></div>
                     @endif
                     <div
-                        class="chat-content prose relative w-full max-w-none px-5 py-3.5 indent-0 font-[inherit] text-xs font-normal text-current [word-break:break-word] empty:hidden [&_*]:text-current">
+                        class="chat-content prose relative w-full max-w-none px-5 py-3.5 indent-0 font-[inherit] text-xs font-normal text-current [word-break:break-word] empty:hidden">
                     </div>
                     <div
                         class="lqd-clipboard-copy-wrap group/copy-wrap pointer-events-auto invisible absolute -end-5 bottom-0 opacity-0 transition-all group-hover:!visible group-hover:!opacity-100">

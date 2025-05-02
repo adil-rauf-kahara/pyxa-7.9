@@ -17,20 +17,6 @@
 	}
 }
 
-.lqd-chat-ai-bubble {
-
-	.lqd-typing {
-		min-height: inherit;
-	}
-
-	&:not(.loading) {
-
-		.lqd-typing {
-			display: none !important;
-		}
-	}
-}
-
 .lqd-typing-dot {
 	animation: typingAnimation 0.5s infinite alternate backwards cubic-bezier(.9, 0, .95, .84);
 }

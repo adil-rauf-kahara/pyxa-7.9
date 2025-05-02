@@ -7,6 +7,24 @@
 	--sidebar-w: 73px;
 	--header-h: 80px;
 
+	&,
+	.lqd-page-wrapper,
+	.lqd-page-content-container {
+		padding: 0 !important;
+	}
+
+
+	.lqd-page,
+	.lqd-page-wrapper,
+	.lqd-page-content-wrap {
+		border-radius: 0 !important;
+	}
+
+	.conversation-area-wrap,
+	.chats-sidebar-wrap .chats-list-container {
+		@apply bg-transparent rounded-none shadow-none;
+	}
+
 	.lqd-announcement,
 	.lqd-navbar-expander,
 	.lqd-navbar,
@@ -98,7 +116,7 @@
 		}
 
 		.chats-list-container {
-			@apply lg:overflow-visible lg:grow lg:h-auto lg:border-none lg:bg-transparent lg:px-7 lg:py-6;
+			@apply lg:overflow-visible lg:grow lg:h-auto lg:border-none lg:bg-transparent lg:px-7 lg:py-6 lg:row-span-full;
 		}
 
 		.chat-list-item {
@@ -209,7 +227,7 @@
 		}
 
 		.lqd-dropdown-dropdown-content {
-			@apply rounded-none bg-background shadow-none lg:ps-[--sidebar-w] h-full;
+			@apply rounded-none bg-background shadow-none lg:ps-[--sidebar-w] lg:h-full;
 
 			>div {
 
@@ -252,6 +270,10 @@
 	.lqd-chat-ai-bubble,
 	.lqd-chat-user-bubble {
 		@apply relative w-full flex-col rounded-lg p-6 before:pointer-events-none before:absolute before:end-full before:top-0 before:z-0 before:h-full before:w-10 md:px-6 md:py-5 lg:mb-6;
+
+		.chat-content-container {
+			@apply text-heading-foreground;
+		}
 
 		&:hover {
 			@apply before:pointer-events-auto;
@@ -308,7 +330,7 @@
 	}
 
 	.lqd-clipboard-copy-wrap {
-		@apply max-lg:start-auto max-lg:-end-1 lg:end-auto lg:bottom-auto lg:-start-11 lg:top-0;
+		@apply max-lg:start-auto max-lg:-end-1 lg:z-2 lg:end-auto lg:bottom-auto lg:-start-11 lg:top-0;
 
 		button {
 			@apply lg:text-heading-foreground lg:size-[34px] lg:bg-transparent lg:border lg:border-solid lg:shadow-none lg:hover:bg-surface-background lg:hover:text-heading-foreground lg:hover:border-surface-background lg:hover:shadow-none;

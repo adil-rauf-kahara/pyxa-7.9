@@ -28,6 +28,7 @@ use App\Domains\Engine\Drivers\SerperEngineDriver;
 use App\Domains\Engine\Drivers\SpeechifyEngineDriver;
 use App\Domains\Engine\Drivers\StableDiffusionEngineDriver;
 use App\Domains\Engine\Drivers\SynthesiaEngineDriver;
+use App\Domains\Engine\Drivers\TogetherEngineDriver;
 use App\Domains\Engine\Drivers\UnsplashEngineDriver;
 use App\Domains\Engine\Drivers\XAIEngineDriver;
 use App\Domains\Entity\Enums\EntityEnum;
@@ -98,9 +99,12 @@ enum EngineEnum: string implements Contracts\WithStringBackedEnum
 
     case OPEN_ROUTER = 'open_router';
 
+    case TOGETHER = 'together';
+
     public function label(): string
     {
         return match ($this) {
+            self::TOGETHER               => __('Together'),
             self::OPEN_AI                => __('OpenAI'),
             self::DEEP_SEEK              => __('Deepseek'),
             self::STABLE_DIFFUSION       => __('Stable Diffusion'),
@@ -159,6 +163,7 @@ enum EngineEnum: string implements Contracts\WithStringBackedEnum
             self::X_AI             => XAIEngineDriver::class,
             self::AI_ML_MINIMAX    => AiMlMinimaxAIEngineDriver::class,
             self::OPEN_ROUTER      => OpenRouterEngineDriver::class,
+            self::TOGETHER         => TogetherEngineDriver::class,
         };
     }
 
@@ -241,6 +246,7 @@ enum EngineEnum: string implements Contracts\WithStringBackedEnum
                 EntityEnum::GROK_2_1212,
                 EntityEnum::GROK_2_VISION_1212,
             ],
+
             self::AI_ML_MINIMAX     => [EntityEnum::MUSIC_01],
             self::UNSPLASH          => [EntityEnum::UNSPLASH],
             self::PEXELS            => [EntityEnum::PEXELS],
@@ -257,6 +263,7 @@ enum EngineEnum: string implements Contracts\WithStringBackedEnum
             self::SYNTHESIA         => [EntityEnum::SYNTHESIA],
             self::HEYGEN            => [EntityEnum::HEYGEN],
             self::PEBBLELY          => [EntityEnum::PEBBLELY],
+            self::TOGETHER          => [EntityEnum::BLACK_FOREST_LABS_FLUX_1_SCHNELL],
             default                 => throw new Exception('No default model found for engine ' . $this->value),
         };
     }

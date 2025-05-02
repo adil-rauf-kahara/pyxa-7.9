@@ -16,6 +16,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+function formatSmallNumber($value, $decimals = 10)
+{
+    return rtrim(rtrim(sprintf("%.{$decimals}f", $value), '0'), '.');
+}
+
 function getImageUrlByOrderId($orderId)
 {
     $paymentProof = PaymentProof::where('order_id', $orderId)->first();

@@ -234,6 +234,7 @@ class AIArticleWizardController extends Controller
     {
         try {
             $defaultModel = $this->getDefaultOpenAiWordModel();
+
             $driver = Entity::driver($defaultModel);
             $driver->redirectIfNoCreditBalance();
 
@@ -249,7 +250,8 @@ class AIArticleWizardController extends Controller
                 ]],
             ]);
             $responsedText = $completion['choices'][0]['message']['content'];
-            $driver->input($responsedText)
+            $driver
+                ->input($responsedText)
                 ->calculateCredit()
                 ->decreaseCredit();
             Usage::getSingle()->updateWordCounts($driver->calculate());
@@ -298,40 +300,64 @@ class AIArticleWizardController extends Controller
     // | not rec
     public function generateArticle(Request $request)
     {
-        try {
-            $wizard = ArticleWizard::find($request->id);
-            $title = $wizard->title;
-            $keywords = $wizard->keywords;
-            $outlines = json_decode($wizard->outline, true);
-            $length = $request->length;
-            session_start();
-            header('Content-type: text/event-stream');
-            header('Cache-Control: no-cache');
-            $chatBot = $this->getDefaultOpenAiWordModel();
-            Entity::driver($chatBot)
-                ->redirectIfNoCreditBalance();
-            $result = OpenAI::chat()->createStreamed([
-                'model'    => $chatBot?->value,
-                'messages' => [[
-                    'role'    => 'user',
-                    'content' => "Write Article(Maximum  $length words). in $wizard-> language. Generate article (Must not contain title, Must Mark outline with <h3> tag) about $title with following outline " . implode(',', $outlines) . 'Must mark outline with <h3> tag.  Must not write ```json',
-                ]],
-                'stream' => true,
-            ]);
+        $chatBot = $this->getDefaultOpenAiWordModel();
+        $driver = Entity::driver($chatBot);
 
-            foreach ($result as $response) {
+        return response()->stream(function () use ($request, $chatBot, $driver) {
+            try {
+                if (! $driver->hasCreditBalance()) {
+                    echo PHP_EOL;
+                    echo "event: data\n";
+                    echo 'data: ' . json_encode(['message' => __('You have no credits left. Please buy more credits to continue.')]);
+                    echo "\n\n";
+                    flush();
+                    echo "event: stop\n";
+                    echo 'data: [DONE]';
+                    echo "\n\n";
+                    flush();
+
+                    return null;
+                }
+
+                $wizard = ArticleWizard::find($request->id);
+                $title = $wizard->title;
+                // $keywords = $wizard->keywords;
+                $outlines = json_decode($wizard->outline, true);
+                $length = $request->length;
+                $result = OpenAI::chat()->createStreamed([
+                    'model'    => $chatBot?->value,
+                    'messages' => [[
+                        'role'    => 'user',
+                        'content' => "Write Article(Maximum  $length words). in $wizard-> language. Generate article (Must not contain title, Must Mark outline with <h3> tag) about $title with following outline " . implode(',', $outlines) . 'Must mark outline with <h3> tag.  Must not write ```json',
+                    ]],
+                    'stream' => true,
+                ]);
+                foreach ($result as $response) {
+                    if (isset($response->choices[0]->delta->content)) {
+                        $text = $response->choices[0]->delta->content;
+                        $messageFix = str_replace(["\r\n", "\r", "\n"], '<br/>', $text);
+                        if (connection_aborted()) {
+                            break;
+                        }
+                        echo PHP_EOL;
+                        echo "event: data\n";
+                        echo 'data: ' . json_encode(['message' => $response->choices[0]->delta->content]);
+                        echo "\n\n";
+                        flush();
+                    }
+                }
+            } catch (Exception $e) {
                 echo "event: data\n";
-                echo 'data: ' . json_encode(['message' => $response->choices[0]->delta->content]) . "\n\n";
+                echo 'data: ' . json_encode(['message' => $e->getMessage()]) . "\n\n";
                 flush();
             }
-
             echo "event: stop\n";
             echo "data: stopped\n\n";
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], 500);
-        }
+        }, 200, [
+            'Cache-Control'     => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+            'Content-Type'      => 'text/event-stream',
+        ]);
     }
 
     // | not rec

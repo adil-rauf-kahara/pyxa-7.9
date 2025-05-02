@@ -17,6 +17,8 @@ enum FrequencyEnum: string implements WithStringBackedEnum
     case YEARLY = 'yearly';
     case LIFETIME_MONTHLY = 'lifetime_monthly';
     case LIFETIME_YEARLY = 'lifetime_yearly';
+    case LIFETIME = 'lifetime';
+    case PREPAID = 'prepaid';
 
     public function label(): string
     {
@@ -24,7 +26,9 @@ enum FrequencyEnum: string implements WithStringBackedEnum
             self::MONTHLY          => __('Monthly'),
             self::YEARLY           => __('Yearly'),
             self::LIFETIME_MONTHLY => __('Lifetime - Monthly Renewal'),
-            self::LIFETIME_YEARLY  => __('Lifetime - Yearly Renewal')
+            self::LIFETIME_YEARLY  => __('Lifetime - Yearly Renewal'),
+            self::LIFETIME         => __('Lifetime'),
+            self::PREPAID          => __('Prepaid'),
         };
     }
 
@@ -35,6 +39,8 @@ enum FrequencyEnum: string implements WithStringBackedEnum
             self::YEARLY           => '#8185F44D',
             self::LIFETIME_MONTHLY => '#74DB84',
             self::LIFETIME_YEARLY  => '#42f5b0',
+            self::LIFETIME         => '#C5D6F5',
+            self::PREPAID          => '#60CAF94D',
         };
     }
 }

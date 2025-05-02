@@ -87,6 +87,7 @@ class AiToolsController extends Controller
                 'ai_chat_layout'                  => $request->get('ai_chat_layout'),
                 'ai_automation'                   => $request->has('ai_automation') ? 1 : 0,
                 'photo_studio'                    => $request->has('photo_studio') ? 1 : 0,
+                'ai_realtime_image'               => $request->has('ai_realtime_image') ? 1 : 0,
             ]
         )->save();
 

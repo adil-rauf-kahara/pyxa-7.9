@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "8c02f45c7873c39167877a31c2cd2343",
+	"content-hash": "63bd8cded30db0cadd790555ff2dd481",
 	"packages": [
 		{
 			"name": "ably/ably-php",
@@ -244,16 +244,16 @@
 		},
 		{
 			"name": "aws/aws-sdk-php",
-			"version": "3.342.28",
+			"version": "3.342.36",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/aws/aws-sdk-php.git",
-				"reference": "16cec140483869b3d244a5995b55d5365465dc58"
+				"reference": "9a0ec6b6d503409ae15e090467d3bd6d723b6c6a"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/16cec140483869b3d244a5995b55d5365465dc58",
-				"reference": "16cec140483869b3d244a5995b55d5365465dc58",
+				"url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/9a0ec6b6d503409ae15e090467d3bd6d723b6c6a",
+				"reference": "9a0ec6b6d503409ae15e090467d3bd6d723b6c6a",
 				"shasum": ""
 			},
 			"require": {
@@ -335,9 +335,9 @@
 			"support": {
 				"forum": "https://github.com/aws/aws-sdk-php/discussions",
 				"issues": "https://github.com/aws/aws-sdk-php/issues",
-				"source": "https://github.com/aws/aws-sdk-php/tree/3.342.28"
+				"source": "https://github.com/aws/aws-sdk-php/tree/3.342.36"
 			},
-			"time": "2025-04-16T18:13:32+00:00"
+			"time": "2025-04-28T18:01:39+00:00"
 		},
 		{
 			"name": "bacon/bacon-qr-code",
@@ -475,12 +475,12 @@
 			"version": "1.8.0",
 			"source": {
 				"type": "git",
-				"url": "https://github.com/blade-ui-kit/blade-icons.git",
+				"url": "https://github.com/driesvints/blade-icons.git",
 				"reference": "7b743f27476acb2ed04cb518213d78abe096e814"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/blade-ui-kit/blade-icons/zipball/7b743f27476acb2ed04cb518213d78abe096e814",
+				"url": "https://api.github.com/repos/driesvints/blade-icons/zipball/7b743f27476acb2ed04cb518213d78abe096e814",
 				"reference": "7b743f27476acb2ed04cb518213d78abe096e814",
 				"shasum": ""
 			},
@@ -2956,16 +2956,16 @@
 		},
 		{
 			"name": "google/cloud-text-to-speech",
-			"version": "v2.1.0",
+			"version": "v2.1.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/googleapis/google-cloud-php-text-to-speech.git",
-				"reference": "51637ed9e72d09565b304c519f8378a4abc7c2f2"
+				"reference": "3fb6d94ceb769fbe1c617c422da22f3afe292965"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/googleapis/google-cloud-php-text-to-speech/zipball/51637ed9e72d09565b304c519f8378a4abc7c2f2",
-				"reference": "51637ed9e72d09565b304c519f8378a4abc7c2f2",
+				"url": "https://api.github.com/repos/googleapis/google-cloud-php-text-to-speech/zipball/3fb6d94ceb769fbe1c617c422da22f3afe292965",
+				"reference": "3fb6d94ceb769fbe1c617c422da22f3afe292965",
 				"shasum": ""
 			},
 			"require": {
@@ -3001,22 +3001,22 @@
 			],
 			"description": "Cloud Text-to-Speech Client for PHP",
 			"support": {
-				"source": "https://github.com/googleapis/google-cloud-php-text-to-speech/tree/v2.1.0"
+				"source": "https://github.com/googleapis/google-cloud-php-text-to-speech/tree/v2.1.1"
 			},
-			"time": "2025-04-04T22:37:26+00:00"
+			"time": "2025-04-18T20:49:28+00:00"
 		},
 		{
 			"name": "google/common-protos",
-			"version": "4.11.0",
+			"version": "4.12.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/googleapis/common-protos-php.git",
-				"reference": "2554ed1f09aa20faae7b71b590e7063df97ff670"
+				"reference": "96f6873c65fb0289fcdb6ac3d5239f9c9e5750b0"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/googleapis/common-protos-php/zipball/2554ed1f09aa20faae7b71b590e7063df97ff670",
-				"reference": "2554ed1f09aa20faae7b71b590e7063df97ff670",
+				"url": "https://api.github.com/repos/googleapis/common-protos-php/zipball/96f6873c65fb0289fcdb6ac3d5239f9c9e5750b0",
+				"reference": "96f6873c65fb0289fcdb6ac3d5239f9c9e5750b0",
 				"shasum": ""
 			},
 			"require": {
@@ -3060,9 +3060,9 @@
 				"google"
 			],
 			"support": {
-				"source": "https://github.com/googleapis/common-protos-php/tree/v4.11.0"
+				"source": "https://github.com/googleapis/common-protos-php/tree/v4.12.0"
 			},
-			"time": "2025-02-18T19:46:55+00:00"
+			"time": "2025-04-18T20:49:28+00:00"
 		},
 		{
 			"name": "google/gax",
@@ -3832,16 +3832,16 @@
 		},
 		{
 			"name": "hubspot/api-client",
-			"version": "12.1.0",
+			"version": "12.2.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/HubSpot/hubspot-api-php.git",
-				"reference": "acb722b13d2a890deca85f8df3d3b8a43876aad7"
+				"reference": "28d8dfc4615241196bb10e725bee49c51bd870cd"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/HubSpot/hubspot-api-php/zipball/acb722b13d2a890deca85f8df3d3b8a43876aad7",
-				"reference": "acb722b13d2a890deca85f8df3d3b8a43876aad7",
+				"url": "https://api.github.com/repos/HubSpot/hubspot-api-php/zipball/28d8dfc4615241196bb10e725bee49c51bd870cd",
+				"reference": "28d8dfc4615241196bb10e725bee49c51bd870cd",
 				"shasum": ""
 			},
 			"require": {
@@ -3886,9 +3886,9 @@
 			],
 			"support": {
 				"issues": "https://github.com/HubSpot/hubspot-api-php/issues",
-				"source": "https://github.com/HubSpot/hubspot-api-php/tree/12.1.0"
+				"source": "https://github.com/HubSpot/hubspot-api-php/tree/12.2.0"
 			},
-			"time": "2025-04-08T14:31:18+00:00"
+			"time": "2025-04-28T09:18:21+00:00"
 		},
 		{
 			"name": "igaster/laravel-theme",
@@ -4948,16 +4948,16 @@
 		},
 		{
 			"name": "laravel/socialite",
-			"version": "v5.19.0",
+			"version": "v5.20.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/laravel/socialite.git",
-				"reference": "c40f843c5643fb6b089e46ce9794b8408bf08319"
+				"reference": "30972c12a41f71abeb418bc9ff157da8d9231519"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/laravel/socialite/zipball/c40f843c5643fb6b089e46ce9794b8408bf08319",
-				"reference": "c40f843c5643fb6b089e46ce9794b8408bf08319",
+				"url": "https://api.github.com/repos/laravel/socialite/zipball/30972c12a41f71abeb418bc9ff157da8d9231519",
+				"reference": "30972c12a41f71abeb418bc9ff157da8d9231519",
 				"shasum": ""
 			},
 			"require": {
@@ -5016,7 +5016,7 @@
 				"issues": "https://github.com/laravel/socialite/issues",
 				"source": "https://github.com/laravel/socialite"
 			},
-			"time": "2025-03-27T17:26:42+00:00"
+			"time": "2025-04-21T14:21:34+00:00"
 		},
 		{
 			"name": "laravel/tinker",
@@ -5223,16 +5223,16 @@
 		},
 		{
 			"name": "league/commonmark",
-			"version": "2.6.1",
+			"version": "2.6.2",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/thephpleague/commonmark.git",
-				"reference": "d990688c91cedfb69753ffc2512727ec646df2ad"
+				"reference": "06c3b0bf2540338094575612f4a1778d0d2d5e94"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/thephpleague/commonmark/zipball/d990688c91cedfb69753ffc2512727ec646df2ad",
-				"reference": "d990688c91cedfb69753ffc2512727ec646df2ad",
+				"url": "https://api.github.com/repos/thephpleague/commonmark/zipball/06c3b0bf2540338094575612f4a1778d0d2d5e94",
+				"reference": "06c3b0bf2540338094575612f4a1778d0d2d5e94",
 				"shasum": ""
 			},
 			"require": {
@@ -5326,7 +5326,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2024-12-29T14:10:59+00:00"
+			"time": "2025-04-18T21:09:27+00:00"
 		},
 		{
 			"name": "league/config",
@@ -11179,16 +11179,16 @@
 		},
 		{
 			"name": "spatie/browsershot",
-			"version": "5.0.8",
+			"version": "5.0.9",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/spatie/browsershot.git",
-				"reference": "0102971ae974022ec4a7a149e8924ea355b52cc3"
+				"reference": "667b40b2a283486a7a1fc9208221e0d0471ac3e6"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/spatie/browsershot/zipball/0102971ae974022ec4a7a149e8924ea355b52cc3",
-				"reference": "0102971ae974022ec4a7a149e8924ea355b52cc3",
+				"url": "https://api.github.com/repos/spatie/browsershot/zipball/667b40b2a283486a7a1fc9208221e0d0471ac3e6",
+				"reference": "667b40b2a283486a7a1fc9208221e0d0471ac3e6",
 				"shasum": ""
 			},
 			"require": {
@@ -11235,7 +11235,7 @@
 				"webpage"
 			],
 			"support": {
-				"source": "https://github.com/spatie/browsershot/tree/5.0.8"
+				"source": "https://github.com/spatie/browsershot/tree/5.0.9"
 			},
 			"funding": [
 				{
@@ -11243,7 +11243,7 @@
 					"type": "github"
 				}
 			],
-			"time": "2025-02-17T09:56:12+00:00"
+			"time": "2025-04-28T08:54:51+00:00"
 		},
 		{
 			"name": "spatie/crawler",
@@ -15445,6 +15445,59 @@
 			"time": "2024-12-21T16:25:41+00:00"
 		},
 		{
+			"name": "twilio/sdk",
+			"version": "8.5.0",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/twilio/twilio-php.git",
+				"reference": "a68a13ed8ddc720d5adb580cbc22b4fd80dc6b38"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/twilio/twilio-php/zipball/a68a13ed8ddc720d5adb580cbc22b4fd80dc6b38",
+				"reference": "a68a13ed8ddc720d5adb580cbc22b4fd80dc6b38",
+				"shasum": ""
+			},
+			"require": {
+				"php": ">=7.1.0"
+			},
+			"require-dev": {
+				"guzzlehttp/guzzle": "^6.3 || ^7.0",
+				"phpunit/phpunit": ">=7.0 < 10"
+			},
+			"suggest": {
+				"guzzlehttp/guzzle": "An HTTP client to execute the API requests"
+			},
+			"type": "library",
+			"autoload": {
+				"psr-4": {
+					"Twilio\\": "src/Twilio/"
+				}
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"MIT"
+			],
+			"authors": [
+				{
+					"name": "Twilio API Team",
+					"email": "api@twilio.com"
+				}
+			],
+			"description": "A PHP wrapper for Twilio's API",
+			"homepage": "https://github.com/twilio/twilio-php",
+			"keywords": [
+				"api",
+				"sms",
+				"twilio"
+			],
+			"support": {
+				"issues": "https://github.com/twilio/twilio-php/issues",
+				"source": "https://github.com/twilio/twilio-php/tree/8.5.0"
+			},
+			"time": "2025-04-07T15:34:07+00:00"
+		},
+		{
 			"name": "vlucas/phpdotenv",
 			"version": "v5.6.1",
 			"source": {
@@ -16531,16 +16584,16 @@
 		},
 		{
 			"name": "laravel/sail",
-			"version": "v1.41.0",
+			"version": "v1.41.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/laravel/sail.git",
-				"reference": "fe1a4ada0abb5e4bd99eb4e4b0d87906c00cdeec"
+				"reference": "e5692510f1ef8e0f5096cde2b885d558f8d86592"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/laravel/sail/zipball/fe1a4ada0abb5e4bd99eb4e4b0d87906c00cdeec",
-				"reference": "fe1a4ada0abb5e4bd99eb4e4b0d87906c00cdeec",
+				"url": "https://api.github.com/repos/laravel/sail/zipball/e5692510f1ef8e0f5096cde2b885d558f8d86592",
+				"reference": "e5692510f1ef8e0f5096cde2b885d558f8d86592",
 				"shasum": ""
 			},
 			"require": {
@@ -16590,7 +16643,7 @@
 				"issues": "https://github.com/laravel/sail/issues",
 				"source": "https://github.com/laravel/sail"
 			},
-			"time": "2025-01-24T15:45:36+00:00"
+			"time": "2025-04-22T13:39:39+00:00"
 		},
 		{
 			"name": "laravel/telescope",
@@ -17469,16 +17522,16 @@
 		},
 		{
 			"name": "php-di/php-di",
-			"version": "7.0.9",
+			"version": "7.0.10",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/PHP-DI/PHP-DI.git",
-				"reference": "d8480267f5cf239650debba704f3ecd15b638cde"
+				"reference": "0d1ed64126577e9a095b3204dcaee58cf76432c2"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/PHP-DI/PHP-DI/zipball/d8480267f5cf239650debba704f3ecd15b638cde",
-				"reference": "d8480267f5cf239650debba704f3ecd15b638cde",
+				"url": "https://api.github.com/repos/PHP-DI/PHP-DI/zipball/0d1ed64126577e9a095b3204dcaee58cf76432c2",
+				"reference": "0d1ed64126577e9a095b3204dcaee58cf76432c2",
 				"shasum": ""
 			},
 			"require": {
@@ -17494,7 +17547,7 @@
 				"friendsofphp/php-cs-fixer": "^3",
 				"friendsofphp/proxy-manager-lts": "^1",
 				"mnapoli/phpunit-easymock": "^1.3",
-				"phpunit/phpunit": "^9.6",
+				"phpunit/phpunit": "^9.6 || ^10 || ^11",
 				"vimeo/psalm": "^5|^6"
 			},
 			"suggest": {
@@ -17526,7 +17579,7 @@
 			],
 			"support": {
 				"issues": "https://github.com/PHP-DI/PHP-DI/issues",
-				"source": "https://github.com/PHP-DI/PHP-DI/tree/7.0.9"
+				"source": "https://github.com/PHP-DI/PHP-DI/tree/7.0.10"
 			},
 			"funding": [
 				{
@@ -17538,7 +17591,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-02-28T12:46:35+00:00"
+			"time": "2025-04-22T08:53:15+00:00"
 		},
 		{
 			"name": "phpdocumentor/reflection-common",
@@ -19164,16 +19217,16 @@
 		},
 		{
 			"name": "spatie/backtrace",
-			"version": "1.7.1",
+			"version": "1.7.2",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/spatie/backtrace.git",
-				"reference": "0f2477c520e3729de58e061b8192f161c99f770b"
+				"reference": "9807de6b8fecfaa5b3d10650985f0348b02862b2"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/spatie/backtrace/zipball/0f2477c520e3729de58e061b8192f161c99f770b",
-				"reference": "0f2477c520e3729de58e061b8192f161c99f770b",
+				"url": "https://api.github.com/repos/spatie/backtrace/zipball/9807de6b8fecfaa5b3d10650985f0348b02862b2",
+				"reference": "9807de6b8fecfaa5b3d10650985f0348b02862b2",
 				"shasum": ""
 			},
 			"require": {
@@ -19211,7 +19264,7 @@
 				"spatie"
 			],
 			"support": {
-				"source": "https://github.com/spatie/backtrace/tree/1.7.1"
+				"source": "https://github.com/spatie/backtrace/tree/1.7.2"
 			},
 			"funding": [
 				{
@@ -19223,7 +19276,7 @@
 					"type": "other"
 				}
 			],
-			"time": "2024-12-02T13:28:15+00:00"
+			"time": "2025-04-28T14:55:53+00:00"
 		},
 		{
 			"name": "spatie/error-solutions",
@@ -19682,16 +19735,16 @@
 		},
 		{
 			"name": "spatie/ray",
-			"version": "1.41.6",
+			"version": "1.42.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/spatie/ray.git",
-				"reference": "ae6e32a54a901544a3d70b12b865900bc240f71c"
+				"reference": "152250ce7c490bf830349fa30ba5200084e95860"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/spatie/ray/zipball/ae6e32a54a901544a3d70b12b865900bc240f71c",
-				"reference": "ae6e32a54a901544a3d70b12b865900bc240f71c",
+				"url": "https://api.github.com/repos/spatie/ray/zipball/152250ce7c490bf830349fa30ba5200084e95860",
+				"reference": "152250ce7c490bf830349fa30ba5200084e95860",
 				"shasum": ""
 			},
 			"require": {
@@ -19751,7 +19804,7 @@
 			],
 			"support": {
 				"issues": "https://github.com/spatie/ray/issues",
-				"source": "https://github.com/spatie/ray/tree/1.41.6"
+				"source": "https://github.com/spatie/ray/tree/1.42.0"
 			},
 			"funding": [
 				{
@@ -19763,7 +19816,7 @@
 					"type": "other"
 				}
 			],
-			"time": "2025-03-21T08:56:30+00:00"
+			"time": "2025-04-18T08:17:40+00:00"
 		},
 		{
 			"name": "symfony/polyfill-iconv",
@@ -19909,23 +19962,23 @@
 		},
 		{
 			"name": "ta-tikoma/phpunit-architecture-test",
-			"version": "0.8.4",
+			"version": "0.8.5",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/ta-tikoma/phpunit-architecture-test.git",
-				"reference": "89f0dea1cb0f0d5744d3ec1764a286af5e006636"
+				"reference": "cf6fb197b676ba716837c886baca842e4db29005"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/ta-tikoma/phpunit-architecture-test/zipball/89f0dea1cb0f0d5744d3ec1764a286af5e006636",
-				"reference": "89f0dea1cb0f0d5744d3ec1764a286af5e006636",
+				"url": "https://api.github.com/repos/ta-tikoma/phpunit-architecture-test/zipball/cf6fb197b676ba716837c886baca842e4db29005",
+				"reference": "cf6fb197b676ba716837c886baca842e4db29005",
 				"shasum": ""
 			},
 			"require": {
 				"nikic/php-parser": "^4.18.0 || ^5.0.0",
 				"php": "^8.1.0",
 				"phpdocumentor/reflection-docblock": "^5.3.0",
-				"phpunit/phpunit": "^10.5.5  || ^11.0.0",
+				"phpunit/phpunit": "^10.5.5  || ^11.0.0 || ^12.0.0",
 				"symfony/finder": "^6.4.0 || ^7.0.0"
 			},
 			"require-dev": {
@@ -19962,9 +20015,9 @@
 			],
 			"support": {
 				"issues": "https://github.com/ta-tikoma/phpunit-architecture-test/issues",
-				"source": "https://github.com/ta-tikoma/phpunit-architecture-test/tree/0.8.4"
+				"source": "https://github.com/ta-tikoma/phpunit-architecture-test/tree/0.8.5"
 			},
-			"time": "2024-01-05T14:10:56+00:00"
+			"time": "2025-04-20T20:23:40+00:00"
 		},
 		{
 			"name": "theseer/tokenizer",

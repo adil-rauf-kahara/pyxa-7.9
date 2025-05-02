@@ -126,7 +126,7 @@
                                             'bg-green-600' => false, // Free themes
                                             'bg-purple-700' => true, // Premium themes
                                         ])></span>
-                                        @lang('Premium Theme')
+                                        @lang(data_get($theme, 'extension') ? 'Premium Extension' :'Premium Theme')
                                     @else
                                         <span @class([
                                             'size-2 inline-block rounded-full',
@@ -140,7 +140,11 @@
 
                             <a
                                 class="absolute inset-0 opacity-0"
-                                href="https://{{ $theme['slug'] == 'default' ? 'magicai.liquid-themes.com' : $theme['slug'] . '.projecthub.ai' }}"
+								@if(isset($theme['slug']) && $theme['slug'] === 'aichatpro')
+									href="https://aichatpro.magicproject.ai/"
+								@else
+									href="https://{{ $theme['slug'] == 'default' ? 'magicai.liquid-themes.com' : $theme['slug'] . '.projecthub.ai' }}"
+								@endif
                                 target="_blank"
                             ></a>
                         </div>

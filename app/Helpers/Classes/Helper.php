@@ -240,7 +240,7 @@ class Helper
 
     public static function appIsDemoForChatbot(): bool
     {
-        return self::appIsDemo() && in_array(request()->getHost(), ['magicai.test', 'magicai.liquid-themes.com']);
+        return self::appIsDemo() && in_array(request()->getHost(), ['magicai.test', 'magicai.liquid-themes.com', 'demo.magicproject.ai']);
     }
 
     public static function appIsDemo(): bool
